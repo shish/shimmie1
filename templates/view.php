@@ -20,8 +20,11 @@ echo <<<EOD
 		$comments
 		<form action="comment.php" method="POST">
 			<input type="hidden" name="image_id" value="$image_id">
-			<input type="text" name="comment" style="color: #999;"
-				value="Write here; hit enter" onfocus="cleargray(this)">
+			<input id="commentBox" type="text" name="comment"
+				value="Comment"
+				onFocus="cleargray(this, 'Comment')"
+				onBlur="setgray(this, 'Comment')"
+				>
 			<input type="submit" value="Say" style="display: none;">
 		</form>
 	</div>

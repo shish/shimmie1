@@ -1,6 +1,37 @@
-function cleargray(box) {
-	box.style.color = "black";
-	box.value = "";
+window.onload = function(e) {
+	var sections=get_sections();
+	for(var i=0;i<sections.length;i++) toggle(sections[i]);
+
+	e = document.getElementById("searchBox");
+	if(e) initGray(e, "Search");
+	e = document.getElementById("commentBox");
+	if(e) initGray(e, "Comment");
+}
+
+function initGray(box, text) {
+	if(box.value == text) {
+		box.style.color = "#999";
+		box.style.textAlign = "center";
+	}
+	else {
+		box.style.color = "#000";
+		box.style.textAlign = "left";
+	}
+}
+
+function cleargray(box, text) {
+	if(box.value == text) {
+		box.value = "";
+		box.style.color = "#000";
+		box.style.textAlign = "left";
+	}
+}
+function setgray(box, text) {
+	if(box.value == "") {
+		box.style.textAlign = "center";
+		box.style.color = "gray";
+		box.value = text;
+	}
 }
 
 function toggleLogin(checkbox, button) {
@@ -17,6 +48,17 @@ function scale(img) {
 	else img.style.width = null;
 }
 
+function showUp(elem) {
+	e = document.getElementById(elem)
+	if(!e) return;
+	e.style.display = "";
+//	alert(e.type+": "+e.value);
+	if(e.value.match(/^http|^ftp/)) {
+		e.type = "text";
+		alert("Box is web upload");
+	}
+}
+
 
 
 /*
@@ -25,12 +67,6 @@ function scale(img) {
 
 var cookie_name="sidebarsections";
 var default_sections=[];
-
-window.onload=function(e)
-{
-	var sections=get_sections();
-	for(var i=0;i<sections.length;i++) toggle(sections[i]);
-}
 
 function toggle(id) 
 {
@@ -97,10 +133,3 @@ function set_cookie(name,value,days)
 	else expires="";
 	document.cookie=name+"="+value+expires+"; path=/";
 }
-
-function showUp(elem) {
-	e = document.getElementById(elem)
-	if(!e) return;
-	e.style.display = "";
-}
-

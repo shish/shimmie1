@@ -2,11 +2,7 @@
 require_once "templates/header.php";
 
 if($searchString == null) {
-	$searchString = "Search here; hit enter";
-	$colour = "#999";
-}
-else {
-	$colour = "black";
+	$searchString = "Search";
 }
 
 echo <<<EOD
@@ -15,8 +11,10 @@ echo <<<EOD
 	<div id="navigate">
 		$pageNav
 		<p><form action="index.php" method="GET">
-			<input name="tags" type="text" value="$searchString"
-				style='color: $colour;' onfocus="cleargray(this)">
+			<input id="searchBox" name="tags" type="text" value="$searchString"
+				onFocus="cleargray(this, 'Search')"
+				onBlur="setgray(this, 'Search')"
+				>
 			<input type="submit" value="Find" style="display: none;">
 		</form>
 	</div>
