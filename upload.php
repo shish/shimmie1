@@ -51,8 +51,10 @@ for($dnum=0; $dnum<min($config['upload_count'], count($_FILES)); $dnum++) {
 		 * Check for an existing image
 		 */
 		$existing_result = sql_query("SELECT * FROM shm_images WHERE hash='$hash'");
-		if(sql_num_rows($existing_result) > 0) {
-			$err .= "<p>Upload of '$fname' failed -- there's already an image with hash '$hash'";
+		if($existing_row = sql_fetch_row($existing_result)) {
+			$iid = $existing_row['id'];
+			$err .= "<p>Upload of '$fname' failed:";
+			$err .= "<br>There's already an image with hash '$hash' (<a href='view.php?image_id=$iid'>view</a>)";
 			continue;
 		}
 		
