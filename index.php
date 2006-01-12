@@ -114,9 +114,15 @@ while($row = sql_fetch_row($list_result)) {
 	$hash = $row['hash'];
 	$filename = htmlentities($row['filename']);
 
+	# FIXME: Do this better
+	$tags = "";
+	$tags_result = sql_query("SELECT * FROM shm_tags WHERE image_id=$image_id");
+	while($row = sql_fetch_row($tags_result)) {$tags .= $row['tag']." ";}
+	
+
 	if($i%$width==0) $content .= "\n<tr>\n";
 	$content .= "\t<td>".
-		"<a href='view.php?image_id=$image_id'><img src='$dir_thumbs/$hash.jpg' alt='$filename'></a>".
+		"<a href='view.php?image_id=$image_id'><img src='$dir_thumbs/$hash.jpg' alt='$filename' title='$tags'></a>".
 		"</td>\n";
 	if($i%$width==$width-1) $content .= "\n</tr>\n";
 	$i++;
