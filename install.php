@@ -122,8 +122,7 @@ else if($_GET["action"] == "set") {
 		$mysql_user = $_POST['mysql_user'];
 		$mysql_pass = $_POST['mysql_pass'];
 		$mysql_db = $_POST['mysql_db'];
-//		$tp = $_POST["mysql_prefix"];
-		$tp = '';
+		$tp = $_POST["mysql_prefix"];
 
 		if($mysql_createaccount) {
 			if(!@mysql_connect($mysql_host, $mysql_user, $mysql_pass)) {
@@ -170,49 +169,7 @@ else if($_GET["action"] == "set") {
 		/*
 		 * Create the database
 		 */
-		mysql_query2("CREATE TABLE ${tp}comments (
-			id int primary key auto_increment,
-			image_id int not null,
-			owner_id int not null,
-			owner_ip char(16),
-			comment text
-		)");
-		mysql_query2("CREATE TABLE ${tp}images (
-			id int primary key auto_increment,
-			owner_id int not null,
-			owner_ip char(16),
-			filename char(32),
-			hash char(32),
-			ext char(4),
-			UNIQUE(hash)
-		)");
-		mysql_query2("CREATE TABLE ${tp}tags (
-			image_id int not null,
-			tag char(32),
-			UNIQUE(image_id, tag)
-		)");
-		mysql_query2("CREATE TABLE ${tp}users (
-			id int primary key auto_increment,
-			name char(16) not null,
-			pass char(32),
-			permissions int default 0,
-			UNIQUE(name)
-		)");
-		mysql_query2("CREATE TABLE ${tp}config (
-			name varchar(255),
-			value varchar(255),
-			UNIQUE(name)
-		)");
-
-		/*
-		 * Insert a couple of default users
-		 */
-		mysql_query2("INSERT INTO ${tp}users VALUES (
-			0, 'Anonymous', NULL, 0
-		)");
-		mysql_query2("INSERT INTO ${tp}users VALUES (
-			1, '$admin_name', md5(concat(lower('$admin_name'), '$admin_pass')), 1023
-		)");
+		 initDb(null, "mysql_query2", $tp, $admin_name, $admin_pass, "int primary key auto_increment");
 	}
 
 
@@ -231,8 +188,6 @@ else if($_GET["action"] == "set") {
 
 	/*
 	 * Setup for SQLite databases
-	 *
-	 * FIXME: Make this work
 	 */
 	else if($dba == "sqlite") {
 		$sqlite_file = $_POST["sqlite_file"];
@@ -256,50 +211,9 @@ else if($_GET["action"] == "set") {
 		/*
 		 * Create the database
 		 */
-		sqlite_query2($db, "CREATE TABLE ${tp}comments (
-			id integer primary key,
-			image_id int not null,
-			owner_id int not null,
-			owner_ip char(16),
-			comment text
-		)");
-		sqlite_query2($db, "CREATE TABLE ${tp}images (
-			id integer primary key,
-			owner_id int not null,
-			owner_ip char(16),
-			filename char(32),
-			hash char(32),
-			ext char(4),
-			UNIQUE(hash)
-		)");
-		sqlite_query2($db, "CREATE TABLE ${tp}tags (
-			image_id int not null,
-			tag char(32),
-			UNIQUE(image_id, tag)
-		)");
-		sqlite_query2($db, "CREATE TABLE ${tp}users (
-			id integer primary key,
-			name char(16) not null,
-			pass char(32),
-			permissions int default 0,
-			UNIQUE(name)
-		)");
-		sqlite_query2($db, "CREATE TABLE ${tp}config (
-			name varchar(255),
-			value varchar(255),
-			UNIQUE(name)
-		)");
-
-		/*
-		 * Insert a couple of default users
-		 */
-		sqlite_query2($db, "INSERT INTO ${tp}users VALUES (
-			0, 'Anonymous', NULL, 0
-		)");
-		sqlite_query2($db, "INSERT INTO ${tp}users VALUES (
-			1, '$admin_name', '".md5(strtolower($admin_name).$admin_pass)."', 1023
-		)");
+		initDb($db, "sqlite_query2", $tp, $admin_name, $admin_pass, "integer primary key");
 	}
+
 
 	/*
 	 * This shouldn't happen
@@ -335,9 +249,59 @@ else if($_GET["action"] == "set") {
 
 
 /*
+ * This is big, try and keep it generic rather than copy & pasting per backend
+ */
+function initDb($db, $query, $tp, $admin_name, $admin_pass, $prikey) {
+	$query($db, "CREATE TABLE ${tp}comments (
+		id $prikey,
+		image_id int not null,
+		owner_id int not null,
+		owner_ip char(16),
+		comment text
+	)");
+	$query($db, "CREATE TABLE ${tp}images (
+		id $prikey,
+		owner_id int not null,
+		owner_ip char(16),
+		filename char(32),
+		hash char(32),
+		ext char(4),
+		UNIQUE(hash)
+	)");
+	$query($db, "CREATE TABLE ${tp}tags (
+		image_id int not null,
+		tag char(32),
+		UNIQUE(image_id, tag)
+	)");
+	$query($db, "CREATE TABLE ${tp}users (
+		id $prikey,
+		name char(16) not null,
+		pass char(32),
+		permissions int default 0,
+		UNIQUE(name)
+	)");
+	$query($db, "CREATE TABLE ${tp}config (
+		name varchar(255),
+		value varchar(255),
+		UNIQUE(name)
+	)");
+
+	/*
+	 * Insert a couple of default users
+	 */
+	$query($db, "INSERT INTO ${tp}users VALUES (
+		0, 'Anonymous', NULL, 0
+	)");
+	$query($db, "INSERT INTO ${tp}users VALUES (
+		1, '$admin_name', md5(concat(lower('$admin_name'), '$admin_pass')), 1023
+	)");
+}
+
+
+/*
  * If any installation query fails, we want do die
  */
-function mysql_query2($query) {
+function mysql_query2($db, $query) {
 	if(!mysql_query($query)) {
 		$title = "Error";
 		$message = "Something failed mid-way through setting up the database... ";
@@ -346,7 +310,7 @@ function mysql_query2($query) {
 		exit;
 	}
 }
-function pgsql_query2($query) {
+function pgsql_query2($db, $query) {
 	if(!pg_query($query)) {
 		$title = "Error";
 		$message = "Something failed mid-way through setting up the database... ";
