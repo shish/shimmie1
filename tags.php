@@ -7,11 +7,9 @@
 
 require_once "header.php";
 
-/*
- * FIXME: What should we do if the user specifies a default view that we don't have?
- */
 if(is_null($_GET['mode'])) $mode = $config['tags_default'];
 else $mode = $_GET['mode'];
+
 
 
 /*
@@ -69,7 +67,8 @@ else if($mode == "alphabet") {
  * FIXME: put a threshold into the config table, as a large site
  * may want to hide tags that are used less than eg 10 times.
  */
-else if($mode == "map") {
+#else if($mode == "map") {
+else {
 	$tlist_query = "SELECT tag,COUNT(image_id) AS count FROM shm_tags GROUP BY tag ORDER BY tag";
 	$tlist_result = sql_query($tlist_query);
 	$n = 0;
@@ -81,14 +80,6 @@ else if($mode == "map") {
 			$tlist .= "<a style='font-size: ${size}em' href='index.php?tags=$tag'>$tag</a>\n";
 		}
 	}
-}
-
-
-/*
- * This is a cop-out
- */
-else {
-	$tlist = "No mode specified and no default, or default is invalid";
 }
 
 
