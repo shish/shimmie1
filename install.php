@@ -71,7 +71,7 @@ EOD;
 	$configOptions .= makeOpt("User Name", "mysql_user");
 	$configOptions .= makeOpt("Password", "mysql_pass");
 	$configOptions .= makeOpt("Database", "mysql_db");
-//	$configOptions .= makeOpt("Table Prefix", "mysql_prefix");
+	$configOptions .= makeOpt("Table Prefix", "mysql_prefix");
 	$configOptions .= "</tbody>\n";
 
 	$configOptions .= "<tbody id='pgsqlconf' style='display: none;'>\n";
