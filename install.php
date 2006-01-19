@@ -215,6 +215,7 @@ else if($_GET["action"] == "set") {
 		)");
 	}
 
+
 	/*
 	 * Setup for PostgreSQL databases
 	 *
@@ -227,6 +228,7 @@ else if($_GET["action"] == "set") {
 		exit;
 	}
 
+
 	/*
 	 * Setup for SQLite databases
 	 *
@@ -234,6 +236,7 @@ else if($_GET["action"] == "set") {
 	 */
 	else if($dba == "sqlite") {
 		$sqlite_file = $_POST["sqlite_file"];
+		$tp = "";
 		
 		if(!@sqlite_open($sqlite_file)) {
 			$title = "Error";
@@ -249,7 +252,52 @@ else if($_GET["action"] == "set") {
 		$data .= "\$config['sqlite_file']  = '$sqlite_file';\n";
 		$data .= "?>";
 		
-		// FIXME: Initialise DB
+		/*
+		 * Create the database
+		 */
+		sqlite_query2("CREATE TABLE ${tp}comments (
+			id int primary key auto_increment,
+			image_id int not null,
+			owner_id int not null,
+			owner_ip char(16),
+			comment text
+		)");
+		sqlite_query2("CREATE TABLE ${tp}images (
+			id int primary key auto_increment,
+			owner_id int not null,
+			owner_ip char(16),
+			filename char(32),
+			hash char(32),
+			ext char(4),
+			UNIQUE(hash)
+		)");
+		sqlite_query2("CREATE TABLE ${tp}tags (
+			image_id int not null,
+			tag char(32),
+			UNIQUE(image_id, tag)
+		)");
+		sqlite_query2("CREATE TABLE ${tp}users (
+			id int primary key auto_increment,
+			name char(16) not null,
+			pass char(32),
+			permissions int default 0,
+			UNIQUE(name)
+		)");
+		sqlite_query2("CREATE TABLE ${tp}config (
+			name varchar(255),
+			value varchar(255),
+			UNIQUE(name)
+		)");
+
+		/*
+		 * Insert a couple of default users
+		 */
+		sqlite_query2("INSERT INTO ${tp}users VALUES (
+			0, 'Anonymous', NULL, 0
+		)");
+		sqlite_query2("INSERT INTO ${tp}users VALUES (
+			1, '$admin_name', '".md5(strtolower($admin_name).$admin_pass)."', 1023
+		)");
 	}
 
 	/*
