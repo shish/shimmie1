@@ -1,10 +1,10 @@
 <?php
-/*
 if($config["database_api"] == "sqlite") {
 	$sqliteError = null;
 	$sqliteHandle = null;
 	
 	function sql_query($query) {
+		$query = str_replace("shm_", "", $query);
 		$result = sqlite_query($query, $sqliteHandle, SQLITE_ASSOC, $sqliteError);
 		if($result) {return $result;}
 		else {
@@ -22,8 +22,14 @@ if($config["database_api"] == "sqlite") {
 
 	$sqliteHandle = sqlite_popen($config['sqlite_db']);
 }
+else if($config["database_api"] == "pgsql") {
+	function sql_query($query) {return null;}
+	function sql_error() {return "Postgres not supported yet";}
+	function sql_fetch_row($resultSet) {return null;}
+	function sql_num_rows($resultSet) {return null;}
+	function sql_insert_id() {return null;}
+}
 else {
-*/
 	function sql_query($query) {
 		$query = str_replace("shm_", $config['mysql_prefix'], $query);
 		$result = mysql_query($query);
@@ -43,7 +49,5 @@ else {
 	
 	mysql_pconnect($config['mysql_host'], $config['mysql_user'], $config['mysql_pass']) or die(mysql_error());
 	mysql_select_db($config['mysql_db']) or die(mysql_error());
-/*
 }
-*/
 ?>
