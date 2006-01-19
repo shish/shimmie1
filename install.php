@@ -56,7 +56,7 @@ if(is_null($_GET['action'])) {
 		<option value="-">Select One</option>
 		<option value="mysql">MySQL</option>
 		<!-- <option value="pgsql">Postgres</option> -->
-		<!-- <option value="sqlite">SQLite</option> -->
+		<option value="sqlite">SQLite</option>
 	</select>
 	</td></tr>
 EOD;
@@ -237,8 +237,9 @@ else if($_GET["action"] == "set") {
 	else if($dba == "sqlite") {
 		$sqlite_file = $_POST["sqlite_file"];
 		$tp = "";
+		$db = null;
 		
-		if(!@sqlite_open($sqlite_file)) {
+		if(!($db = @sqlite_open($sqlite_file, 0666, $sqliteerror))) {
 			$title = "Error";
 			$message = "Unable to open database file '$sqlite_file'; try creating a blank ".
 			           "file and making sure the web server can write to it";
@@ -246,7 +247,7 @@ else if($_GET["action"] == "set") {
 			require_once "templates/error.php";
 			exit;
 		}
-		
+
 		$data .= "<?php\n";
 		$data .= "\$config['database_api'] = 'sqlite';\n";
 		$data .= "\$config['sqlite_file']  = '$sqlite_file';\n";
@@ -255,15 +256,15 @@ else if($_GET["action"] == "set") {
 		/*
 		 * Create the database
 		 */
-		sqlite_query2("CREATE TABLE ${tp}comments (
-			id int primary key auto_increment,
+		sqlite_query2($db, "CREATE TABLE ${tp}comments (
+			id integer primary key,
 			image_id int not null,
 			owner_id int not null,
 			owner_ip char(16),
 			comment text
 		)");
-		sqlite_query2("CREATE TABLE ${tp}images (
-			id int primary key auto_increment,
+		sqlite_query2($db, "CREATE TABLE ${tp}images (
+			id integer primary key,
 			owner_id int not null,
 			owner_ip char(16),
 			filename char(32),
@@ -271,19 +272,19 @@ else if($_GET["action"] == "set") {
 			ext char(4),
 			UNIQUE(hash)
 		)");
-		sqlite_query2("CREATE TABLE ${tp}tags (
+		sqlite_query2($db, "CREATE TABLE ${tp}tags (
 			image_id int not null,
 			tag char(32),
 			UNIQUE(image_id, tag)
 		)");
-		sqlite_query2("CREATE TABLE ${tp}users (
-			id int primary key auto_increment,
+		sqlite_query2($db, "CREATE TABLE ${tp}users (
+			id integer primary key,
 			name char(16) not null,
 			pass char(32),
 			permissions int default 0,
 			UNIQUE(name)
 		)");
-		sqlite_query2("CREATE TABLE ${tp}config (
+		sqlite_query2($db, "CREATE TABLE ${tp}config (
 			name varchar(255),
 			value varchar(255),
 			UNIQUE(name)
@@ -292,10 +293,10 @@ else if($_GET["action"] == "set") {
 		/*
 		 * Insert a couple of default users
 		 */
-		sqlite_query2("INSERT INTO ${tp}users VALUES (
+		sqlite_query2($db, "INSERT INTO ${tp}users VALUES (
 			0, 'Anonymous', NULL, 0
 		)");
-		sqlite_query2("INSERT INTO ${tp}users VALUES (
+		sqlite_query2($db, "INSERT INTO ${tp}users VALUES (
 			1, '$admin_name', '".md5(strtolower($admin_name).$admin_pass)."', 1023
 		)");
 	}
@@ -354,8 +355,8 @@ function pgsql_query2($query) {
 		exit;
 	}
 }
-function sqlite_query2($query) {
-	if(!sqlite_query($query)) {
+function sqlite_query2($db, $query) {
+	if(!sqlite_query($db, $query)) {
 		$title = "Error";
 		$message = "Something failed mid-way through setting up the database... ";
 		$data = "Query: $query\n\nError: ".mysql_error();
