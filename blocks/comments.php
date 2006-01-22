@@ -10,7 +10,7 @@
 $com_count = $config['recent_count'];
 $com_query = <<<EOD
 	SELECT 
-		*,
+		image_id, name,
 		if(
 			length(comment) > 128,
 			concat(substring(comment, 1, 128), '>>>'),

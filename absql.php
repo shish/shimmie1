@@ -2,6 +2,15 @@
 if($config["database_api"] == "sqlite") {
 	$sqliteHandle = sqlite_open($config['sqlite_file']);
 	$sqliteError = null;
+
+	function sqlite_cb_concat($a, $b) {return $a.$b;}
+	function sqlite_cb_if($a, $b, $c) {return $a ? $b : $c;}
+
+	sqlite_create_function($sqliteHandle, 'md5', 'md5', 1);
+	sqlite_create_function($sqliteHandle, 'concat', 'sqlite_cb_concat', 2);
+	sqlite_create_function($sqliteHandle, 'if', 'sqlite_cb_if', 3);
+	sqlite_create_function($sqliteHandle, 'substring', 'substr', 3);
+	sqlite_create_function($sqliteHandle, 'lower', 'strtolower', 2);
 	
 	function sql_query($query) {
 		global $sqliteHandle, $sqliteError;
@@ -21,7 +30,7 @@ if($config["database_api"] == "sqlite") {
 	function sql_error() {global $sqliteHandle; return sqlite_error_string(sqlite_last_error($sqliteHandle));}
 	function sql_fetch_row($resultSet) {return sqlite_fetch_array($resultSet, SQLITE_ASSOC);}
 	function sql_num_rows($resultSet) {return sqlite_num_rows($resultSet);}
-	function sql_insert_id() {return sqlite_last_insert_rowid();}
+	function sql_insert_id() {global $sqliteHandle; return sqlite_last_insert_rowid($sqliteHandle);}
 
 }
 else if($config["database_api"] == "pgsql") {

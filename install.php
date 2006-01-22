@@ -209,6 +209,14 @@ else if($_GET["action"] == "set") {
 		$data .= "?>";
 		
 		/*
+		 * when they say "sql lite", they mean "insert, select, you do the rest"...
+		 */
+		function sqlite_cb_concat($a, $b) {return $a.$b;}
+		sqlite_create_function($db, 'md5', 'md5', 1);
+		sqlite_create_function($db, 'concat', 'sqlite_cb_concat', 2);
+		sqlite_create_function($db, 'lower', 'strtolower', 2);
+	
+		/*
 		 * Create the database
 		 */
 		sqlite_query2($db, "BEGIN TRANSACTION;");
@@ -295,7 +303,7 @@ function initDb($db, $query, $tp, $admin_name, $admin_pass, $prikey) {
 		0, 'Anonymous', NULL, 0
 	)");
 	$query($db, "INSERT INTO ${tp}users VALUES (
-		1, '$admin_name', '".md5(strtolower($admin_name) . $admin_pass)."', 1023
+		1, '$admin_name', md5(concat(lower('$admin_name'), '$admin_pass')), 1023
 	)");
 }
 

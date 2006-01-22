@@ -23,7 +23,7 @@ else {
  * Calculate the "related tags" sidebar
  */
 $img_query = <<<EOD
-	SELECT *
+	SELECT name,hash,ext,filename
 	FROM shm_images
 	LEFT JOIN shm_users ON shm_images.owner_id=shm_users.id
 	WHERE shm_images.id=$image_id
@@ -63,7 +63,7 @@ $tags = trim($tags);
 /*
  * Find comments for this image
  */
-$com_query = "SELECT * FROM shm_comments LEFT JOIN shm_users ON shm_comments.owner_id=shm_users.id WHERE image_id=$image_id";
+$com_query = "SELECT name,comment FROM shm_comments LEFT JOIN shm_users ON shm_comments.owner_id=shm_users.id WHERE image_id=$image_id";
 $com_result = sql_query($com_query);
 $comments = "";
 while($row = sql_fetch_row($com_result)) {
