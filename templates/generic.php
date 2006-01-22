@@ -1,7 +1,7 @@
 <?php
 require_once "templates/header.php";
 
-if(!is_null($data)) $databox = "<p><textarea cols=\"50\" rows=\"10\">$data</textarea>";
+if(!is_null($data)) $databox = "<p><textarea cols=\"80\" rows=\"10\">$data</textarea>";
 else $databox = "";
 
 echo <<<EOD
