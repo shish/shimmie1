@@ -211,7 +211,9 @@ else if($_GET["action"] == "set") {
 		/*
 		 * Create the database
 		 */
+		sqlite_query2($db, "BEGIN TRANSACTION;");
 		initDb($db, "sqlite_query2", $tp, $admin_name, $admin_pass, "integer primary key");
+		sqlite_query2($db, "END TRANSACTION;");
 	}
 
 
@@ -293,7 +295,7 @@ function initDb($db, $query, $tp, $admin_name, $admin_pass, $prikey) {
 		0, 'Anonymous', NULL, 0
 	)");
 	$query($db, "INSERT INTO ${tp}users VALUES (
-		1, '$admin_name', md5(concat(lower('$admin_name'), '$admin_pass')), 1023
+		1, '$admin_name', '".md5(strtolower($admin_name) . $admin_pass)."', 1023
 	)");
 }
 
