@@ -5,7 +5,7 @@ echo <<<EOD
 	<h3 onclick="toggle('navigate')">Navigate</h3>
 	<div id="navigate">$pageNav</div>
 
-	<h3 onclick="toggle('tags')">Tags</h3>
+	<h3 onclick="toggle('tags')">Edit Tags</h3>
 	<div id="tags">
 		<form action="./update.php" method="POST">
 			<input name="image_id" type="hidden" value="$image_id">
