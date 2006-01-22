@@ -13,12 +13,12 @@ if($config["database_api"] == "sqlite") {
 		else {
 			$title = "Error";
 			$message = "Error processing SQLite query";
-			$data = sql_error();
+			$data = "SQL: $query\n\nError: ".sql_error();
 			require_once "templates/generic.php";
 			exit;
 		}
 	}
-	function sql_error() {global $sqliteHandle; return sqlite_error_string (sqlite_last_error($sqliteHandle));}
+	function sql_error() {global $sqliteHandle; return sqlite_error_string(sqlite_last_error($sqliteHandle));}
 	function sql_fetch_row($resultSet) {return sqlite_fetch_array($resultSet, SQLITE_ASSOC);}
 	function sql_num_rows($resultSet) {return sqlite_num_rows($resultSet);}
 	function sql_insert_id() {return sqlite_last_insert_rowid();}
@@ -44,7 +44,7 @@ else {
 		else {
 			$title = "Error";
 			$message = "Error processing MySQL query";
-			$data = sql_error();
+			$data = "SQL: $query\n\nError: ".sql_error();
 			require_once "templates/generic.php";
 			exit;
 		}
