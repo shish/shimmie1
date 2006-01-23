@@ -8,7 +8,9 @@ echo <<<EOD
 	<head>
 		<title>$title</title>
 		<link rel="stylesheet" href="style.css" type="text/css">
-		<script src="functions.js" type="text/javascript"></script>
+		<script src="scripts/libshish.js" type="text/javascript"></script>
+		<script src="scripts/sidebar.js" type="text/javascript"></script>
+		<script src="scripts/shimmie.js" type="text/javascript"></script>
 	</head>
 
 	<body>

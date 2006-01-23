@@ -11,10 +11,7 @@ echo <<<EOD
 	<div id="navigate">
 		$pageNav
 		<p><form action="index.php" method="GET">
-			<input id="searchBox" name="tags" type="text" value="$searchString"
-				onFocus="cleargray(this, 'Search')"
-				onBlur="setgray(this, 'Search')"
-				>
+			<input id="searchBox" name="tags" type="text" value="$searchString">
 			<input type="submit" value="Find" style="display: none;">
 		</form>
 	</div>

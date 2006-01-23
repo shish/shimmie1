@@ -1,14 +1,20 @@
+var defaultTexts = new Array();
+
 window.onload = function(e) {
 	var sections=get_sections();
 	for(var i=0;i<sections.length;i++) toggle(sections[i]);
 
-	e = document.getElementById("searchBox");
-	if(e) initGray(e, "Search");
-	e = document.getElementById("commentBox");
-	if(e) initGray(e, "Comment");
+	initGray("searchBox", "Search");
+	initGray("commentBox", "Comment");
 }
 
-function initGray(box, text) {
+function initGray(boxname, text) {
+	var box = byId(boxname);
+	if(!box) return;
+
+	addEvent(box, "focus", function f() {cleargray(box, text);}, false);
+	addEvent(box, "blur",  function f() {setgray(box, text);}, false);
+
 	if(box.value == text) {
 		box.style.color = "#999";
 		box.style.textAlign = "center";
@@ -60,76 +66,3 @@ function showUp(elem) {
 }
 
 
-
-/*
- * This script shamelessly stolen from wakachan.org d(^_^)b
- */
-
-var cookie_name="sidebarsections";
-var default_sections=[];
-
-function toggle(id) 
-{
-	var e=document.getElementById(id);
-	if(!e) return;
-	if(e.style.display)
-	{
-		remove_section(id);
-		e.style.display="";
-	}
-	else
-	{
-		add_section(id);
-		e.style.display="none"; 
-	}
-}
-
-function add_section(id)
-{
-	var sections=get_sections();
-	for(var i=0;i<sections.length;i++) if(sections[i]==id) return;
-	sections.push(id);
-	set_sections(sections);	
-}
-
-function remove_section(id)
-{
-	var sections=get_sections();
-	var new_sections=new Array();
-	for(var i=0;i<sections.length;i++) if(sections[i]!=id) new_sections.push(sections[i]);
-	set_sections(new_sections);	
-}
-
-function get_sections()
-{
-	var cookie=get_cookie(cookie_name);
-	if(cookie) return cookie.split(/,/);
-	else return default_sections;
-}
-
-function set_sections(sections) { set_cookie(cookie_name,sections.join(","),365); }
-
-function get_cookie(name)
-{
-	with(document.cookie)
-	{
-		var index=indexOf(name+"=");
-		if(index==-1) return '';
-		index=indexOf("=",index)+1;
-		var endstr=indexOf(";",index);
-		if(endstr==-1) endstr=length;
-		return unescape(substring(index,endstr));
-	}
-};
-
-function set_cookie(name,value,days)
-{
-	if(days)
-	{
-		var date=new Date();
-		date.setTime(date.getTime()+(days*24*60*60*1000));
-		var expires="; expires="+date.toGMTString();
-	}
-	else expires="";
-	document.cookie=name+"="+value+expires+"; path=/";
-}
