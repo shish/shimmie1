@@ -12,6 +12,40 @@ function byId(id) {
 }
 
 
+function getHTTPObject() { 
+	var xmlhttp;
+	/*@cc_on
+	  @if (@_jscript_version >= 5) try {
+	  xmlhttp = new ActiveXObject("Msxml2.XMLHTTP"); 
+	  } 
+	  catch (e) { 
+	  try { xmlhttp = new ActiveXObject("Microsoft.XMLHTTP"); } 
+	  catch (E) { xmlhttp = false; }
+	  } 
+	  @else 
+	  xmlhttp = false;
+	  @end @*/ 
+	if (!xmlhttp && typeof XMLHttpRequest != 'undefined') { 
+		try {
+			xmlhttp = new XMLHttpRequest(); 
+		}
+		catch (e) {
+			xmlhttp = false;
+		} 
+	}
+	return xmlhttp; 
+}
+
+function ajaxRequest(url, callback) {
+	var http = getHTTPObject();
+	http.open("GET", url, true);
+	http.onreadystatechange = function() {
+		if(http.readyState == 4) callback();
+	}
+	http.send(null);
+}
+
+
 /* get, set, and delete cookies */
 function getCookie( name ) {
 	var start = document.cookie.indexOf( name + "=" );
