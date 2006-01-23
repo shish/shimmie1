@@ -51,6 +51,7 @@ $configOptions .= makeOptCheck("Scale by default", "view_scale", null);
 $configOptions .= makeRow();
 $configOptions .= makeRow("Tags Page");
 $configOptions .= makeOpt("Default layout", "tags_default", null);
+$configOptions .= makeOpt("Min usage threshold", "tags_min", null);
 
 $configOptions .= makeRow();
 $configOptions .= makeRow("Misc");

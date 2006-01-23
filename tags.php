@@ -11,6 +11,9 @@ if(is_null($_GET['mode'])) $mode = $config['tags_default'];
 else $mode = $_GET['mode'];
 
 
+$tags_min = $config["tags_min"];
+$base_query = "SELECT tag,COUNT(image_id) AS count FROM shm_tags GROUP BY tag HAVING count > $tags_min";
+
 
 /*
  * list tags by popularity, grouped by first digit of natural
@@ -19,7 +22,7 @@ else $mode = $_GET['mode'];
  * a more even layout.
  */
 if($mode == "popular") {
-	$tlist_query = "SELECT tag,COUNT(image_id) AS count FROM shm_tags GROUP BY tag ORDER BY count DESC, tag ASC";
+	$tlist_query = "$base_query ORDER BY count DESC, tag ASC";
 	$tlist_result = sql_query($tlist_query);
 	$n = 0;
 	$tlist = "Results grouped by log<sub>e</sub>(n)";
@@ -40,7 +43,7 @@ if($mode == "popular") {
  * List all in alphabetical order
  */
 else if($mode == "alphabet") {
-	$tlist_query = "SELECT tag,COUNT(image_id) AS count FROM shm_tags GROUP BY tag ORDER BY tag";
+	$tlist_query = "$base_query ORDER BY tag";
 	$tlist_result = sql_query($tlist_query);
 	$n = 0;
 	$lastLetter = 0;
@@ -69,7 +72,7 @@ else if($mode == "alphabet") {
  */
 #else if($mode == "map") {
 else {
-	$tlist_query = "SELECT tag,COUNT(image_id) AS count FROM shm_tags GROUP BY tag ORDER BY tag";
+	$tlist_query = "$base_query ORDER BY tag";
 	$tlist_result = sql_query($tlist_query);
 	$n = 0;
 	while($row = sql_fetch_row($tlist_result)) {

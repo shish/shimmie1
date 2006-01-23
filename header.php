@@ -36,6 +36,7 @@ $config_defaults = Array(
 	'thumb_q' => 75,
 	'view_scale' => false,
 	'tags_default' => 'map',
+	'tags_min' => '2',
 	'upload_count' => 3,
 	'upload_size' => 256*1024,
 	'upload_anon' => true,
