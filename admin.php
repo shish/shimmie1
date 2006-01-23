@@ -42,11 +42,16 @@ else if($action == "replacetag") {
 
 /*
  * Remove an image from the database, along with comments and tags
- *
- * FIXME: Get rid of the file on-disk too
  */
 else if($action == "delete") {
 	$image_id = (int)$_GET["image_id"];
+
+	$row = sql_fetch_row(sql_query("SELECT hash, ext FROM shm_images WHERE id=$image_id"));
+	$di = $config['dir_images'];
+	$hash = $row['hash'];
+	$ext = $row['ext'];
+	$fname = "$di/$hash.$ext";
+	if(file_exists($fname)) unlink($fname);
 
 	sql_query("DELETE FROM shm_images WHERE id=$image_id");
 	sql_query("DELETE FROM shm_tags WHERE image_id=$image_id");
