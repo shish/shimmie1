@@ -40,8 +40,7 @@ $dir_images = $config['dir_images'];
 // store results in count['tag']
 function countImagesForTag($tag) {
 	$tag_query = "SELECT count(*) as count FROM shm_tags WHERE tag='$tag'";
-	$tag_result = sql_query($tag_query);
-	$row = sql_fetch_row($tag_result);
+	$row = sql_fetch_row(sql_query($tag_query));
 	return $row['count'];
 }
 
@@ -88,15 +87,15 @@ EOD;
 
 /*
  * Fill the navigation block
- *
- * FIXME: link to index, page=[page current image is on]
- *
- * FIXME: Only link next and previous if they exist. If an image has been
- * deleted, link to the one before or after it instead.
  */
-$pageNav = ($image_id>0 ? "<a href='view.php?image_id=".($image_id-1)."'>Prev</a> | " : "Prev | ").
+$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id < $image_id ORDER BY id DESC LIMIT 1"));
+$previd = $row ? $row['id'] : null;
+$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id > $image_id ORDER BY id ASC  LIMIT 1"));
+$nextid = $row ? $row['id'] : null;
+
+$pageNav = ($previd ? "<a href='view.php?image_id=$previd'>Prev</a> | " : "Prev | ").
 		   "<a href='index.php'>Index</a> | ".
-           "<a href='view.php?image_id=".($image_id+1)."'>Next</a>";
+           ($nextid ? "<a href='view.php?image_id=$nextid'>Next</a>" : "Next");
 
 
 /*
