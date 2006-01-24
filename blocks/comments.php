@@ -3,13 +3,20 @@
  * comments.php (c) Shish 2005
  *
  * Make a block of recent comments
- *
- * FIXME: make these relevant to the image being viewed
  */
 
 require_once "header.php";
 
 if(!$standalone) {
+	if($_GET['image_id']) {
+		$image_id = (int)$_GET['image_id'];
+		$where = "WHERE image_id=$image_id";
+	}
+	else {
+		$image_id = false;
+		$where = "";
+	}
+
 	$com_count = $config['recent_count'];
 	$com_query = <<<EOD
 		SELECT 
@@ -20,6 +27,7 @@ if(!$standalone) {
 				comment
 			) as scomment FROM shm_comments
 		LEFT JOIN users ON shm_comments.owner_id=users.id 
+		$where
 		ORDER BY shm_comments.id DESC
 		LIMIT $com_count
 EOD;
@@ -30,6 +38,16 @@ EOD;
 		$uname = htmlentities($row['name']);
 		$comment = htmlentities($row['scomment']);
 		$commentBlock .= "<p><a href='view.php?image_id=$iid'>$uname</a>: $comment</p>\n";
+	}
+	if($image_id) {
+		$image_id = (int)$_GET['image_id'];
+		$commentBlock .= <<<EOD
+		<form action="metablock.php?block=comment" method="POST">
+			<input type="hidden" name="image_id" value="$image_id">
+			<input id="commentBox" type="text" name="comment" value="Comment">
+			<input type="submit" value="Say" style="display: none;">
+		</form>
+EOD;
 	}
 	$commentBlock .= "</div>\n";
 }

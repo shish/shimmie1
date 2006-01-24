@@ -60,19 +60,6 @@ $tags = trim($tags);
 
 
 /*
- * Find comments for this image
- */
-$com_query = "SELECT name,comment FROM shm_comments LEFT JOIN shm_users ON shm_comments.owner_id=shm_users.id WHERE image_id=$image_id";
-$com_result = sql_query($com_query);
-$comments = "";
-while($row = sql_fetch_row($com_result)) {
-	$uname = htmlentities($row['name']);
-	$comment = htmlentities($row['comment']);
-	$comments .= "<p class='comment'>$uname: $comment</p>\n";
-}
-
-
-/*
  * Admins are allowed to delete things
  */
 if($user->isAdmin) {

@@ -21,16 +21,7 @@ echo <<<EOD
 		<p>$tagLinks
 	</div>
 
-	<h3 onclick="toggle('comments')">Comments</h3>
-	<div id="comments">
-		$comments
-		<form action="metablock.php?block=comment" method="POST">
-			<input type="hidden" name="image_id" value="$image_id">
-			<input id="commentBox" type="text" name="comment" value="Comment">
-			<input type="submit" value="Say" style="display: none;">
-		</form>
-	</div>
-
+	$commentBlock
 	$userBlock
 	$adminBlock
 </div>
