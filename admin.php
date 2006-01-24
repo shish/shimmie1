@@ -48,10 +48,13 @@ else if($action == "delete") {
 
 	$row = sql_fetch_row(sql_query("SELECT hash, ext FROM shm_images WHERE id=$image_id"));
 	$di = $config['dir_images'];
+	$dt = $config['dir_thumbs'];
 	$hash = $row['hash'];
 	$ext = $row['ext'];
-	$fname = "$di/$hash.$ext";
-	if(file_exists($fname)) unlink($fname);
+	$iname = "$di/$hash.$ext";
+	$tname = "$dt/$hash.$ext";
+	if(file_exists($iname)) unlink($iname);
+	if(file_exists($tname)) unlink($tname);
 
 	sql_query("DELETE FROM shm_images WHERE id=$image_id");
 	sql_query("DELETE FROM shm_tags WHERE image_id=$image_id");
