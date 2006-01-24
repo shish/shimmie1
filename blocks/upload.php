@@ -23,7 +23,6 @@ if(!$standalone && ($config["upload_anon"] || $user->id != 0)) {
 		<div id="upload">
 			<form enctype='multipart/form-data' action='metablock.php?block=upload' method='post'>
 				<input type='hidden' name='max_file_size' value='$maxSize'>
-				<input type='hidden' name='max_file_size' value='$maxSize'>
 				$uploadList
 				<input name='tags' type='text' value='tagme'>
 				<input type='submit' value='Post'>

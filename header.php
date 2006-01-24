@@ -212,6 +212,7 @@ $user = new User($cuser);
  * XXX: load "blocks/*.php", rather than each one individually?
  *      is there any need for these to be in order?
  */
+require_once "blocks/transload.php";
 require_once "blocks/upload.php";
 require_once "blocks/comments.php";
 require_once "blocks/popular.php";
