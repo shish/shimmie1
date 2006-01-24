@@ -84,6 +84,7 @@ function admin_or_die() {
 		require_once "templates/generic.php";
 		exit;
 	}
+	return true;
 }
 
 /*
@@ -97,6 +98,7 @@ function user_or_die() {
 		require_once "templates/generic.php";
 		exit;
 	}
+	return true;
 }
 
 
