@@ -7,7 +7,7 @@
 
 $block = $_GET['block'];
 if($block) {
-	$standalone = true;
+	$blockmode = "standalone";
 	require_once "./blocks/$block.php";
 }
 else {

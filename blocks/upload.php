@@ -8,7 +8,7 @@
 require_once "header.php";
 
 // Don't show the block if anon uploads are disabled
-if(!$standalone && ($config["upload_anon"] || $user->id != 0)) {
+if(($blockmode == "block") && ($config["upload_anon"] || $user->id != 0)) {
 	$maxSize = $config["uploads_size"];
 
 	$uploadList = "";
@@ -30,7 +30,9 @@ if(!$standalone && ($config["upload_anon"] || $user->id != 0)) {
 		</div>
 EOD;
 }
-else if($standalone && ($config["upload_anon"] || user_or_die())) {
+
+
+if(($blockmode == "standalone") && ($config["upload_anon"] || user_or_die())) {
 	$owner_ip = $_SERVER['REMOTE_ADDR'];
 	$dir_images = $config['dir_images'];
 	$dir_thumbs = $config['dir_thumbs'];

@@ -7,7 +7,7 @@
 
 require_once "header.php";
 
-if(!$standalone) {
+if($blockmode == "block") {
 	if($_GET['image_id']) {
 		$image_id = (int)$_GET['image_id'];
 		$where = "WHERE image_id=$image_id";
@@ -51,7 +51,8 @@ EOD;
 	}
 	$commentBlock .= "</div>\n";
 }
-else if($config["comment_anon"] || user_or_die()) {
+
+if($blockmode == "standalone" && ($config["comment_anon"] || user_or_die())) {
 	// get input
 	$image_id = (int)$_POST['image_id'];
 	$owner_id = $user->id;
