@@ -57,7 +57,7 @@ if($blockmode == "standalone" && ($config["comment_anon"] || user_or_die())) {
 	$image_id = (int)$_POST['image_id'];
 	$owner_id = $user->id;
 	$owner_ip = $_SERVER['REMOTE_ADDR'];
-	$comment = addslashes($_POST['comment']);
+	$comment = sql_escape($_POST['comment']);
 
 	// check validity
 	if(trim($comment) == "") {

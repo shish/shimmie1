@@ -12,7 +12,7 @@ $config['upload_anon'] || user_or_die();
 
 // get input
 $image_id = (int)$_POST['image_id'];
-updateTags($image_id, addslashes($_POST['tags']));
+updateTags($image_id, sql_escape($_POST['tags']));
 
 // go back
 header("Location: view.php?image_id=$image_id");

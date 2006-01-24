@@ -31,7 +31,7 @@ if($config["database_api"] == "sqlite") {
 	function sql_fetch_row($resultSet) {return sqlite_fetch_array($resultSet, SQLITE_ASSOC);}
 	function sql_num_rows($resultSet) {return sqlite_num_rows($resultSet);}
 	function sql_insert_id() {global $sqliteHandle; return sqlite_last_insert_rowid($sqliteHandle);}
-
+	function sql_escape($string) {return sqlite_escape_string($string);}
 }
 else if($config["database_api"] == "pgsql") {
 	function sql_query($query) {return null;}
@@ -39,6 +39,7 @@ else if($config["database_api"] == "pgsql") {
 	function sql_fetch_row($resultSet) {return null;}
 	function sql_num_rows($resultSet) {return null;}
 	function sql_insert_id() {return null;}
+	function sql_escape($string) {return pg_escape_string($string);}
 }
 else {
 	mysql_pconnect($config['mysql_host'], $config['mysql_user'], $config['mysql_pass']) or die(mysql_error());
@@ -62,5 +63,6 @@ else {
 	function sql_fetch_row($resultSet) {return mysql_fetch_assoc($resultSet);}
 	function sql_num_rows($resultSet) {return mysql_num_rows($resultSet);}
 	function sql_insert_id() {return mysql_insert_id();}
+	function sql_escape($string) {return mysql_escape_string($string);}
 }
 ?>

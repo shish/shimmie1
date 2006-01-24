@@ -136,7 +136,7 @@ function up_passCheck($name, $hash) {
  */
 function up_login() {
 	global $base_url;
-	$name = addslashes($_POST['user']);
+	$name = sql_escape($_POST['user']);
 	$hash = md5( strtolower($_POST['user']) . $_POST['pass'] );
 	if(up_passCheck($name, $hash)) {
 		$_SESSION["shm_user"] = $name;
@@ -197,7 +197,7 @@ class User {
  * With all the settings and stuff ready, see if we have a user logged in
  */
 session_start();
-if(up_passCheck(addslashes($_SESSION['shm_user']), $_SESSION['shm_pass'])) {
+if(up_passCheck(sql_escape($_SESSION['shm_user']), $_SESSION['shm_pass'])) {
 	$cuser = $_SESSION['shm_user'];
 	$cpass = $_SESSION['shm_pass'];
 }

@@ -29,8 +29,8 @@ if(is_null($action)) {
  * separate once merged?
  */
 else if($action == "replacetag") {
-	$search = addslashes($_POST["search"]);
-	$replace = addslashes($_POST["replace"]);
+	$search = sql_escape($_POST["search"]);
+	$replace = sql_escape($_POST["replace"]);
 
 	sql_query("UPDATE shm_tags SET tag='$replace' WHERE tag='$search'");
 

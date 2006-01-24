@@ -48,7 +48,7 @@ $start = $cpage*$imagesPerPage;
 $searchString = "";
 
 $htmlSafeTags = htmlentities($_GET['tags']);
-$sqlSafeTags = addslashes($_GET['tags']);
+$sqlSafeTags = sql_escape($_GET['tags']);
 
 if($_GET['tags']) {
 	$tags = explode(" ", $sqlSafeTags);

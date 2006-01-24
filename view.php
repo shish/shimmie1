@@ -53,7 +53,7 @@ while($row = sql_fetch_row($tag_result)) {
 	$tag = htmlentities($row['tag']);
 	$tags .= "$tag ";
 	if($n++) $tagLinks .= "<br/>";
-	$count = countImagesForTag(addslashes($tag));
+	$count = countImagesForTag(sql_escape($tag));
 	$tagLinks .= "<a href='index.php?tags=$tag'>$tag ($count)</a>";
 }
 $tags = trim($tags);

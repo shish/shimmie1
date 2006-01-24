@@ -51,7 +51,7 @@ if(($blockmode == "standalone") && ($config["upload_anon"] || user_or_die())) {
 		if(strlen($_FILES[$dname]['tmp_name']) < 4) continue;
 	
 		$tname = $_FILES[$dname]['tmp_name'];
-		$fname = addslashes($_FILES[$dname]['name']);
+		$fname = sql_escape($_FILES[$dname]['name']);
 		$imgsize = getimagesize($tname);
 	
 		if($imgsize != false) {
@@ -121,7 +121,7 @@ if(($blockmode == "standalone") && ($config["upload_anon"] || user_or_die())) {
 			$new_query = "INSERT INTO shm_images(owner_id, owner_ip, filename, hash, ext) ".
 			             "VALUES($user->id, '$owner_ip', '$fname', '$hash', '$ext')";
 			sql_query($new_query);
-			updateTags(sql_insert_id(), addslashes($_POST['tags']));
+			updateTags(sql_insert_id(), sql_escape($_POST['tags']));
 		}
 		else {
 			$err .= "<p>$fname upload failed";
