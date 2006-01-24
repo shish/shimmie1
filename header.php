@@ -208,15 +208,10 @@ else {
 $user = new User($cuser);
 
 
-/*
- * XXX: load "blocks/*.php", rather than each one individually?
- *      is there any need for these to be in order?
- */
 $blockmode = "block";
-require_once "blocks/transload.php";
-require_once "blocks/upload.php";
-require_once "blocks/comments.php";
-require_once "blocks/popular.php";
-require_once "blocks/user.php";
-require_once "blocks/admin.php";
+$blocks = glob("blocks/*.php");
+foreach($blocks as $block) {
+	require_once $block;
+}
+unset($blockmode);
 ?>
