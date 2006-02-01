@@ -1,10 +1,8 @@
 <?php
 /*
- * popular.php (c) Shish 2005
+ * popular.php (c) Shish 2005, 2006
  *
  * List popular tags
- *
- * FIXME: add / subtract tags from current search
  *
  * FIXME: only count tags that match the current search (ie, "related tags")
  */

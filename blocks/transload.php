@@ -1,6 +1,6 @@
 <?php
 /*
- * upload.php (c) Shish 2005
+ * transload.php (c) Shish 2005, 2006
  *
  * Show a block which lets users upload
  */

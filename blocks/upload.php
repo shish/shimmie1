@@ -1,6 +1,6 @@
 <?php
 /*
- * upload.php (c) Shish 2005
+ * upload.php (c) Shish 2005, 2006
  *
  * Show a block which lets users upload
  */
@@ -30,7 +30,6 @@ if(($blockmode == "block") && ($config["upload_anon"] || $user->id != 0)) {
 		</div>
 EOD;
 }
-
 
 if(($blockmode == "standalone") && ($config["upload_anon"] || user_or_die())) {
 	$owner_ip = $_SERVER['REMOTE_ADDR'];

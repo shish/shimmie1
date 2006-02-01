@@ -1,6 +1,6 @@
 <?php
 /*
- * admin.php (c) Shish 2005
+ * admin.php (c) Shish 2005, 2006
  *
  * Filled in per-page (eg the view page fills it with "delete this image")
  */

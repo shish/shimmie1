@@ -1,6 +1,6 @@
 <?php
 /*
- * comments.php (c) Shish 2005
+ * comments.php (c) Shish 2005, 2006
  *
  * Make a block of recent comments
  */

@@ -20,7 +20,7 @@ echo <<<EOD
 </div>
 
 <div id="body">
-	<h3>Boad Settings</h3>
+	<h3>Board Settings</h3>
 	Things will go here as soon as there's something to set...
 </div>
 EOD;
