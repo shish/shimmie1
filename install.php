@@ -1,6 +1,6 @@
 <?php
 /*
- * install.php (c) Shish 2005
+ * install.php (c) Shish 2005, 2006
  *
  * Initialise the database, check that folder
  * permissions are set properly, set an admin
@@ -10,12 +10,6 @@
  * and other such things that aren't ready yet --
  * currently the only external resources are the
  * template, header, stylesheet, and footer
- *
- * FIXME: table prefixing works in the rest of the
- * site, we just need the installer to set it up...
- *
- * FIXME: given a mysql admin password, create a
- * more restricted user and switch to it
  */
 
 

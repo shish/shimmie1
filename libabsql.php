@@ -1,4 +1,11 @@
 <?php
+/*
+ * libabsql.php (c) Shish 2005, 2006
+ *
+ * A library to abstract the databases that PHP can use -- calling sql_foo
+ * will redirect to specific_database_foo, and change any relevant paramaters
+ */
+
 if($config["database_api"] == "sqlite") {
 	$sqliteHandle = sqlite_open($config['sqlite_file']);
 	$sqliteError = null;

@@ -1,6 +1,6 @@
 <?php
 /*
- * tags.php (c) Shish 2005
+ * tags.php (c) Shish 2005, 2006
  *
  * List all tags, in a variety of ways
  */
@@ -16,8 +16,8 @@ $base_query = "SELECT tag,COUNT(image_id) AS count FROM shm_tags GROUP BY tag HA
 
 
 /*
- * list tags by popularity, grouped by first digit of natural
- * logarythm. This means that a site with lots of single use
+ * list tags by popularity, grouped by /# $ floor(log_{e}(tags)) $ #/.
+ * This means that a site with lots of single use
  * tags, some medium use, and few common use, will be given 
  * a more even layout.
  */
@@ -40,7 +40,7 @@ if($mode == "popular") {
 
 
 /*
- * List all in alphabetical order
+ * List all in alphabetical order, grouped by letter
  */
 else if($mode == "alphabet") {
 	$tlist_query = "$base_query ORDER BY tag";
@@ -63,14 +63,7 @@ else if($mode == "alphabet") {
  * List the most popular tags in alphabetical order, with the
  * name of the tag scaled to it's popularity -- it makes spotting
  * popular tags easy.
- *
- * This cuts out tags that are only used once, as they take up a
- * lot of space with little use otherwise.
- *
- * FIXME: put a threshold into the config table, as a large site
- * may want to hide tags that are used less than eg 10 times.
  */
-#else if($mode == "map") {
 else {
 	$tlist_query = "$base_query ORDER BY tag";
 	$tlist_result = sql_query($tlist_query);

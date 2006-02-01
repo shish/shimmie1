@@ -2,7 +2,9 @@
 /*
  * metablock.php (c) Shish 2006
  *
- * run a block as a standalone page
+ * run a block as a standalone page, used for eg upload, so the block
+ * can be included on the sidebar normally, and it can call itself to
+ * do the uploading
  */
 
 $block = $_GET['block'];

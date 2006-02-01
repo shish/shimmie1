@@ -1,6 +1,6 @@
 <?php
 /*
- * user.php (c) Shish 2005
+ * user.php (c) Shish 2005, 2006
  *
  * Things relating to user self-management
  */

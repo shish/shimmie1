@@ -1,6 +1,6 @@
 <?php
 /*
- * admin.php (c) Shish 2005
+ * admin.php (c) Shish 2005, 2006
  *
  * Things relating to overall board management
  */

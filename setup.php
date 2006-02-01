@@ -1,6 +1,6 @@
 <?php
 /*
- * setup.php (c) Shish 2005
+ * setup.php (c) Shish 2005, 2006
  *
  * Edit the "config" table
  */

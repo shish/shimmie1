@@ -1,6 +1,6 @@
 <?php
 /*
- * header.php (c) Shish 2005
+ * header.php (c) Shish 2005, 2006
  *
  * Connect to database, create common sidebar blocks,
  * HTML output functions
@@ -86,10 +86,6 @@ function admin_or_die() {
 	}
 	return true;
 }
-
-/*
- * See above
- */
 function user_or_die() {
 	global $user;
 	if($user->id == 0) {
@@ -208,6 +204,9 @@ else {
 $user = new User($cuser);
 
 
+/*
+ * Load each block for the sidebar
+ */
 $blockmode = "block";
 $blocks = glob("blocks/*.php");
 foreach($blocks as $block) {

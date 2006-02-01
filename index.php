@@ -1,8 +1,8 @@
 <?php
 /*
- * index.php (c) Shish 2005
+ * index.php (c) Shish 2005, 2006
  *
- * view the recently posted images, or search them
+ * View the recently posted images, or search them
  */
 
 require_once "header.php";
@@ -28,8 +28,8 @@ else {
 // visible page numbers start at 1, code page numbers start at 0
 $vnext = $vpage + 1;
 $vprev = $vpage - 1;
-$cpage = ($vpage-1);
-$start = $cpage*$imagesPerPage;
+$cpage = $vpage - 1;
+$start = $cpage * $imagesPerPage;
 
 
 /*

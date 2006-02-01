@@ -1,6 +1,6 @@
 <?php
 /*
- * view.php (c) Shish 2005
+ * view.php (c) Shish 2005, 2006
  *
  * View an image and it's comments
  */
@@ -73,7 +73,7 @@ EOD;
 
 
 /*
- * Fill the navigation block
+ * Fill the navigation block, next = the lowest higher number, prev = the highest lower number
  */
 $row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id < $image_id ORDER BY id DESC LIMIT 1"));
 $previd = $row ? $row['id'] : null;

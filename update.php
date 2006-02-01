@@ -1,6 +1,6 @@
 <?php
 /*
- * update.php (c) Shish 2005
+ * update.php (c) Shish 2005, 2006
  *
  * Updates an image's tag set
  */
