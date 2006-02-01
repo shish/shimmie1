@@ -207,9 +207,11 @@ $user = new User($cuser);
 /*
  * Load each block for the sidebar
  */
-$blockmode = "block";
-$blocks = glob("blocks/*.php");
-foreach($blocks as $block) {
-	require_once $block;
+if(is_null($blockmode)) {
+	$blockmode = "block";
+	$blocks = glob("blocks/*.php");
+	foreach($blocks as $block) {
+		require_once $block;
+	}
 }
 ?>
