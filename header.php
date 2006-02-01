@@ -212,5 +212,4 @@ $blocks = glob("blocks/*.php");
 foreach($blocks as $block) {
 	require_once $block;
 }
-unset($blockmode);
 ?>
