@@ -9,6 +9,7 @@ require_once "header.php";
 
 if($_GET['action'] == "login") {
 	up_login();
+	exit;
 }
 else {
 	user_or_die();

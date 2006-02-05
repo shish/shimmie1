@@ -120,11 +120,8 @@ function updateTags($image_id, $tagList) {
  * Check that a user has the right password
  */
 function up_passCheck($name, $hash) {
-	$pc_query = "SELECT * FROM shm_users WHERE name LIKE '$name'";
-	$pc_result = sql_query($pc_query);
-	$pc_row = sql_fetch_row($pc_result);
-	if($pc_row['pass'] == $hash) return TRUE;
-	else return FALSE;
+	$pc_query = "SELECT * FROM shm_users WHERE name LIKE '$name' AND pass = '$hash'";
+	return (sql_num_rows(sql_query($pc_query)) == 1);
 }
 
 /*
