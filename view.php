@@ -8,15 +8,7 @@
 require_once "header.php";
 
 
-/*
- * Get the ID of the image to view
- */
-if($_SERVER['PATH_INFO'] && is_numeric(substr($_SERVER['PATH_INFO'], 1))) {
-	$image_id = (int)substr($_SERVER['PATH_INFO'], 1);
-}
-else {
-	$image_id = (int)$_GET['image_id'];
-}
+$image_id = (int)$_GET['image_id'];
 
 
 /*
