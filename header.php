@@ -79,6 +79,7 @@ foreach($config_default_keys as $cname) {
 function admin_or_die() {
 	global $user;
 	if($user->isAdmin != true) {
+		header("X-Shimmie-Status: Error - Not Admin");
 		$title = "Not Admin";
 		$message = "You need to have administrator rights to view this page";
 		require_once "templates/generic.php";
@@ -89,12 +90,28 @@ function admin_or_die() {
 function user_or_die() {
 	global $user;
 	if($user->id == 0) {
+		header("X-Shimmie-Status: Error - Not Logged In");
 		$title = "Not Logged In";
 		$message = "You need to be logged in";
 		require_once "templates/generic.php";
 		exit;
 	}
 	return true;
+}
+function defined_or_die($var, $name=null) {
+	if(is_null($var)) {
+		header("X-Shimmie-Status: Error - Variable Not Set");
+		$title = "Variable Not Set";
+		if(is_null($name)) {
+			$message = "variable not specified";
+		}
+		else {
+			$message = "not set: '$name'";
+		}
+		require_once "templates/generic.php";
+		exit;
+	}
+	return $var;
 }
 
 
@@ -135,9 +152,8 @@ function up_login() {
 		$_SESSION["shm_user"] = $name;
 		$_SESSION["shm_pass"] = $hash;
 
-		// FIXME: something is printed before this?
-		// header("Location: user.php");
-		
+		header("X-Shimmie-Status: OK - Logged In");
+		header("Location: user.php");
 		$title = "Login OK";
 		$message = "<a href='user.php'>Continue</a>";
 		require_once "templates/generic.php";
@@ -146,17 +162,20 @@ function up_login() {
 		if(sql_num_rows(sql_query("SELECT * FROM shm_users WHERE name='$name'")) == 0) {
 			sql_query("INSERT INTO shm_users(name, pass) VALUES('$name', '$hash')");
 			
+			header("X-Shimmie-Status: OK");
 			$title = "Account Created";
 			$message = "Now you can log in with that name and password";
 			require_once "templates/generic.php";
 		}
 		else {
+			header("X-Shimmie-Status: Error - Name Taken");
 			$title = "Name Taken";
 			$message = "Somebody is already using that username";
 			require_once "templates/generic.php";
 		}
 	}
 	else {
+		header("X-Shimmie-Status: Error - Bad Password");
 		$title = "Login Failed";
 		$message = "<a href='index.php'>Back to index</a>";
 		require_once "templates/generic.php";

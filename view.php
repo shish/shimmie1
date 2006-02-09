@@ -2,6 +2,8 @@
 /*
  * view.php (c) Shish 2005, 2006
  *
+ * -- view an image
+ *
  * View an image and it's comments
  */
 
@@ -21,6 +23,17 @@ $img_query = <<<EOD
 	WHERE shm_images.id=$image_id
 EOD;
 $img_result = sql_query($img_query);
+if(sql_num_rows($img_result) == 0) {
+	header("X-Shimmie-Status: Error - No Such Image");
+	$title = "No Image $image_id";
+	$body = "The image has either been deleted, or there aren't that many images in the database";
+	require_once "templates/generic.php";
+	exit;
+}
+else {
+	header("X-Shimmie-Status: OK - Showing Image");
+}
+
 $img_info = sql_fetch_row($img_result);
 $img_user = htmlentities($img_info['name']);
 $img_hash = $img_info['hash'];
@@ -58,7 +71,7 @@ if($user->isAdmin) {
 	$adminBlock = <<<EOD
 	<h3 onclick="toggle('admin')">Admin</h3>
 	<div id="admin">
-		<a href="admin.php?action=delete&image_id=$image_id">Delete Image</a>
+		<a href="admin.php?action=rmimage&image_id=$image_id">Delete Image</a>
 	</div>
 EOD;
 }

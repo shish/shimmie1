@@ -32,7 +32,7 @@ while($row = sql_fetch_row($pop_result)) {
 	$tag = htmlentities($row['tag']);
 	$count = $row['count'];
 	if($n++) $popularBlock .= "<br/>";
-	$popularBlock .= "<a href='index.php?tags=$tag'>$tag ($count)</a> ";
+	$popularBlock .= "<a href='index.php?tags=$tag'>$tag ($count)</a>\n";
 //	$popularBlock .= "<a href='index.php?tags=$tags $tag'>(+)</a>\n";
 }
 $popularBlock .= "<p><a href='tags.php'>Full List &gt;&gt;&gt;</a>\n";

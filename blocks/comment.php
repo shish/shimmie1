@@ -20,7 +20,7 @@ if($blockmode == "block") {
 	$com_count = $config['recent_count'];
 	$com_query = <<<EOD
 		SELECT 
-			image_id, name,
+			shm_comments.id as id, image_id, name,
 			if(
 				length(comment) > 128,
 				concat(substring(comment, 1, 128), '>>>'),
@@ -34,10 +34,12 @@ EOD;
 	$com_result = sql_query($com_query);
 	$commentBlock = "<h3 onclick=\"toggle('comments')\">Comments</h3>\n<div id=\"comments\">";
 	while($row = sql_fetch_row($com_result)) {
+		$cid = $row['id'];
 		$iid = $row['image_id'];
 		$uname = htmlentities($row['name']);
 		$comment = htmlentities($row['scomment']);
-		$commentBlock .= "<p><a href='view.php?image_id=$iid'>$uname</a>: $comment</p>\n";
+		$dellink = $user->isAdmin ? " (<a href='admin.php?action=rmcomment&amp;comment_id=$cid'>X</a>)" : "";
+		$commentBlock .= "<p><a href='view.php?image_id=$iid'>$uname</a>: $comment$dellink</p>\n";
 	}
 	if($image_id) {
 		$image_id = (int)$_GET['image_id'];
@@ -54,14 +56,15 @@ EOD;
 
 if($blockmode == "standalone" && ($config["comment_anon"] || user_or_die())) {
 	// get input
-	$image_id = (int)$_POST['image_id'];
+	$image_id = (int)defined_or_die($_POST['image_id']);
 	$owner_id = $user->id;
 	$owner_ip = $_SERVER['REMOTE_ADDR'];
-	$comment = sql_escape($_POST['comment']);
+	$comment = sql_escape(defined_or_die($_POST['comment']));
 
 	// check validity
 	if(trim($comment) == "") {
-		$title = "No message";
+		header("X-Shimmie-Status: Error - Blank Comment");
+		$title = "No Message";
 		$message = "Comment was empty; <a href='view.php?image_id=$image_id'>Back</a>";
 		require_once "templates/generic.php";
 	}
@@ -70,9 +73,12 @@ if($blockmode == "standalone" && ($config["comment_anon"] || user_or_die())) {
 		$new_query = "INSERT INTO shm_comments(image_id, owner_id, owner_ip, comment) ".
 		             "VALUES($image_id, $owner_id, '$owner_ip', '$comment')";
 		sql_query($new_query);
+		$cid = sql_insert_id();
 	
 		// go back to the viewed page
 		header("Location: view.php?image_id=$image_id");
+		header("X-Shimmie-Status: OK - Comment Added");
+		header("X-Shimmie-Comment-ID: $cid");
 		echo "<a href='view.php?image_id=$image_id'>Back</a>";
 	}
 }

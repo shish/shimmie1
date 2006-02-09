@@ -13,6 +13,7 @@ if($block) {
 	require_once "./blocks/$block.php";
 }
 else {
+	header("X-Shimmie-Status: Error - No block specified");
 	header("Location: ./");
 }
 ?>

@@ -38,6 +38,17 @@ if(($blockmode == "standalone") && ($config["upload_anon"] || user_or_die())) {
 
 	$err = null;
 
+	if(count($_FILES) == 0) {
+		header("X-Shimmie-Status: Error - No Images Specified");
+		$title = "No Images Specified";
+		$body = "You need to select a file to be uploaded";
+		include_once "templates/generic.php";
+		exit;
+	}
+	else {
+		header("X-Shimmie-Status: OK - Images Uploaded");
+	}
+
 	/*
 	 * Check as many upload stots as there should be
 	 *
@@ -73,6 +84,7 @@ if(($blockmode == "standalone") && ($config["upload_anon"] || user_or_die())) {
 			 */
 			$existing_result = sql_query("SELECT * FROM shm_images WHERE hash='$hash'");
 			if($existing_row = sql_fetch_row($existing_result)) {
+				header("X-Shimmie-Status: Error - Hash Clash");
 				$iid = $existing_row['id'];
 				$err .= "<p>Upload of '$fname' failed:";
 				$err .= "<br>There's already an image with hash '$hash' (<a href='view.php?image_id=$iid'>view</a>)";
@@ -120,6 +132,8 @@ if(($blockmode == "standalone") && ($config["upload_anon"] || user_or_die())) {
 			$new_query = "INSERT INTO shm_images(owner_id, owner_ip, filename, hash, ext) ".
 			             "VALUES($user->id, '$owner_ip', '$fname', '$hash', '$ext')";
 			sql_query($new_query);
+			header("X-Shimmie-Image-ID: ".sql_insert_id());
+			
 			updateTags(sql_insert_id(), sql_escape($_POST['tags']));
 		}
 		else {

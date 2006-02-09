@@ -7,6 +7,8 @@
 
 require_once "header.php";
 
+header("X-Shimmie-Status: OK - Index Successful");
+
 $imagesPerPage = $config['index_images'];
 
 
@@ -14,10 +16,7 @@ $imagesPerPage = $config['index_images'];
  * Get the page to look at -- assume the front page if one
  * isn't specified
  */
-if($_SERVER['PATH_INFO'] && is_numeric(substr($_SERVER['PATH_INFO'], 1))) {
-	$vpage = (int)substr($_SERVER['PATH_INFO'], 1);
-}
-else if(!is_null($_GET['page'])) {
+if(!is_null($_GET['page'])) {
 	$vpage = (int)$_GET['page'];
 }
 else {
@@ -97,6 +96,12 @@ $list_result = sql_query($list_query);
 $total_result = sql_query($total_query);
 $totalImages = sql_num_rows($total_result);
 
+if($totalImages == 0) {
+	header("X-Shimmie-Status: Error - No Results");
+}
+else {
+	header("X-Shimmie-Status: OK - Search Successful");
+}
 
 /*
  * Generate the content to go in the main part of the page

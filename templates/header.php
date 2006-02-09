@@ -1,4 +1,5 @@
 <?php
+
 $base = "http://".$_SERVER["HTTP_HOST"].$_SERVER["SCRIPT_NAME"];
 //		<base href='$base'>
 

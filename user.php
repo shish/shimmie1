@@ -16,6 +16,7 @@ else {
 }
 
 if(is_null($_GET['action'])) {
+	header("X-Shimmie-Status: OK - Settings Shown");
 	$title = "$user->name's settings ";
 	require_once "templates/user.php";
 }
@@ -47,6 +48,7 @@ else if($_GET['action'] == "pass") {
 }
 else if($_GET['action'] == "logout") {
 	session_destroy();
+	header("X-Shimmie-Status: OK - Logged Out");
 	header("Location: index.php");
 	echo "<a href='index.php'>To index</a>";
 }
