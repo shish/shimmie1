@@ -11,6 +11,11 @@ window.onload = function(e) {
 }
 
 
+function endWord(sentance) {
+	words = sentance.split(" ");
+	return words[words.length-1];
+}
+
 function initAjax(boxname, areaname) {
 	var box = byId(boxname);
 	if(!box) return;
@@ -20,7 +25,7 @@ function initAjax(boxname, areaname) {
 		"keyup", 
 		function f() {
 			ajaxRequest(
-				"ajax.php?start="+box.value, 
+				"ajax.php?start="+endWord(box.value), 
 				function g(text) {byId(areaname).innerHTML = text;}
 			);
 		},
