@@ -4,8 +4,29 @@ window.onload = function(e) {
 	var sections=get_sections();
 	for(var i=0;i<sections.length;i++) toggle(sections[i]);
 
+	initAjax("searchBox", "search_completions");
 	initGray("searchBox", "Search");
 	initGray("commentBox", "Comment");
+	initGray("tagBox", "tagme");
+}
+
+
+function initAjax(boxname, areaname) {
+	var box = byId(boxname);
+	if(!box) return;
+
+	addEvent(
+		box,
+		"keyup", 
+		function f() {
+			ajaxRequest(
+				"ajax.php?start="+box.value, 
+				function g(text) {byId(areaname).innerHTML = text;}
+			);
+		},
+		false
+	);
+	
 }
 
 function initGray(boxname, text) {

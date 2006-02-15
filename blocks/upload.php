@@ -24,9 +24,10 @@ if(($blockmode == "block") && ($config["upload_anon"] || $user->id != 0)) {
 			<form enctype='multipart/form-data' action='metablock.php?block=upload' method='post'>
 				<input type='hidden' name='max_file_size' value='$maxSize'>
 				$uploadList
-				<input name='tags' type='text' value='tagme'>
+				<input id="tagBox" name='tags' type='text' value="tagme">
 				<input type='submit' value='Post'>
 			</form>
+			<div id="upload_completions"></div>
 		</div>
 EOD;
 }
