@@ -82,7 +82,7 @@ else {
 		$count = $row['count'];
 		if($count > 1) {
 			$size = floor(log(log($row['count'])+1)*1.5*100)/100;
-			$tlist .= "<a style='font-size: ${size}em' href='index.php?tags=$tag'>$tag</a>\n";
+			$tlist .= "&nbsp;<a style='font-size: ${size}em' href='index.php?tags=$tag'>$tag</a>&nbsp;\n";
 		}
 	}
 }
