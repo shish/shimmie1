@@ -10,8 +10,17 @@ require_once "header.php";
 if(is_null($_GET['mode'])) $mode = $config['tags_default'];
 else $mode = $_GET['mode'];
 
+if(is_null($_GET['tags_min'])) $tags_min = $config['tags_min'];
+else $tags_min = $_GET['tags_min'];
 
-$tags_min = $config["tags_min"];
+if($tags_min > 0) {
+	$listMore = "Only tags with more than $tags_min uses are shown; ".
+	            "click <a href='tags.php?mode=$mode&tags_min=0'>here</a> to see all of them.";
+}
+else {
+	$listMore = "";
+}
+
 $base_query = "SELECT tag,COUNT(image_id) AS count FROM shm_tags GROUP BY tag HAVING count > $tags_min";
 
 

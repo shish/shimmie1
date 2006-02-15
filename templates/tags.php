@@ -19,6 +19,7 @@ echo <<<EOD
 
 <div id="body">
 	<h3>List</h3>
+	$listMore
 	<div id="taglist">$tlist</div>
 </div>
 EOD;
