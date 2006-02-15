@@ -5,6 +5,7 @@ window.onload = function(e) {
 	for(var i=0;i<sections.length;i++) toggle(sections[i]);
 
 	initAjax("searchBox", "search_completions");
+	initAjax("tagBox", "tag_completions");
 	initGray("searchBox", "Search");
 	initGray("commentBox", "Comment");
 	initGray("tagBox", "tagme");
