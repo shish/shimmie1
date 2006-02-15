@@ -17,6 +17,7 @@ function endWord(sentance) {
 	return words[words.length-1];
 }
 
+var resultCache = new Array();
 function initAjax(boxname, areaname) {
 	var box = byId(boxname);
 	if(!box) return;
@@ -25,10 +26,18 @@ function initAjax(boxname, areaname) {
 		box,
 		"keyup", 
 		function f() {
-			ajaxRequest(
-				"ajax.php?start="+endWord(box.value), 
-				function g(text) {byId(areaname).innerHTML = text;}
-			);
+			if(box.value == "") {
+				byId(areaname).innerHTML = "";
+			}
+			else if(resultCache[endWord(box.value)]) {
+				byId(areaname).innerHTML = resultCache[endWord(box.value)];
+			}
+			else {
+				ajaxRequest(
+					"ajax.php?start="+endWord(box.value), 
+					function g(text) {resultCache[endWord(box.value)] = byId(areaname).innerHTML = text;}
+				);
+			}
 		},
 		false
 	);
