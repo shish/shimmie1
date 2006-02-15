@@ -27,7 +27,7 @@ if(($blockmode == "block") && ($config["upload_anon"] || $user->id != 0)) {
 				<input id="tagBox" name='tags' type='text' value="tagme" autocomplete="off">
 				<input type='submit' value='Post'>
 			</form>
-			<div id="tag_completions" style="clear:both;"></div>
+			<div id="upload_completions" style="clear:both;"></div>
 		</div>
 EOD;
 }
