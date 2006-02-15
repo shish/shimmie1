@@ -7,7 +7,7 @@
  */
 
 
-$version = "Shimmie 0.4.1";
+$version = "Shimmie 0.4.2";
 
 
 /*
