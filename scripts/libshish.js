@@ -25,7 +25,7 @@ function ajaxRequest(url, callback) {
 	var http = getHTTPObject();
 	http.open("GET", url, true);
 	http.onreadystatechange = function() {
-		if(http.readyState == 4) callback();
+		if(http.readyState == 4) callback(http.responseText);
 	}
 	http.send(null);
 }
