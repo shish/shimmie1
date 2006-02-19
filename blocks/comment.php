@@ -20,7 +20,7 @@ if($blockmode == "block") {
 	$com_count = $config['recent_count'];
 	$com_query = <<<EOD
 		SELECT 
-			shm_comments.id as id, image_id, name,
+			shm_comments.id as id, image_id, name, owner_ip, 
 			if(
 				length(comment) > 128,
 				concat(substring(comment, 1, 128), '>>>'),
@@ -36,9 +36,10 @@ EOD;
 	while($row = sql_fetch_row($com_result)) {
 		$cid = $row['id'];
 		$iid = $row['image_id'];
+		$oip = $row['owner_ip'];
 		$uname = htmlentities($row['name']);
 		$comment = htmlentities($row['scomment']);
-		$dellink = $user->isAdmin ? " (<a href='admin.php?action=rmcomment&amp;comment_id=$cid'>X</a>)" : "";
+		$dellink = $user->isAdmin ? "<br>(<a href='admin.php?action=rmcomment&amp;comment_id=$cid'>X</a>) ($oip)" : "";
 		$commentBlock .= "<p><a href='view.php?image_id=$iid'>$uname</a>: $comment$dellink</p>\n";
 	}
 	if($image_id) {
