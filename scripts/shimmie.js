@@ -30,12 +30,23 @@ function initAjax(boxname, areaname) {
 				byId(areaname).innerHTML = "";
 			}
 			else if(resultCache[endWord(box.value)]) {
-				byId(areaname).innerHTML = resultCache[endWord(box.value)];
+			/*	byId(areaname).innerHTML = resultCache[endWord(box.value)];*/
+				rc = resultCache[endWord(box.value)];
+				byId(areaname).innerHTML = "";
+				for(i=0; i<rc.length; i++) {
+					byId(areaname).innerHTML += "<br><a href=\"#\" onclick=\"complete('"+rc[i]+"')\">"+rc[i]+"</a>";
+				}
 			}
 			else {
 				ajaxRequest(
 					"ajax.php?start="+endWord(box.value), 
-					function g(text) {resultCache[endWord(box.value)] = byId(areaname).innerHTML = text;}
+					function g(text) {
+						rc = resultCache[endWord(box.value)] = text.split("\n");
+						byId(areaname).innerHTML = "";
+						for(i=0; i<rc.length; i++) {
+							byId(areaname).innerHTML += "<br><a href=\"#\" onclick=\"complete('"+rc[i]+"')\">"+rc[i]+"</a>";
+						}
+					}
 				);
 			}
 		},
