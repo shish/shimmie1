@@ -115,7 +115,6 @@ $i = 0;
 $width = 3;
 $dir_thumbs = $config['dir_thumbs'];
 while($row = sql_fetch_row($list_result)) {
-print_r($row);
 	$image_id = $row['id'];
 	$hash = $row['hash'];
 	$filename = htmlentities($row['filename']);
