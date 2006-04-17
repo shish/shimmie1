@@ -30,7 +30,7 @@ echo <<<EOD
 	<h3>Image</h3>
 	<center>
 		<!-- <img onclick="scale(this)" src="$dir_images/$img_hash.$img_ext" alt="$img_fname" $scale> -->
-		<img onclick="scale(this)" src="get.php/$img_hash/$image_id - $tags.$img_ext" alt="$img_fname" $scale>
+		<img onclick="scale(this)" src="get.php/$image_id - $tags.$img_ext" alt="$img_fname" $scale>
 		<br/>Uploaded by $img_user
 	</center>
 </div>

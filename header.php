@@ -208,6 +208,7 @@ class User {
 /*
  * With all the settings and stuff ready, see if we have a user logged in
  */
+session_cache_limiter('public');
 session_start();
 if(up_passCheck(sql_escape($_SESSION['shm_user']), $_SESSION['shm_pass'])) {
 	$cuser = $_SESSION['shm_user'];
