@@ -5,6 +5,7 @@
  * Spew an image, allows things like nice filenames
  */
 
+session_cache_limiter('public'); // sessions disable caching -- turn it back on for images
 require_once "header.php";
 
 
