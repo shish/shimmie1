@@ -40,6 +40,8 @@ $img_hash = $img_info['hash'];
 $img_ext = $img_info['ext'];
 $img_fname = htmlentities($img_info['filename']);
 $dir_images = $config['dir_images'];
+$baseurl = $_SERVER['SCRIPT_URI'];
+$baseurl = preg_replace("#[^/]+$#", "", $baseurl);
 
 // FIXME: count where tag = tag1 or tag2 or tag3
 // store results in count['tag']

@@ -7,7 +7,7 @@
  */
 
 if($config["database_api"] == "sqlite") {
-	$sqliteHandle = sqlite_open($config['sqlite_file']);
+	$sqliteHandle = sqlite_open($config['sqlite_file']) or die("Couldn't open SQLite DB ".$config['sqlite_file']);
 	$sqliteError = null;
 
 	function sqlite_cb_concat($a, $b) {return $a.$b;}
