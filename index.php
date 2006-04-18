@@ -127,7 +127,7 @@ while($row = sql_fetch_row($list_result)) {
 
 	if($i%$width==0) $content .= "\n<tr>\n";
 	$content .= "\t<td>".
-		"<a href='view.php?image_id=$image_id'><img src='$dir_thumbs/$hash.jpg' alt='$filename' title='$tags'></a>".
+		"<a href='view.php?image_id=$image_id'><img src='$dir_thumbs/$image_id.jpg' alt='$filename' title='$tags'></a>".
 		"</td>\n";
 	if($i%$width==$width-1) $content .= "\n</tr>\n";
 	$i++;

@@ -19,9 +19,10 @@ $id = sql_escape($args[1]);
 $row = sql_fetch_row(sql_query("SELECT * FROM shm_images WHERE id='$id'"));
 
 $image_dir = $config['dir_images'];
+$img_id = $row['id'];
 $hash = $row['hash'];
 $ext  = $row['ext'];
-$filename = "$image_dir/$hash.$ext";
+$filename = "$image_dir/$img_id.$ext";
 
 $if_modified_since = preg_replace('/;.*$/', '', $_SERVER["HTTP_IF_MODIFIED_SINCE"]);
 $gmdate_mod = gmdate('D, d M Y H:i:s', filemtime($filename)) . ' GMT';
