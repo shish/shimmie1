@@ -1,0 +1,5 @@
+RewriteEngine  on
+RewriteBase   /
+
+RewriteRule    ^([0-9]+).*\.(png|jpg|gif)$ ./images/$1.$2 [L]
+

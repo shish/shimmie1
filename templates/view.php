@@ -30,8 +30,8 @@ echo <<<EOD
 	<h3>Image</h3>
 	<center>
 		<!-- <img onclick="scale(this)" src="$dir_images/$img_hash.$img_ext" alt="$img_fname" $scale> -->
-		<img onclick="scale(this)" src="get.php/$image_id - $tags.$img_ext" alt="$img_fname" $scale>
-		<br/>Short link: <input type="text" size="50" value="http://shish.dreamhosters.com/shimmie/$image_id.$img_ext">
+		<img onclick="scale(this)" src="$image_id - $tags.$img_ext" alt="$tags" $scale>
+		<br/>Short link: <input type="text" size="50" value="$baseurl$image_id.$img_ext">
 		<br/>Uploaded by $img_user
 	</center>
 </div>
