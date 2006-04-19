@@ -12,17 +12,9 @@ require_once "header.php";
 /*
  * Get the ID of the image to view
  */
- //= explode("/", $_SERVER['PATH_INFO']);
-preg_match("#/(\d+) -#", $_SERVER['PATH_INFO'], $args);
-$id = sql_escape($args[1]);
-
-$row = sql_fetch_row(sql_query("SELECT * FROM shm_images WHERE id='$id'"));
-
+preg_match("#/(\d+) - .*\.(jpg|gif|png)#", $_SERVER['PATH_INFO'], $args);
 $image_dir = $config['dir_images'];
-$img_id = $row['id'];
-$hash = $row['hash'];
-$ext  = $row['ext'];
-$filename = "$image_dir/$img_id.$ext";
+$filename = "$image_dir/{$args[1]}.{$args[2]}";
 
 $if_modified_since = preg_replace('/;.*$/', '', $_SERVER["HTTP_IF_MODIFIED_SINCE"]);
 $gmdate_mod = gmdate('D, d M Y H:i:s', filemtime($filename)) . ' GMT';
