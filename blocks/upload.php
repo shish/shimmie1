@@ -91,19 +91,8 @@ if(($blockmode == "standalone") && ($config["upload_anon"] || user_or_die())) {
 				$err .= "<br>There's already an image with hash '$hash' (<a href='view.php?image_id=$iid'>view</a>)";
 				continue;
 			}
-		
-			/*
-			 * If no errors: move the file from the temporary upload
-			 * area to the main file store, create a thumbnail, and
-			 * insert the image info into the database
-			 */
-			if(!move_uploaded_file($_FILES[$dname]['tmp_name'], "$dir_images/$hash.$ext")) {
-				$err .= "<p>The image couldn't be moved from the temporary area to the
-				         main data store -- is the web server allowed to write to '$dir_images'?";
-				continue;
-			}
 			
-			$image = imagecreatefromstring(file_get_contents("$dir_images/$hash.$ext"));
+			$image = imagecreatefromstring(file_get_contents($_FILES[$dname]['tmp_name']));
 		
 			$width = $imgsize[0];
 			$height = $imgsize[1];
@@ -123,18 +112,33 @@ if(($blockmode == "standalone") && ($config["upload_anon"] || user_or_die())) {
 					$width*$scale, $height*$scale, $width, $height
 				);
 			}
-			if(!imagejpeg($thumb, "$dir_thumbs/$hash.jpg", $config['thumb_q'])) {
-				$err .= "<p>The image thumbnail couldn't be generated -- is the web
-				         server allowed to write to '$dir_thumbs'?";
-				continue;
-			}
 
 			// actually insert the info
 			$new_query = "INSERT INTO shm_images(owner_id, owner_ip, filename, hash, ext) ".
 			             "VALUES($user->id, '$owner_ip', '$fname', '$hash', '$ext')";
 			sql_query($new_query);
-			header("X-Shimmie-Image-ID: ".sql_insert_id());
+			$id = sql_insert_id();
+			$del_query = "DELETE FROM shm_images WHERE id=$id";
+		
+			/*
+			 * If no errors: move the file from the temporary upload
+			 * area to the main file store, create a thumbnail, and
+			 * insert the image info into the database
+			 */
+			if(!move_uploaded_file($_FILES[$dname]['tmp_name'], "$dir_images/$id.$ext")) {
+				$err .= "<p>The image couldn't be moved from the temporary area to the
+				         main data store -- is the web server allowed to write to '$dir_images'?";
+				sql_query($del_query);
+				continue;
+			}
+			if(!imagejpeg($thumb, "$dir_thumbs/$id.jpg", $config['thumb_q'])) {
+				$err .= "<p>The image thumbnail couldn't be generated -- is the web
+				         server allowed to write to '$dir_thumbs'?";
+				sql_query($del_query);
+				continue;
+			}
 			
+			header("X-Shimmie-Image-ID: $id");
 			updateTags(sql_insert_id(), sql_escape($_POST['tags']));
 		}
 		else {
