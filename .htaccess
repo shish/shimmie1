@@ -1,3 +1,5 @@
+php_flag session.use_only_cookies on
+
 RewriteEngine  on
 RewriteBase   /
 
