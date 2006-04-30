@@ -139,7 +139,7 @@ if(($blockmode == "standalone") && ($config["upload_anon"] || user_or_die())) {
 			}
 			
 			header("X-Shimmie-Image-ID: $id");
-			updateTags(sql_insert_id(), sql_escape($_POST['tags']));
+			updateTags($id, sql_escape($_POST['tags']));
 		}
 		else {
 			$err .= "<p>$fname upload failed";
@@ -158,7 +158,7 @@ if(($blockmode == "standalone") && ($config["upload_anon"] || user_or_die())) {
 	}
 	else {
 		header("Location: ./index.php");
-		echo "<p><a href='./index.php'>Back</a>";
+		echo "<p><a href='index.php'>Back</a>";
 	}
 }
 ?>
