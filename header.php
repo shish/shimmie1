@@ -28,8 +28,8 @@ require_once "libabsql.php";
  * the installation is done!
  */
 $config_defaults = Array(
-	'dir_images' => './images',
-	'dir_thumbs' => './thumbs',
+	'dir_images' => 'images',
+	'dir_thumbs' => 'thumbs',
 	'index_images' => 12,
 	'thumb_w' => 192,
 	'thumb_h' => 192,
@@ -43,7 +43,9 @@ $config_defaults = Array(
 	'comment_anon' => true,
 	'recent_count' => 5,
 	'popular_count' => 15,
-	'login_enabled' => true
+	'login_enabled' => true,
+	'image_link' => 'get.php/$id - $tags.$ext',
+	'image_slink' => 'images/$id.$ext',
 );
 
 

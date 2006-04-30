@@ -30,7 +30,7 @@ echo <<<EOD
 <div id="body">
 	<h3>Fill in this form</h3>
 	<form action="setup.php" method="POST">
-		<table style="width: 300px;">
+		<table style="width: 400px;">
 			$configOptions
 
 			<tr><td colspan="2">&nbsp;</td></tr>

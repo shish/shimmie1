@@ -47,6 +47,8 @@ $configOptions .= makeOpt("Quality %", "thumb_q", $config["thumb_q"] > 0 && $con
 $configOptions .= makeRow();
 $configOptions .= makeRow("View Page");
 $configOptions .= makeOptCheck("Scale by default", "view_scale", null);
+$configOptions .= makeOpt("Full link", "image_link", null);
+$configOptions .= makeOpt("Short link", "image_slink", null);
 
 $configOptions .= makeRow();
 $configOptions .= makeRow("Tags Page");

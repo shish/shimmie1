@@ -10,7 +10,7 @@
 require_once "header.php";
 
 
-$image_id = (int)$_GET['image_id'];
+$img_id = (int)$_GET['image_id'];
 
 
 /*
@@ -20,12 +20,12 @@ $img_query = <<<EOD
 	SELECT name,hash,ext,filename
 	FROM shm_images
 	LEFT JOIN shm_users ON shm_images.owner_id=shm_users.id
-	WHERE shm_images.id=$image_id
+	WHERE shm_images.id=$img_id
 EOD;
 $img_result = sql_query($img_query);
 if(sql_num_rows($img_result) == 0) {
 	header("X-Shimmie-Status: Error - No Such Image");
-	$title = "No Image $image_id";
+	$title = "No Image $img_id";
 	$body = "The image has either been deleted, or there aren't that many images in the database";
 	require_once "templates/generic.php";
 	exit;
@@ -40,8 +40,8 @@ $img_hash = $img_info['hash'];
 $img_ext = $img_info['ext'];
 $img_fname = htmlentities($img_info['filename']);
 $dir_images = $config['dir_images'];
-$baseurl = $_SERVER['SCRIPT_URI'];
-$baseurl = preg_replace("#[^/]+$#", "", $baseurl);
+$baseurl = "http://" . $_SERVER["HTTP_HOST"] . $_SERVER['SCRIPT_NAME'];
+$baseurl = preg_replace('#[^/]+$#', '', $baseurl);
 
 // FIXME: count where tag = tag1 or tag2 or tag3
 // store results in count['tag']
@@ -51,19 +51,19 @@ function countImagesForTag($tag) {
 	return $row['count'];
 }
 
-$tag_query = "SELECT * FROM shm_tags WHERE image_id=$image_id";
+$tag_query = "SELECT * FROM shm_tags WHERE image_id=$img_id";
 $tag_result = sql_query($tag_query);
-$tags = "";
+$img_tags = "";
 $tagLinks = "";
 $n = 0;
 while($row = sql_fetch_row($tag_result)) {
 	$tag = htmlentities($row['tag']);
-	$tags .= "$tag ";
+	$img_tags .= "$tag ";
 	if($n++) $tagLinks .= "<br/>";
 	$count = countImagesForTag(sql_escape($tag));
 	$tagLinks .= "<a href='index.php?tags=$tag'>$tag ($count)</a>";
 }
-$tags = trim($tags);
+$img_tags = trim($img_tags);
 
 
 /*
@@ -73,7 +73,7 @@ if($user->isAdmin) {
 	$adminBlock = <<<EOD
 	<h3 onclick="toggle('admin')">Admin</h3>
 	<div id="admin">
-		<a href="admin.php?action=rmimage&image_id=$image_id">Delete Image</a>
+		<a href="admin.php?action=rmimage&image_id=$img_id">Delete Image</a>
 	</div>
 EOD;
 }
@@ -82,9 +82,9 @@ EOD;
 /*
  * Fill the navigation block, next = the lowest higher number, prev = the highest lower number
  */
-$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id < $image_id ORDER BY id DESC LIMIT 1"));
+$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id < $img_id ORDER BY id DESC LIMIT 1"));
 $previd = $row ? $row['id'] : null;
-$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id > $image_id ORDER BY id ASC  LIMIT 1"));
+$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id > $img_id ORDER BY id ASC  LIMIT 1"));
 $nextid = $row ? $row['id'] : null;
 
 $pageNav = ($previd ? "<a href='view.php?image_id=$previd'>Prev</a> | " : "Prev | ").
@@ -93,13 +93,28 @@ $pageNav = ($previd ? "<a href='view.php?image_id=$previd'>Prev</a> | " : "Prev 
 
 
 /*
+ * parse the image link templates
+ */
+function parseLinkTemplate($tmpl) {
+	global $img_id, $img_hash, $img_tags, $img_ext;
+	$tmpl = str_replace('$id',   $img_id,   $tmpl);
+	$tmpl = str_replace('$hash', $img_hash, $tmpl);
+	$tmpl = str_replace('$tags', $img_tags, $tmpl);
+	$tmpl = str_replace('$ext',  $img_ext,  $tmpl);
+	return $tmpl;
+}
+$img_link = parseLinkTemplate($config['image_link']);
+$img_slink = parseLinkTemplate($config['image_slink']);
+
+
+/*
  * Should we start with the image full sized, or
  * squashed into the available space?
  */
-if($config['view_scale']) $scale = "style='width:90%'";
+if($config['view_scale']) $scale = "style='width: 90%'";
 else $scale = "";
 
 
-$title = htmlentities($tags);
+$title = htmlentities($img_tags);
 require_once "templates/view.php";
 ?>
