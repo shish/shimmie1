@@ -7,7 +7,7 @@
  */
 
 
-$version = "Shimmie 0.5.0";
+$version = "Shimmie 0.5.1";
 
 
 /*
@@ -151,6 +151,8 @@ function up_login() {
 	$name = sql_escape($_POST['user']);
 	$hash = md5( strtolower($_POST['user']) . $_POST['pass'] );
 	if(up_passCheck($name, $hash)) {
+		session_start();
+		setcookie("shm_login", "true", time()+60*60*24*30);
 		$_SESSION["shm_user"] = $name;
 		$_SESSION["shm_pass"] = $hash;
 
@@ -210,14 +212,16 @@ class User {
 /*
  * With all the settings and stuff ready, see if we have a user logged in
  */
-session_start();
-if(up_passCheck(sql_escape($_SESSION['shm_user']), $_SESSION['shm_pass'])) {
-	$cuser = $_SESSION['shm_user'];
-	$cpass = $_SESSION['shm_pass'];
-}
-else {
-	$cuser = null;
-	$cpass = null;
+if($_COOKIE['shm_login']) {
+	session_start();
+	if(up_passCheck(sql_escape($_SESSION['shm_user']), $_SESSION['shm_pass'])) {
+		$cuser = $_SESSION['shm_user'];
+		$cpass = $_SESSION['shm_pass'];
+	}
+	else {
+		$cuser = null;
+		$cpass = null;
+	}
 }
 $user = new User($cuser);
 
