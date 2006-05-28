@@ -193,14 +193,13 @@ function up_login() {
 function getBlocks($pageType) {
 	global $config, $user;
 
-	if(is_null($blockmode)) {
-		$blockmode = "block";
-		$blockFiles = glob("blocks/*.php");
-		foreach($blockFiles as $block) {
-			require_once $block;
-		}
+	$blockFiles = glob("blocks/*.php");
+	foreach($blockFiles as $block) {
+		require_once $block;
 	}
+
 	$allBlocks = "";
+	ksort($blocks);
 	foreach($blocks as $block) {
 		$allBlocks .= $block;
 	}
