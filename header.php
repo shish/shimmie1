@@ -124,6 +124,10 @@ function defined_or_die($var, $name=null) {
 function updateTags($image_id, $tagList) {
 	$tags = explode(" ", $tagList);
 
+	if(count($tags) == 0) {
+		$tags = Array("tagme");
+	}
+
 	// clear old tags
 	sql_query("DELETE FROM shm_tags WHERE image_id=$image_id");
 
