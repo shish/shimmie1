@@ -10,7 +10,7 @@ if($pageType == "view") {
 		$blocks[] = <<<EOD
 		<h3 onclick="toggle('admin')">Admin</h3>
 		<div id="admin">
-			<a href="admin.php?action=rmimage&image_id=$img_id">Delete Image</a>
+			<a href="admin.php?action=rmimage&image_id={$image->id}">Delete Image</a>
 		</div>
 EOD;
 	}

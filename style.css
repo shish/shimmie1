@@ -52,12 +52,11 @@ FORM {margin: 0px;}
 	text-align: center;
 	font-size: 0.9em;
 }
-#nav INPUT {
+#nav INPUT[type="text"] {
 	width: 150px;
 	padding: 0px;
 }
 #nav INPUT[type="submit"] {
-	width: 50px;
 	float: right;
 }
 

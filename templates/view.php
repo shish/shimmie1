@@ -6,9 +6,9 @@ echo <<<EOD
 <div id="body">
 	<h3>Image</h3>
 	<center>
-		<img onclick="scale(this)" src="$img_link" alt="$img_tags" $scale>
-		<br/>Short link: <input type="text" size="50" value="$baseurl$img_slink">
-		<br/>Uploaded by $img_user
+		<img onclick="scale(this)" src="$image->link" alt="$image->tags" $scale>
+		<br/>Short link: <input type="text" size="50" value="$baseurl$image->slink">
+		<br/>Uploaded by $image->owner
 	</center>
 </div>
 EOD;

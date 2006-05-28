@@ -209,6 +209,30 @@ function getBlocks($pageType) {
 
 
 /*
+ * parse a link templated
+ */
+function parseLinkTemplate($tmpl, $img) {
+	$tmpl = str_replace('$id',   $img->id,   $tmpl);
+	$tmpl = str_replace('$hash', $img->hash, $tmpl);
+	$tmpl = str_replace('$tags', $img->tags, $tmpl);
+	$tmpl = str_replace('$ext',  $img->ext,  $tmpl);
+	return $tmpl;
+}
+
+
+/*
+ * Count how many times a tag is used
+ * FIXME: count where tag = tag1 or tag2 or tag3
+ * store results in count['tag']
+ */
+function countImagesForTag($tag) {
+	$tag_query = "SELECT count(*) as count FROM shm_tags WHERE tag='$tag'";
+	$row = sql_fetch_row(sql_query($tag_query));
+	return $row['count'];
+}
+
+
+/*
  * A PHP-friendly view of a row in the users table
  */
 class User {
@@ -225,6 +249,63 @@ class User {
 			$this->id = $row['id'];
 			$this->name = $row['name'];
 			$this->isAdmin = ($row['permissions'] > 0);
+		}
+	}
+}
+
+
+/*
+ * A PHP-friendly view of a row in the images table
+ */
+class Image {
+	var $id = null;
+	var $filename = null;
+	var $hash = null;
+	var $ext = null;
+
+	var $owner = null;
+	var $owner_id = null;
+
+	var $link = null;
+	var $slink = null;
+
+	var $tags = null;
+
+	function Image($id) {
+		global $config;
+		if(is_null((int)$id)) return;
+
+		$img_query = <<<EOD
+			SELECT shm_images.*, shm_users.name
+			FROM shm_images
+			LEFT JOIN shm_users ON shm_images.owner_id=shm_users.id
+			WHERE shm_images.id=$id
+EOD;
+		$img_result = sql_query($img_query);
+		if(sql_num_rows($img_result) == 1) {
+			$img_info = sql_fetch_row($img_result);
+			$this->id = $img_info["id"];
+			$this->owner = htmlentities($img_info['name']);
+			$this->filename = $img_info['filename'];
+			$this->hash = $img_info['hash'];
+			$this->ext = $img_info['ext'];
+
+			$this->link = parseLinkTemplate($config['image_link'], $this);
+			$this->slink = parseLinkTemplate($config['image_slink'], $this);
+
+			$tag_query = "SELECT * FROM shm_tags WHERE image_id={$this->id}";
+			$tag_result = sql_query($tag_query);
+			$this->tags = Array();
+			while($row = sql_fetch_row($tag_result)) {
+				$this->tags[] = htmlentities($row['tag']);
+			}
+		}
+		else {
+			header("X-Shimmie-Status: Error - No Such Image");
+			$title = "No Image $id";
+			$body = "The image has either been deleted, or there aren't that many images in the database";
+			require_once "templates/generic.php";
+			exit;
 		}
 	}
 }

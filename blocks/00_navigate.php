@@ -31,11 +31,11 @@ else if($pageType == "index") {
 		($morePages ? "<a href='index.php?page=$vnext&tags=$htmlSafeTags'>Next</a>" : "Next");
 }
 else if($pageType == "view") {
-	global $img_id;
+	global $image;
 
-	$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id < $img_id ORDER BY id DESC LIMIT 1"));
+	$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id < {$image->id} ORDER BY id DESC LIMIT 1"));
 	$previd = $row ? $row['id'] : null;
-	$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id > $img_id ORDER BY id ASC  LIMIT 1"));
+	$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id > {$image->id} ORDER BY id ASC  LIMIT 1"));
 	$nextid = $row ? $row['id'] : null;
 
 	$pageNav =
