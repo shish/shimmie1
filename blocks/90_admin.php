@@ -7,7 +7,7 @@
 
 if($pageType == "view") {
 	if($user->isAdmin) {
-		$blocks[] = <<<EOD
+		$blocks[90] = <<<EOD
 		<h3 onclick="toggle('admin')">Admin</h3>
 		<div id="admin">
 			<a href="admin.php?action=rmimage&image_id={$image->id}">Delete Image</a>

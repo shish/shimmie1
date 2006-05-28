@@ -10,7 +10,7 @@ if($pageType == "view") {
 
 	$tags = implode(" ", $image->tags);
 
-	$blocks[] = <<<EOD
+	$blocks[20] = <<<EOD
 	<h3 onclick="toggle('tags')">Edit Tags</h3>
 	<div id="tags">
 		<form action="update.php" method="POST">

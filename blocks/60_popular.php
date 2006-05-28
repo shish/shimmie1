@@ -32,6 +32,6 @@ EOD;
 	$popularBlock .= "<p><a href='tags.php'>Full List &gt;&gt;&gt;</a>\n";
 	$popularBlock .= "</div>";
 
-	$blocks[] = $popularBlock;
+	$blocks[60] = $popularBlock;
 }
 ?>

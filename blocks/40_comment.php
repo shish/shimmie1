@@ -54,7 +54,7 @@ EOD;
 	}
 	$commentBlock .= "</div>\n";
 
-	$blocks[] = $commentBlock;
+	$blocks[40] = $commentBlock;
 }
 
 if(($pageType == "block") && ($config["comment_anon"] || user_or_die())) {
