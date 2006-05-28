@@ -75,7 +75,7 @@ if($_GET['tags']) {
 		if($tnum == 0) {
 			$search_sql .= "-(tag LIKE '$tag' ";
 		}
-		else $search_sql .= "AND tag LIKE '$tag' ";
+		else $search_sql .= "OR tag LIKE '$tag' ";
 		$tnum++;
 	}
 	if($tnum > 0) $search_sql .= ") ";
