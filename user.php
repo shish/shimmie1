@@ -17,7 +17,8 @@ else {
 
 if(is_null($_GET['action'])) {
 	header("X-Shimmie-Status: OK - Settings Shown");
-	$title = "$user->name's settings ";
+	$title = "$user->name's settings";
+	$blocks = getBlocks("user");
 	require_once "templates/user.php";
 }
 else if($_GET['action'] == "pass") {

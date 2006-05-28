@@ -14,7 +14,7 @@ if(!$config['login_enabled']) return;
  * if not logged in, show "log in" box
  */
 if(is_null($user->name) || ($user->name == "Anonymous")) {
-	$userBlock = <<<EOD
+	$blocks[] = <<<EOD
 	<h3 onclick="toggle('user')">User Login</h3>
 	<div id="user">
 		<form action="user.php?action=login" method="POST">
@@ -41,7 +41,7 @@ else {
 	else {
 		$extra = "";
 	}
-	$userBlock = <<<EOD
+	$blocks[] = <<<EOD
 	<h3 onclick="toggle('user')">User Info</h3>
 	<div id="user">
 		Logged in as $user->name

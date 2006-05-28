@@ -66,6 +66,7 @@ $configOptions .= makeOpt("Recent Comments", "recent_count", null);
 $configOptions .= makeOpt("Popular Tags", "popular_count", null);
 
 $title = "Shimmie Setup";
+$blocks = getBlocks("setup");
 require_once "templates/setup.php";
 
 

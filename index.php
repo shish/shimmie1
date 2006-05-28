@@ -104,13 +104,13 @@ else {
 }
 
 /*
- * Generate the content to go in the main part of the page
+ * Generate the imageTable to go in the main part of the page
  *
  * FIXME: alt attribute on the image, preferably without running a 
  * sepatate query for every image. MySQL's group_concat is what we
  * want, but that's a 4.1 feature, and debian stable is still 4.0.
  */
-$content = "";
+$imageTable = "";
 $i = 0;
 $width = 3;
 $dir_thumbs = $config['dir_thumbs'];
@@ -125,11 +125,11 @@ while($row = sql_fetch_row($list_result)) {
 	while($row = sql_fetch_row($tags_result)) {$tags .= $row['tag']." ";}
 	
 
-	if($i%$width==0) $content .= "\n<tr>\n";
-	$content .= "\t<td>".
+	if($i%$width==0) $imageTable .= "\n<tr>\n";
+	$imageTable .= "\t<td>".
 		"<a href='view.php?image_id=$image_id'><img src='$dir_thumbs/$image_id.jpg' alt='$filename' title='$tags'></a>".
 		"</td>\n";
-	if($i%$width==$width-1) $content .= "\n</tr>\n";
+	if($i%$width==$width-1) $imageTable .= "\n</tr>\n";
 	$i++;
 }
 
@@ -140,20 +140,16 @@ while($row = sql_fetch_row($list_result)) {
  */
 $morePages = (($cpage+1)*$config['index_images'] < $totalImages);
 
-$pageNav = ($cpage>0   ? "<a href='index.php?page=$vprev&tags=$htmlSafeTags'>Prev</a> | " : "Prev | ").
-           "<a href=\"index.php\">Index</a> | ".
-		   ($morePages ? "<a href='index.php?page=$vnext&tags=$htmlSafeTags'>Next</a>" : "Next");
-
-$pageNav2 = ($cpage>0 ? "<a href='index.php?page=$vprev&tags=$htmlSafeTags'>Prev</a> | " : "Prev | ");
+$paginator = ($cpage>0 ? "<a href='index.php?page=$vprev&tags=$htmlSafeTags'>Prev</a> | " : "Prev | ");
 for($i=0, $j=$cpage-5; $i<11; $j++) {
 	if($j > 0) {
 		if(($j-1)*$config['index_images'] < $totalImages) {
-			$pageNav2 .= "<a href='index.php?page=$j&tags=$htmlSafeTags' style='width: 20px;'>$j</a> | ";
+			$paginator .= "<a href='index.php?page=$j&tags=$htmlSafeTags' style='width: 20px;'>$j</a> | ";
 		}
 		$i++;
 	}
 }
-$pageNav2 .= ($morePages ? "<a href='index.php?page=$vnext&tags=$htmlSafeTags'>Next</a>" : "Next");
+$paginator .= ($morePages ? "<a href='index.php?page=$vnext&tags=$htmlSafeTags'>Next</a>" : "Next");
 
 
 /*
@@ -167,5 +163,6 @@ else $title = "$version / $vpage";
 /*
  * Finally display the page \o/
  */
+$blocks = getBlocks("index");
 require_once "templates/index.php";
 ?>

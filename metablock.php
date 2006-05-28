@@ -9,7 +9,7 @@
 
 $block = $_GET['block'];
 if($block) {
-	$blockmode = "standalone";
+	$pageType = "block";
 	require_once "./blocks/$block.php";
 }
 else {

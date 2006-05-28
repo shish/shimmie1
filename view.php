@@ -2,8 +2,6 @@
 /*
  * view.php (c) Shish 2005, 2006
  *
- * -- view an image
- *
  * View an image and it's comments
  */
 
@@ -67,32 +65,6 @@ $img_tags = trim($img_tags);
 
 
 /*
- * Admins are allowed to delete things
- */
-if($user->isAdmin) {
-	$adminBlock = <<<EOD
-	<h3 onclick="toggle('admin')">Admin</h3>
-	<div id="admin">
-		<a href="admin.php?action=rmimage&image_id=$img_id">Delete Image</a>
-	</div>
-EOD;
-}
-
-
-/*
- * Fill the navigation block, next = the lowest higher number, prev = the highest lower number
- */
-$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id < $img_id ORDER BY id DESC LIMIT 1"));
-$previd = $row ? $row['id'] : null;
-$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id > $img_id ORDER BY id ASC  LIMIT 1"));
-$nextid = $row ? $row['id'] : null;
-
-$pageNav = ($previd ? "<a href='view.php?image_id=$previd'>Prev</a> | " : "Prev | ").
-		   "<a href='index.php'>Index</a> | ".
-           ($nextid ? "<a href='view.php?image_id=$nextid'>Next</a>" : "Next");
-
-
-/*
  * parse the image link templates
  */
 function parseLinkTemplate($tmpl) {
@@ -116,5 +88,6 @@ else $scale = "";
 
 
 $title = htmlentities($img_tags);
+$blocks = getBlocks("view");
 require_once "templates/view.php";
 ?>

@@ -89,6 +89,7 @@ else {
 
 
 $title = "Tags";
+$blocks = getBlocks("tags");
 require_once "templates/tags.php";
 ?>
 

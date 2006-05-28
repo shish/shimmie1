@@ -5,5 +5,14 @@
  * Filled in per-page (eg the view page fills it with "delete this image")
  */
 
-$adminBlock = "";
+if($pageType == "view") {
+	if($user->isAdmin) {
+		$blocks[] = <<<EOD
+		<h3 onclick="toggle('admin')">Admin</h3>
+		<div id="admin">
+			<a href="admin.php?action=rmimage&image_id=$img_id">Delete Image</a>
+		</div>
+EOD;
+	}
+}
 ?>

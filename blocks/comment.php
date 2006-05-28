@@ -7,12 +7,12 @@
 
 require_once "header.php";
 
-if($blockmode == "block") {
-	if($_GET['image_id']) {
+if(($pageType == "index") || ($pageType == "view")) {
+	if($pageType == "view") {
 		$image_id = (int)$_GET['image_id'];
 		$where = "WHERE image_id=$image_id";
 	}
-	else {
+	else if($pageType == "index") {
 		$image_id = false;
 		$where = "";
 	}
@@ -53,9 +53,11 @@ EOD;
 EOD;
 	}
 	$commentBlock .= "</div>\n";
+
+	$blocks[] = $commentBlock;
 }
 
-if($blockmode == "standalone" && ($config["comment_anon"] || user_or_die())) {
+if(($pageType == "block") && ($config["comment_anon"] || user_or_die())) {
 	// get input
 	$image_id = (int)defined_or_die($_POST['image_id']);
 	$owner_id = $user->id;

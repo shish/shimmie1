@@ -1,23 +1,7 @@
 <?php
 require_once "templates/header.php";
 echo <<<EOD
-<div id="nav">
-	<h3 onclick="toggle('navigate')">Navigate</h3>
-	<div id="navigate">
-		<a href="index.php">index</a>
-		<div id="search">
-			<p><form action='index.php' method='GET'>
-				<input name='tags' type='text'>
-				<input type='submit' value='Find'>
-			</form>
-		</div>
-	</div>
-
-	$commentBlock
-	$popularBlock
-	$userBlock
-	$adminBlock
-</div>
+<div id="nav">$blocks</div>
 
 <div id="body">
 	<h3>Things</h3>

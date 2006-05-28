@@ -188,6 +188,27 @@ function up_login() {
 
 
 /*
+ * get blocks for a page
+ */
+function getBlocks($pageType) {
+	global $config, $user;
+
+	if(is_null($blockmode)) {
+		$blockmode = "block";
+		$blockFiles = glob("blocks/*.php");
+		foreach($blockFiles as $block) {
+			require_once $block;
+		}
+	}
+	$allBlocks = "";
+	foreach($blocks as $block) {
+		$allBlocks .= $block;
+	}
+	return $allBlocks;
+}
+
+
+/*
  * A PHP-friendly view of a row in the users table
  */
 class User {
@@ -224,16 +245,4 @@ if($_COOKIE['shm_login']) {
 	}
 }
 $user = new User($cuser);
-
-
-/*
- * Load each block for the sidebar
- */
-if(is_null($blockmode)) {
-	$blockmode = "block";
-	$blocks = glob("blocks/*.php");
-	foreach($blocks as $block) {
-		require_once $block;
-	}
-}
 ?>

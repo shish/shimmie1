@@ -8,7 +8,7 @@
 require_once "header.php";
 
 // Don't show the block if anon uploads are disabled
-if(($blockmode == "block") && ($config["upload_anon"] || $user->id != 0)) {
+if(($pageType == "index") && ($config["upload_anon"] || $user->id != 0)) {
 	$maxSize = $config["upload_size"];
 
 	$uploadList = "";
@@ -18,7 +18,7 @@ if(($blockmode == "block") && ($config["upload_anon"] || $user->id != 0)) {
 		$uploadList .= "<input accept='image/jpeg,image/png,image/gif' size='10' ".
 			"id='data$i' name='data$i' $style onchange=\"showUp('data".($i+1)."')\" type='file'>\n";
 	}
-	$uploadBlock = <<<EOD
+	$blocks[] = <<<EOD
 		<h3 onclick="toggle('upload')">Upload</h3>
 		<div id="upload">
 			<form enctype='multipart/form-data' action='metablock.php?block=upload' method='post'>
@@ -32,7 +32,7 @@ if(($blockmode == "block") && ($config["upload_anon"] || $user->id != 0)) {
 EOD;
 }
 
-if(($blockmode == "standalone") && ($config["upload_anon"] || user_or_die())) {
+if(($pageType == "block") && ($config["upload_anon"] || user_or_die())) {
 	$owner_ip = $_SERVER['REMOTE_ADDR'];
 	$dir_images = $config['dir_images'];
 	$dir_thumbs = $config['dir_thumbs'];
