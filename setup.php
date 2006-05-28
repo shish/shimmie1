@@ -30,6 +30,10 @@ if($_POST["action"] == "set") {
 /*
  * Generate the HTML form
  */
+$configOptions .= makeRow("Global");
+$configOptions .= makeOpt("Title", "title", strlen($config["dir_thumbs"]) > 0);
+
+$configOptions .= makeRow();
 $configOptions .= makeRow("Directories");
 $configOptions .= makeOpt("Images", "dir_images", is_writable($config["dir_images"]));
 $configOptions .= makeOpt("Thumbnails", "dir_thumbs", is_writable($config["dir_thumbs"]));

@@ -28,6 +28,7 @@ require_once "libabsql.php";
  * the installation is done!
  */
 $config_defaults = Array(
+	'title' => $version,
 	'dir_images' => 'images',
 	'dir_thumbs' => 'thumbs',
 	'index_images' => 12,

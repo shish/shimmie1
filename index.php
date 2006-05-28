@@ -157,7 +157,7 @@ $paginator .= ($morePages ? "<a href='index.php?page=$vnext&tags=$htmlSafeTags'>
  * If not, show the version string.
  */
 if($_GET['tags']) $title = "$htmlSafeTags / $vpage";
-else $title = "$version / $vpage";
+else $title = $config['title']." / $vpage";
 
 
 /*
