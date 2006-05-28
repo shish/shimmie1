@@ -51,6 +51,8 @@ $sqlSafeTags = sql_escape($_GET['tags']);
 
 if($_GET['tags']) {
 	$tags = explode(" ", $sqlSafeTags);
+
+	if(count($tags) > 1) $moreHtmlTags = "<meta name='robots' content='noindex,follow'>";
 	
 	$search_sql = "";
 	$tnum = 0;
