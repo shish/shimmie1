@@ -9,6 +9,10 @@ if($pageType == "view") {
 	global $image, $tagLinks;
 
 	$tags = implode(" ", $image->tags);
+	$tagLinks = "";
+	foreach($image->tags as $tag) {
+		$tagLinks .= "<br><a href='index.php?tags=$tag'>$tag</a>\n";
+	}
 
 	$blocks[20] = <<<EOD
 	<h3 onclick="toggle('tags')">Edit Tags</h3>
