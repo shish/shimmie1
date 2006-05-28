@@ -13,7 +13,8 @@ if($pageType == "view") {
 	$blocks[20] = <<<EOD
 	<h3 onclick="toggle('tags')">Edit Tags</h3>
 	<div id="tags">
-		<form action="update.php" method="POST">
+		<form action="metablock.php" method="POST">
+			<input type="hidden" name="block" value="edit_tags">
 			<input name="image_id" type="hidden" value="$image->id">
 			<input name="tags" type="text" value="$tags">
 			<input type="submit" value="Set">
@@ -21,5 +22,17 @@ if($pageType == "view") {
 		<p>$tagLinks
 	</div>
 EOD;
+}
+
+if($pageType == "block") {
+	$config['upload_anon'] || user_or_die();
+
+	// get input
+	$image_id = (int)$_POST['image_id'];
+	updateTags($image_id, sql_escape($_POST['tags']));
+
+	// go back
+	header("Location: view.php?image_id=$image_id");
+	echo "<p><a href='view.php?image_id=$image_id'>Back</a>";
 }
 ?>
