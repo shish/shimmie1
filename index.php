@@ -55,38 +55,53 @@ if($_GET['tags']) {
 	if(count($tags) > 1) $moreHtmlTags = "<meta name='robots' content='noindex,follow'>";
 	
 	$search_sql = "";
+
 	$tnum = 0;
 	foreach($tags as $tag) {
+		if($tag[0] == '-') continue;
 		$searchString .= " $tag";
-		if($tnum == 0) $search_sql .= "LIKE '$tag' ";
+		if($tnum == 0) $search_sql .= "(tag LIKE '$tag' ";
 		else $search_sql .= "OR tag LIKE '$tag' ";
 		$tnum++;
 	}
-	$searchString = trim($searchString);
+	$tagCount = $tnum;
+	if($tnum > 0) $search_sql .= ") ";
 
-	$tagCount = count($tags);
+	$tnum = 0;
+	foreach($tags as $tag) {
+		if($tag[0] != '-') continue;
+		$searchString .= " $tag";
+		$tag = preg_replace("/^-/", "", $tag);
+		if($tnum == 0) {
+			$search_sql .= "-(tag LIKE '$tag' ";
+		}
+		else $search_sql .= "AND tag LIKE '$tag' ";
+		$tnum++;
+	}
+	if($tnum > 0) $search_sql .= ") ";
+
+	$searchString = trim($searchString);
 
 	$list_query = <<<EOD
 		SELECT 
 			images.id AS id, images.hash AS hash, images.ext AS ext, 
-			COUNT(tag) AS count
+			SUM($search_sql) AS score
 		FROM shm_tags
 		LEFT JOIN shm_images ON image_id=shm_images.id
-		WHERE tag $search_sql 
 		GROUP BY image_id 
-		HAVING count = $tagCount
+		HAVING score=$tagCount
 	    ORDER BY image_id DESC 
 	    LIMIT $start,$imagesPerPage
 EOD;
+
 	$total_query = <<<EOD
 		SELECT 
 			*,
-			COUNT(tag) AS count
+			SUM($search_sql) AS score
 		FROM shm_tags
 		LEFT JOIN shm_images ON image_id=shm_images.id
-		WHERE tag $search_sql 
 		GROUP BY image_id 
-		HAVING count = $tagCount
+		HAVING score=$tagCount
 EOD;
 }
 else {
