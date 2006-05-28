@@ -1,6 +1,6 @@
 <?php
 /*
- * user.php (c) Shish 2005
+ * user.php (c) Shish 2005, 2006
  *
  * Show either login prompt, or links to user info
  */

@@ -2,7 +2,7 @@
 /*
  * edittags.php (c) Shish 2006
  *
- * A block to edit image tags
+ * Rotate an image, losslessly if possible
  */
 
 if($pageType == "view") {

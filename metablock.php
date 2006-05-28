@@ -7,6 +7,8 @@
  * do the uploading
  */
 
+require_once "header.php";
+
 $block = $_GET['block'];
 if($block) {
 	$pageType = "block";

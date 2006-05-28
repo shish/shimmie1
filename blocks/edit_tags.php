@@ -13,8 +13,7 @@ if($pageType == "view") {
 	$blocks[20] = <<<EOD
 	<h3 onclick="toggle('tags')">Edit Tags</h3>
 	<div id="tags">
-		<form action="metablock.php" method="POST">
-			<input type="hidden" name="block" value="edit_tags">
+		<form action="metablock.php?block=edit_tags" method="POST">
 			<input name="image_id" type="hidden" value="$image->id">
 			<input name="tags" type="text" value="$tags">
 			<input type="submit" value="Set">
