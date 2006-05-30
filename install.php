@@ -261,7 +261,8 @@ function initDb($db, $query, $tp, $admin_name, $admin_pass, $prikey) {
 		image_id int not null,
 		owner_id int not null,
 		owner_ip char(16),
-		comment text
+		comment text,
+		INDEX(image_id)
 	)");
 	$query($db, "CREATE TABLE ${tp}images (
 		id $prikey,
@@ -270,19 +271,23 @@ function initDb($db, $query, $tp, $admin_name, $admin_pass, $prikey) {
 		filename char(32),
 		hash char(32),
 		ext char(4),
-		UNIQUE(hash)
+		UNIQUE(hash),
+		INDEX(id)
 	)");
 	$query($db, "CREATE TABLE ${tp}tags (
 		image_id int not null,
 		tag char(32),
-		UNIQUE(image_id, tag)
+		UNIQUE(image_id, tag),
+		INDEX(image_id),
+		INDEX(tag)
 	)");
 	$query($db, "CREATE TABLE ${tp}users (
 		id $prikey,
 		name char(16) not null,
 		pass char(32),
 		permissions int default 0,
-		UNIQUE(name)
+		UNIQUE(name),
+		INDEX(id)
 	)");
 	$query($db, "CREATE TABLE ${tp}config (
 		name varchar(255),

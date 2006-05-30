@@ -56,6 +56,10 @@ FORM {margin: 0px;}
 	width: 150px;
 	padding: 0px;
 }
+#nav TD INPUT[type="text"] {
+	width: 90%;
+	padding: 0px;
+}
 #nav INPUT[type="submit"] {
 	float: right;
 }

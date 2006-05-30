@@ -18,7 +18,7 @@ if(($pageType == "index") && ($config["upload_anon"] || $user->id != 0)) {
 		$uploadList .= "<input accept='image/jpeg,image/png,image/gif' size='10' ".
 			"id='data$i' name='data$i' $style onchange=\"showUp('data".($i+1)."')\" type='file'>\n";
 	}
-	$blocks[30] = <<<EOD
+	$blocks[30] .= <<<EOD
 		<h3 onclick="toggle('upload')">Upload</h3>
 		<div id="upload">
 			<form enctype='multipart/form-data' action='metablock.php?block=upload' method='post'>
