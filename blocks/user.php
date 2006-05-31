@@ -13,7 +13,7 @@ if(!$config['login_enabled']) return;
 /*
  * if not logged in, show "log in" box
  */
-if(!$user->isAnonymous()) {
+if($user->isAnonymous()) {
 	$blocks[80] .= <<<EOD
 	<h3 onclick="toggle('user')">User Login</h3>
 	<div id="user">

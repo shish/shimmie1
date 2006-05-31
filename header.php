@@ -255,7 +255,6 @@ class User {
 			$row = sql_fetch_row($result);
 			$this->id = $row['id'];
 			$this->name = $row['name'];
-			$this->isLoggedIn = true;
 
 			$result = sql_query("SELECT * FROM shm_user_configs WHERE owner_id={$this->id}");
 			while($row = sql_fetch_row($result)) {
@@ -269,11 +268,11 @@ class User {
 	}
 	function isUser() {
 		global $config;
-		return ($id != $config['anon_id']);
+		return ($this->id != $config['anon_id']);
 	}
 	function isAnonymous() {
 		global $config;
-		return ($id == $config['anon_id']);
+		return ($this->id == $config['anon_id']);
 	}
 }
 
