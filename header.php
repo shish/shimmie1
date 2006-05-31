@@ -271,6 +271,10 @@ class User {
 		global $config;
 		return ($id != $config['anon_id']);
 	}
+	function isAnonymous() {
+		global $config;
+		return ($id == $config['anon_id']);
+	}
 }
 
 
