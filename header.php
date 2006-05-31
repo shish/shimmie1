@@ -7,7 +7,7 @@
  */
 
 
-$version = "Shimmie 0.6.1";
+$version = "Shimmie 0.6.2";
 
 
 /*
@@ -81,7 +81,7 @@ foreach($config_default_keys as $cname) {
  */
 function admin_or_die() {
 	global $user;
-	if($user->isAdmin != true) {
+	if($user->isAdmin() != true) {
 		header("X-Shimmie-Status: Error - Not Admin");
 		$title = "Not Admin";
 		$message = "You need to have administrator rights to view this page";
@@ -92,7 +92,7 @@ function admin_or_die() {
 }
 function user_or_die() {
 	global $user;
-	if($user->id == 0) {
+	if($user->isUser() != true) {
 		header("X-Shimmie-Status: Error - Not Logged In");
 		$title = "Not Logged In";
 		$message = "You need to be logged in";
@@ -240,11 +240,14 @@ function countImagesForTag($tag) {
  * A PHP-friendly view of a row in the users table
  */
 class User {
-	var $id = 0;
-	var $name = "Anonymous";
-	var $isAdmin = false;
+	var $id = null;
+	var $name = 'Anonymous';
+	var $uconfig = Array();
 
 	function User($cname) {
+		global $config;
+		$this->id = $config['anon_id'];
+
 		if(is_null($cname)) return;
 
 		$result = sql_query("SELECT * FROM shm_users WHERE name LIKE '$cname'");
@@ -252,8 +255,21 @@ class User {
 			$row = sql_fetch_row($result);
 			$this->id = $row['id'];
 			$this->name = $row['name'];
-			$this->isAdmin = ($row['permissions'] > 0);
+			$this->isLoggedIn = true;
+
+			$result = sql_query("SELECT * FROM shm_user_configs WHERE owner_id={$this->id}");
+			while($row = sql_fetch_row($result)) {
+				$this->uconfig[$row['name']] = $row['value'];
+			}
 		}
+	}
+
+	function isAdmin() {
+		return ($this->uconfig['isadmin'] == 'true');
+	}
+	function isUser() {
+		global $config;
+		return ($id != $config['anon_id']);
 	}
 }
 

@@ -8,7 +8,7 @@
 require_once "header.php";
 
 // Don't show the block if anon uploads are disabled
-if(($pageType == "index") && ($config["upload_anon"] || $user->id != 0)) {
+if(($pageType == "index") && ($config["upload_anon"] || $user->isUser())) {
 	$maxSize = $config["upload_size"];
 
 	$uploadList = "";

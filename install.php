@@ -163,7 +163,8 @@ else if($_GET["action"] == "set") {
 		/*
 		 * Create the database
 		 */
-		 initDb(null, "mysql_query2", $tp, $admin_name, $admin_pass, "int primary key auto_increment");
+		 initDb(null, "mysql_query2", $tp, $admin_name, $admin_pass, 
+		 	"int primary key auto_increment", "mysql_insert_id2");
 	}
 
 
@@ -214,7 +215,8 @@ else if($_GET["action"] == "set") {
 		 * Create the database
 		 */
 		sqlite_query2($db, "BEGIN TRANSACTION;");
-		initDb($db, "sqlite_query2", $tp, $admin_name, $admin_pass, "integer primary key");
+		initDb($db, "sqlite_query2", $tp, $admin_name, $admin_pass,
+			"integer primary key", "sqlite_last_insert_rowid");
 		sqlite_query2($db, "END TRANSACTION;");
 	}
 
@@ -255,7 +257,7 @@ else if($_GET["action"] == "set") {
 /*
  * This is big, try and keep it generic rather than copy & pasting per backend
  */
-function initDb($db, $query, $tp, $admin_name, $admin_pass, $prikey) {
+function initDb($db, $query, $tp, $admin_name, $admin_pass, $prikey, $lastid) {
 	$query($db, "CREATE TABLE ${tp}comments (
 		id $prikey,
 		image_id int not null,
@@ -285,9 +287,15 @@ function initDb($db, $query, $tp, $admin_name, $admin_pass, $prikey) {
 		id $prikey,
 		name char(16) not null,
 		pass char(32),
-		permissions int default 0,
 		UNIQUE(name),
 		INDEX(id)
+	)");
+	$query($db, "CREATE TABLE ${tp}user_configs (
+		owner_id $prikey,
+		name varchar(255),
+		value varchar(255),
+		UNIQUE(owner_id, name),
+		INDEX(owner_id)
 	)");
 	$query($db, "CREATE TABLE ${tp}config (
 		name varchar(255),
@@ -298,17 +306,18 @@ function initDb($db, $query, $tp, $admin_name, $admin_pass, $prikey) {
 	/*
 	 * Insert a couple of default users
 	 */
-	$query($db, "INSERT INTO ${tp}users VALUES (
-		0, 'Anonymous', NULL, 0
-	)");
-	$query($db, "INSERT INTO ${tp}users VALUES (
-		1, '$admin_name', md5(concat(lower('$admin_name'), '$admin_pass')), 1023
-	)");
+	$admin_pass = md5(strtolower($admin_name).$admin_pass);
+	$query($db, "INSERT INTO ${tp}users(name, pass) VALUES('Anonymous', NULL)");
+	$anon_id = $lastid($db);
+	$query($db, "INSERT INTO ${tp}users(name, pass) VALUES('$admin_name', '$admin_pass')");
+	$admin_id = $lastid($db);
+	$query($db, "INSERT INTO ${tp}config(name, value) VALUES('anon_id', '$anonid')");
+	$query($db, "INSERT INTO ${tp}user_configs(owner_id, name, value) VALUES($admin_id, 'isadmin', 'true')");
 }
 
 
 /*
- * If any installation query fails, we want do die
+ * Emo queries: if anything goes wrong, kill ourselves
  */
 function mysql_query2($db, $query) {
 	if(!mysql_query($query)) {
@@ -318,6 +327,9 @@ function mysql_query2($db, $query) {
 		require_once "templates/error.php";
 		exit;
 	}
+}
+function mysql_insert_id2($db) {
+	return mysql_insert_id();
 }
 function pgsql_query2($db, $query) {
 	if(!pg_query($query)) {

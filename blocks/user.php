@@ -13,7 +13,7 @@ if(!$config['login_enabled']) return;
 /*
  * if not logged in, show "log in" box
  */
-if(is_null($user->name) || ($user->name == "Anonymous")) {
+if($user->isUser() != true) {
 	$blocks[80] .= <<<EOD
 	<h3 onclick="toggle('user')">User Login</h3>
 	<div id="user">
@@ -34,7 +34,7 @@ EOD;
  * If logged in, show links to control panels
  */
 else {
-	if($user->isAdmin) {
+	if($user->isAdmin()) {
 		$extra = "<br/><a href='setup.php'>Board Config</a>";
 		$extra .= "<br/><a href='admin.php'>Admin</a>";
 	}
