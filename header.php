@@ -314,9 +314,6 @@ EOD;
 			$this->hash = $img_info['hash'];
 			$this->ext = $img_info['ext'];
 
-			$this->link = parseLinkTemplate($config['image_link'], $this);
-			$this->slink = parseLinkTemplate($config['image_slink'], $this);
-
 			$tag_query = "SELECT * FROM shm_tags WHERE image_id={$this->id}";
 			$tag_result = sql_query($tag_query);
 			$this->tag_array = Array();
@@ -324,6 +321,9 @@ EOD;
 				$this->tag_array[] = htmlentities($row['tag']);
 			}
 			$this->tags = implode(" ", $this->tag_array);
+			
+			$this->link = parseLinkTemplate($config['image_link'], $this);
+			$this->slink = parseLinkTemplate($config['image_slink'], $this);
 		}
 		else {
 			header("X-Shimmie-Status: Error - No Such Image");
