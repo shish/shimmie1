@@ -8,14 +8,12 @@
 if($pageType == "view") {
 	global $image;
 
-	$tags = implode(" ", $image->tags);
-
 	$blocks[20] .= <<<EOD
 	<h3 onclick="toggle('tags')">Edit Tags</h3>
 	<div id="tags">
 		<form action="metablock.php?block=edit_tags" method="POST">
 			<input name="image_id" type="hidden" value="$image->id">
-			<input name="tags" type="text" value="$tags">
+			<input name="tags" type="text" value="$image->tags">
 			<!-- <input type="submit" value="Set"> -->
 		</form>
 	</div>

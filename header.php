@@ -292,6 +292,7 @@ class Image {
 	var $link = null;
 	var $slink = null;
 
+	var $tag_array = null;
 	var $tags = null;
 
 	function Image($id) {
@@ -318,10 +319,11 @@ EOD;
 
 			$tag_query = "SELECT * FROM shm_tags WHERE image_id={$this->id}";
 			$tag_result = sql_query($tag_query);
-			$this->tags = Array();
+			$this->tag_array = Array();
 			while($row = sql_fetch_row($tag_result)) {
-				$this->tags[] = htmlentities($row['tag']);
+				$this->tag_array[] = htmlentities($row['tag']);
 			}
+			$this->tags = implode(" ", $this->tag_array);
 		}
 		else {
 			header("X-Shimmie-Status: Error - No Such Image");
