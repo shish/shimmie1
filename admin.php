@@ -52,10 +52,10 @@ else if($action == "rmimage") {
 	$row = sql_fetch_row(sql_query("SELECT hash, ext FROM shm_images WHERE id=$image_id"));
 	$di = $config['dir_images'];
 	$dt = $config['dir_thumbs'];
-	$hash = $row['hash'];
+	$id = $row['id'];
 	$ext = $row['ext'];
-	$iname = "$di/$hash.$ext";
-	$tname = "$dt/$hash.$ext";
+	$iname = "$di/$id.$ext";
+	$tname = "$dt/$id.$ext";
 	if(file_exists($iname)) unlink($iname);
 	if(file_exists($tname)) unlink($tname);
 
