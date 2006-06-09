@@ -6,7 +6,9 @@
  */
 
 if($pageType == "view") {
-	if($user->isAdmin) {
+	global $image;
+
+	if($user->isAdmin()) {
 		$blocks[90] .= <<<EOD
 		<h3 onclick="toggle('admin')">Admin</h3>
 		<div id="admin">
