@@ -8,22 +8,15 @@
 require_once "header.php";
 
 if(($pageType == "index") || ($pageType == "view")) {
-	if($pageType == "view") {
-		$image_id = (int)$_GET['image_id'];
-		$where = "WHERE image_id=$image_id";
-	}
-	else if($pageType == "index") {
-		$image_id = false;
-		$where = "";
-	}
-
 	$com_count = $config['recent_count'];
-	$com_query = <<<EOD
+
+	if($pageType == "index") {
+		$com_query = <<<EOD
 		SELECT 
 			shm_comments.id as id, image_id, name, owner_ip, 
 			if(
-				length(comment) > 128,
-				concat(substring(comment, 1, 128), '>>>'),
+				length(comment) > 100,
+				concat(substring(comment, 1, 100), ' (...)'),
 				comment
 			) as scomment FROM shm_comments
 		LEFT JOIN users ON shm_comments.owner_id=users.id 
@@ -31,6 +24,19 @@ if(($pageType == "index") || ($pageType == "view")) {
 		ORDER BY shm_comments.id DESC
 		LIMIT $com_count
 EOD;
+	}
+	else if($pageType == "view") {
+		$image_id = (int)$_GET['image_id'];
+		$com_query = <<<EOD
+		SELECT 
+			shm_comments.id as id, image_id, 
+			name, owner_ip, comment as scomment
+		FROM shm_comments
+		LEFT JOIN users ON shm_comments.owner_id=users.id 
+		WHERE image_id=$image_id
+		ORDER BY shm_comments.id DESC
+EOD;
+	}
 	$com_result = sql_query($com_query);
 	$commentBlock = "<h3 onclick=\"toggle('comments')\">Comments</h3>\n<div id=\"comments\">";
 	while($row = sql_fetch_row($com_result)) {
