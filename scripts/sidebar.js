@@ -3,7 +3,7 @@
  */
 
 var cookie_name="sidebarsections";
-var default_sections=[];
+var default_sections=["upload", "edit_tags"];
 
 function toggle(id) 
 {
