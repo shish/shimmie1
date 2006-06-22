@@ -5,11 +5,11 @@
  * Rotate an image, losslessly if possible
  */
 
-if($pageType == "view") {
+if($pageType == "view" && false) {
 	global $image;
 
 	$blocks[50] .= <<<EOD
-	<h3 onclick="toggle('rotate')">Rotate Image</h3>
+	<h3 id="rotate-toggle" onclick="toggle('rotate')">Rotate Image</h3>
 	<div id="rotate">
 		<form action="metablock.php" method="POST">
 			<input name="block" type="hidden" value="rotate">

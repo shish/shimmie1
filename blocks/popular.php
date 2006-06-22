@@ -21,7 +21,7 @@ EOD;
 	$pop_result = sql_query($pop_query);
 	$n = 0;
 
-	$popularBlock = "<h3 onclick=\"toggle('popular')\">Popular Tags</h3>\n<div id=\"popular\">";
+	$popularBlock = "<h3 id=\"popular-toggle\" onclick=\"toggle('popular')\">Popular Tags</h3>\n<div id=\"popular\">";
 	while($row = sql_fetch_row($pop_result)) {
 		$tag = htmlentities($row['tag']);
 		$count = $row['count'];

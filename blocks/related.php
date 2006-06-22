@@ -26,7 +26,7 @@ EOD;
 	$result = sql_query($related_query);
 	$n = 0;
 
-	$relatedBlock = "<h3 onclick=\"toggle('related')\">Related Tags</h3>\n<div id=\"related\">";
+	$relatedBlock = "<h3 id=\"related-toggle\" onclick=\"toggle('related')\">Related Tags</h3>\n<div id=\"related\">";
 	while($row = sql_fetch_row($result)) {
 		$tag = htmlentities($row['tag']);
 		$count = $row['count'];

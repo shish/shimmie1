@@ -19,7 +19,7 @@ if(($pageType == "index") && ($config["upload_anon"] || $user->isUser())) {
 			"id='data$i' name='data$i' $style onchange=\"showUp('data".($i+1)."')\" type='file'>\n";
 	}
 	$blocks[30] .= <<<EOD
-		<h3 onclick="toggle('upload')">Upload</h3>
+		<h3 id="upload-toggle" onclick="toggle('upload')">Upload</h3>
 		<div id="upload">
 			<form enctype='multipart/form-data' action='metablock.php?block=upload' method='post'>
 				<input type='hidden' name='max_file_size' value='$maxSize'>

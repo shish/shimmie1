@@ -46,7 +46,7 @@ else if($pageType == "view") {
 
 
 $blocks[10] .= <<<EOD
-	<h3 onclick="toggle('navigate')">Navigate</h3>
+	<h3 id="navigate-toggle" onclick="toggle('navigate')">Navigate</h3>
 	<div id="navigate">
 		$pageNav
 		<p><form action="index.php" method="GET">

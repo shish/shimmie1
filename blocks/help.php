@@ -7,7 +7,7 @@
 
 if($pageType == "setup") {
 	$blocks[20] .= <<<EOD
-	<h3 onclick="toggle('help')">Help</h3>
+	<h3 id="help-toggle" onclick="toggle('help')">Help</h3>
 	<div id="navigate">
 		Extra notes'll go here
 

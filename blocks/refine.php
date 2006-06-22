@@ -51,7 +51,7 @@ EOD;
 	$result = sql_query($related_query_tables);
 	$n = 0;
 
-	$popularBlock = "<h3 onclick=\"toggle('refine')\">Refine Search</h3>\n<div id=\"refine\">";
+	$popularBlock = "<h3 id=\"refine-toggle\" onclick=\"toggle('refine')\">Refine Search</h3>\n<div id=\"refine\">";
 	while($row = sql_fetch_row($result)) {
 		$tag = htmlentities($row['tag']);
 		if($n++) $popularBlock .= "<br/>";

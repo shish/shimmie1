@@ -15,7 +15,7 @@ if(!$config['login_enabled']) return;
  */
 if($user->isAnonymous()) {
 	$blocks[80] .= <<<EOD
-	<h3 onclick="toggle('user')">User Login</h3>
+	<h3 id="user-toggle" onclick="toggle('user')">User Login</h3>
 	<div id="user">
 		<form action="user.php?action=login" method="POST">
 			<table border="1" width="150" summary="Login Form">

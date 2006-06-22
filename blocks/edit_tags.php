@@ -27,7 +27,7 @@ if($pageType == "view") {
 			return confirmed;
 		}
 	</script>
-	<h3 onclick="toggle('tags')">Edit Tags</h3>
+	<h3 id="tags-toggle" onclick="toggle('tags')">Edit Tags</h3>
 	<div id="tags">
 		<form onSubmit="return tagEditConfirm();" action="metablock.php?block=edit_tags" method="POST">
 			<input name="image_id" type="hidden" value="$image->id">

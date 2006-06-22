@@ -18,7 +18,7 @@ if(($pageType == "index") && ($config["upload_anon"] || $user->isUser())) {
 		$uploadList .= "<input id='trans$i' name='data$i' $style onchange=\"showUp('trans".($i+1)."')\" type='text'>\n";
 	}
 	$uploadBlock = <<<EOD
-		<h3 onclick="toggle('transload')">Transload</h3>
+		<h3 id="transload-toggle" onclick="toggle('transload')">Transload</h3>
 		<div id="transload">
 			<form enctype='multipart/form-data' action='metablock.php?block=transload' method='post'>
 				$uploadList

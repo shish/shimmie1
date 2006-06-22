@@ -38,7 +38,7 @@ EOD;
 EOD;
 	}
 	$com_result = sql_query($com_query);
-	$commentBlock = "<h3 onclick=\"toggle('comments')\">Comments</h3>\n<div id=\"comments\">";
+	$commentBlock = "<h3 id=\"comments-toggle\" onclick=\"toggle('comments')\">Comments</h3>\n<div id=\"comments\">";
 	while($row = sql_fetch_row($com_result)) {
 		$cid = $row['id'];
 		$iid = $row['image_id'];
