@@ -50,7 +50,7 @@ $htmlSafeTags = ""; // don't include negators in the title
 $sqlSafeTags = sql_escape($_GET['tags']);
 
 if($_GET['tags']) {
-	$tags = explode(" ", $sqlSafeTags);
+	$tags = explode(" ", str_replace("  ", " ", $sqlSafeTags));
 
 	if(count($tags) > 1) $moreHtmlTags = "<meta name='robots' content='noindex,follow'>";
 	
@@ -59,10 +59,16 @@ if($_GET['tags']) {
 	$tnum = 0;
 	foreach($tags as $tag) {
 		if($tag[0] == '-') continue;
-		$searchString .= " $tag";
-		$htmlSafeTags .= " ".htmlentities($tag);
-		if($tnum == 0) $search_sql .= "(tag LIKE '$tag' ";
-		else $search_sql .= "OR tag LIKE '$tag' ";
+		if($tnum == 0) {
+			$search_sql .= "(tag LIKE '$tag' ";
+			$searchString .= "$tag";
+			$htmlSafeTags .= htmlentities($tag);
+		}
+		else {
+			$search_sql .= "OR tag LIKE '$tag' ";
+			$searchString .= " $tag";
+			$htmlSafeTags .= " ".htmlentities($tag);
+		}
 		$tnum++;
 	}
 	$tagCount = $tnum;
