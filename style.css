@@ -26,6 +26,14 @@ TD {
 	vertical-align: top;
 	text-align: center;
 }
+#subtitle {
+	width: 256px;
+	margin: auto;
+	text-align: center;
+	border: 1px solid black;
+	border-top: none;
+	background: #DDD;
+}
 TD INPUT[type="submit"] {width: 100%;}
 TD INPUT[type="text"] {width: 100%;}
 TD SELECT {width: 100%;}

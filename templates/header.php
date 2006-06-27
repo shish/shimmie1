@@ -20,6 +20,9 @@ echo <<<EOD
 	<body>
 		<h1>$title</h1>
 EOD;
+if($subtitle) {
+	echo "<div id='subtitle'>$subtitle</div>";
+}
 
 unset($base);
 unset($scripts);

@@ -75,8 +75,12 @@ if($_GET['tags']) {
 		$tag = preg_replace("/^-/", "", $tag);
 		if($tnum == 0) {
 			$search_sql .= "-(tag LIKE '$tag' ";
+			$subtitle = "Ignoring: $tag";
 		}
-		else $search_sql .= "OR tag LIKE '$tag' ";
+		else {
+			$search_sql .= "OR tag LIKE '$tag' ";
+			$subtitle .= ", $tag";
+		}
 		$tnum++;
 	}
 	if($tnum > 0) $search_sql .= ") ";
