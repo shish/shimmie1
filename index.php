@@ -46,7 +46,7 @@ $start = $cpage * $imagesPerPage;
  */
 $searchString = "";
 
-$htmlSafeTags = htmlentities($_GET['tags']);
+$htmlSafeTags = ""; // don't include negators in the title
 $sqlSafeTags = sql_escape($_GET['tags']);
 
 if($_GET['tags']) {
@@ -60,6 +60,7 @@ if($_GET['tags']) {
 	foreach($tags as $tag) {
 		if($tag[0] == '-') continue;
 		$searchString .= " $tag";
+		$htmlSafeTags .= " ".htmlentities($tag);
 		if($tnum == 0) $search_sql .= "(tag LIKE '$tag' ";
 		else $search_sql .= "OR tag LIKE '$tag' ";
 		$tnum++;
