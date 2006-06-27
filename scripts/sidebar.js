@@ -2,7 +2,7 @@
  * This script shamelessly stolen from wakachan.org d(^_^)b
  */
 
-var cookie_name="sidebarsections";
+var cookie_name="shimmie_sidebar";
 var default_sections=["upload", "edit_tags"];
 
 function toggle(id) 
