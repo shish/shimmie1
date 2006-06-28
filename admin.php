@@ -41,6 +41,4 @@ else if($action == "replacetag") {
 	header("Location: admin.php");
 	echo "<a href='admin.php'>Back</a>";
 }
-
-
 ?>
