@@ -43,44 +43,4 @@ else if($action == "replacetag") {
 }
 
 
-/*
- * Remove an image from the database, along with comments and tags
- */
-else if($action == "rmimage") {
-	$image_id = (int)defined_or_die($_GET["image_id"]);
-
-	$row = sql_fetch_row(sql_query("SELECT hash, ext FROM shm_images WHERE id=$image_id"));
-	$di = $config['dir_images'];
-	$dt = $config['dir_thumbs'];
-	$id = $row['id'];
-	$ext = $row['ext'];
-	$iname = "$di/$id.$ext";
-	$tname = "$dt/$id.$ext";
-	if(file_exists($iname)) unlink($iname);
-	if(file_exists($tname)) unlink($tname);
-
-	sql_query("DELETE FROM shm_images WHERE id=$image_id");
-	sql_query("DELETE FROM shm_tags WHERE image_id=$image_id");
-	sql_query("DELETE FROM shm_comments WHERE image_id=$image_id");
-
-	// view page no longer exists, go to the index
-	header("X-Shimmie-Status: OK - Image Deleted");
-	header("Location: index.php");
-	echo "<a href='index.php'>Back</a>";
-}
-
-
-/*
- * Remove a comment from the database
- */
-else if($action == "rmcomment") {
-	$comment_id = (int)defined_or_die($_GET["comment_id"]);
-
-	sql_query("DELETE FROM shm_comments WHERE id=$comment_id");
-
-	// view page no longer exists, go to the index
-	header("X-Shimmie-Status: OK - Comment Deleted");
-	header("Location: index.php");
-	echo "<a href='index.php'>Back</a>";
-}
 ?>

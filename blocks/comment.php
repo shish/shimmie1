@@ -45,7 +45,9 @@ EOD;
 		$oip = $row['owner_ip'];
 		$uname = htmlentities($row['name']);
 		$comment = htmlentities($row['scomment']);
-		$dellink = $user->isAdmin ? "<br>(<a href='admin.php?action=rmcomment&amp;comment_id=$cid'>X</a>) ($oip)" : "";
+		$dellink = $user->isAdmin() ? 
+			"<br>(<a href='metablock.php?block=comment&amp;".
+			"action=delete&amp;comment_id=$cid'>X</a>) ($oip)" : "";
 		$commentBlock .= "<p><a href='view.php?image_id=$iid'>$uname</a>: $comment$dellink</p>\n";
 	}
 	if($image_id) {
@@ -63,6 +65,24 @@ EOD;
 	$blocks[40] .= $commentBlock;
 }
 
+
+/*
+ * Remove a comment from the database
+ */
+if(($pageType == "block") && ($_GET["action"] == "delete")) {
+	admin_or_die();
+
+	$comment_id = (int)defined_or_die($_GET["comment_id"]);
+	sql_query("DELETE FROM shm_comments WHERE id=$comment_id");
+	header("X-Shimmie-Status: OK - Comment Deleted");
+	header("Location: index.php");
+	echo "<a href='index.php'>Back</a>";
+}
+
+
+/*
+ * Add a comment to the database
+ */
 if(($pageType == "block") && ($config["comment_anon"] || user_or_die())) {
 	// get input
 	$image_id = (int)defined_or_die($_POST['image_id']);
