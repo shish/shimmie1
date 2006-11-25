@@ -4,7 +4,7 @@ echo <<<EOD
 <div id="nav">$blocks</div>
 
 <div id="body">
-	<h3>Things</h3>
+	<h3>Mass Tag Edit</h3>
 	<form action="admin.php?action=replacetag" method="POST">
 		<table style="width: 300px">
 			<tr><td>Replace tag<td><input name='search' type='text'></tr>
@@ -12,6 +12,16 @@ echo <<<EOD
 			<tr><td colspan="2"><input type='submit' value='Replace'></td></tr>
 		</table>
 	</form>
+	
+	<h3>IP Ban / Restore</h3>
+	<form action="admin.php?action=addipban" method="POST">
+		<table style="width: 300px">
+			<tr><td>IP<td><input name='ip' type='text'></tr>
+			<tr><td>Reason<td><input name='reason' type='text'></tr>
+			<tr><td colspan="2"><input type='submit' value='Ban'></td></tr>
+		</table>
+	</form>
+	$banned_ip_list
 </div>
 EOD;
 require_once "templates/footer.php";

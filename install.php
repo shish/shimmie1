@@ -303,6 +303,14 @@ function initDb($db, $query, $tp, $admin_name, $admin_pass, $prikey, $lastid) {
 		value varchar(255),
 		UNIQUE(name)
 	)");
+	$query($db, "CREATE TABLE ${tp}bans (
+		id $prikey,
+		type char(16),
+		value char(64),
+		date datetime,
+		reason varchar(255),
+		UNIQUE(type, value)
+	)");
 
 	/*
 	 * Insert a couple of default users

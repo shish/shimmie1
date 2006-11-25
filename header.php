@@ -58,7 +58,7 @@ $config_defaults = Array(
  * simple name:value pairs, as given by the admin control panel (which
  * is why ""=false and "on"=true -- that's how checkbox data is sent)
  */
-$config_result = sql_query("SELECT * FROM config");
+$config_result = sql_query("SELECT * FROM shm_config");
 while($config_row = sql_fetch_row($config_result)) {
 	$config[$config_row['name']] = $config_row['value'];
 }
@@ -76,6 +76,25 @@ foreach($config_default_keys as $cname) {
 	}
 }
 
+
+/*
+ * check for bans
+ */
+{
+	$user_ip = $_SERVER['REMOTE_ADDR'];
+	$ban_result = sql_query("SELECT * FROM shm_bans WHERE type='ip' AND value='$user_ip'");
+
+	if($row = sql_fetch_row($ban_result)) {
+		$reason = $row['reason'];
+		$date = $row['date'];
+		
+		header("X-Shimmie-Status: Error - IP Banned");
+		$title = "IP Banned";
+		$message = "IP $user_ip has been banned at $date for $reason";
+		require_once "templates/generic.php";
+		exit;
+	}
+}
 
 /*
  * Make sure a web site viewer has permission to view a page.
