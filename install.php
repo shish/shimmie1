@@ -263,6 +263,7 @@ function initDb($db, $query, $tp, $admin_name, $admin_pass, $prikey, $lastid) {
 		image_id int not null,
 		owner_id int not null,
 		owner_ip char(16),
+		posted datetime,
 		comment text,
 		INDEX(image_id)
 	)");

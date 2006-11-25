@@ -69,6 +69,12 @@ $configOptions .= makeOptCheck("Allow logins", "login_enabled", null);
 $configOptions .= makeOpt("Recent Comments", "recent_count", null);
 $configOptions .= makeOpt("Popular Tags", "popular_count", null);
 
+$configOptions .= makeRow();
+$configOptions .= makeRow("Flood Protection");
+$configOptions .= makeRow("(ie, no more than [count] comments per [window] minutes)");
+$configOptions .= makeOpt("Comment window", "comment_window", $config["comment_window"] > 0);
+$configOptions .= makeOpt("Comment count", "comment_limit", $config["comment_limit"] > 0);
+
 $title = "Shimmie Setup";
 $blocks = getBlocks("setup");
 require_once "templates/setup.php";
@@ -80,7 +86,7 @@ require_once "templates/setup.php";
  * Quick functions
  */
 function makeRow($content = "&nbsp;") {
-	return "<tr><td colspan='2'>$content</td></tr>\n";
+	return "<tr><td colspan='3'>$content</td></tr>\n";
 }
 function makeOpt($friendly, $varname, $ok) {
 	global $config;

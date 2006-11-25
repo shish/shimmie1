@@ -99,16 +99,33 @@ if(($pageType == "block") && ($config["comment_anon"] || user_or_die())) {
 	}
 	else {
 		// update database
-		$new_query = "INSERT INTO shm_comments(image_id, owner_id, owner_ip, comment) ".
-		             "VALUES($image_id, $owner_id, '$owner_ip', '$comment')";
-		sql_query($new_query);
-		$cid = sql_insert_id();
-	
-		// go back to the viewed page
-		header("Location: view.php?image_id=$image_id");
-		header("X-Shimmie-Status: OK - Comment Added");
-		header("X-Shimmie-Comment-ID: $cid");
-		echo "<a href='view.php?image_id=$image_id'>Back</a>";
+		$window = $config['comment_window'];
+		$max = $config['comment_limit'];
+		
+		$last_query = "SELECT count(*) AS recent_comments FROM shm_comments ".
+		              "WHERE owner_ip = '$owner_ip' ".
+					  "AND posted > date_sub(now(), interval $window minute)";
+		$row = sql_fetch_row(sql_query($last_query));
+		$recent_comments = $row["recent_comments"];
+		
+		if($recent_comments >= $max) {
+			header("X-Shimmie-Status: Error - Comment Limit Hit");
+			$title = "Comment Limit Hit";
+			$message = "To prevent spam, users are only allowed $max comments per $window minutes";
+			require_once "templates/generic.php";
+		}
+		else {
+			$new_query = "INSERT INTO shm_comments(image_id, owner_id, owner_ip, posted, comment) ".
+			             "VALUES($image_id, $owner_id, '$owner_ip', now(), '$comment')";
+			sql_query($new_query);
+			$cid = sql_insert_id();
+		
+			// go back to the viewed page
+			header("Location: view.php?image_id=$image_id");
+			header("X-Shimmie-Status: OK - Comment Added");
+			header("X-Shimmie-Comment-ID: $cid");
+			echo "<a href='view.php?image_id=$image_id'>Back</a>";
+		}
 	}
 }
 ?>

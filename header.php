@@ -7,7 +7,7 @@
  */
 
 
-$version = "Shimmie 0.6.2";
+$version = "Shimmie 0.6.3";
 
 
 /*
@@ -42,6 +42,8 @@ $config_defaults = Array(
 	'upload_size' => 256*1024,
 	'upload_anon' => true,
 	'comment_anon' => true,
+	'comment_window' => 5,
+	'comment_limit' => 3,
 	'recent_count' => 5,
 	'popular_count' => 15,
 	'login_enabled' => true,
