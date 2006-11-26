@@ -9,10 +9,11 @@
 
 require_once "header.php";
 
-$block = $_GET['block'];
-if($block) {
-	$pageType = "block";
-	require_once "./blocks/$block.php";
+$blockname = $_GET['block'];
+if($blockname) {
+	require_once "./blocks/$blockname.php";
+	$block = new $blockname();
+	$block->run($_GET["action"]);
 }
 else {
 	header("X-Shimmie-Status: Error - No block specified");

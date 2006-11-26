@@ -214,6 +214,6 @@ else $title = $config['title']." / $vpage";
 /*
  * Finally display the page \o/
  */
-$blocks = getBlocks("index");
+$blocks = get_blocks_html("index");
 require_once "templates/index.php";
 ?>

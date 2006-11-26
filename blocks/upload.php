@@ -5,50 +5,72 @@
  * Show a block which lets users upload
  */
 
-require_once "header.php";
+class upload extends block {
+	function get_html($pageType) {
+		global $user, $config;
 
-// Don't show the block if anon uploads are disabled
-if(($pageType == "index") && ($config["upload_anon"] || $user->isUser())) {
-	$maxSize = $config["upload_size"];
+		// Don't show the block if anon uploads are disabled
+		if(($pageType == "index") && ($config["upload_anon"] || $user->isUser())) {
+			$maxSize = $config["upload_size"];
 
-	$uploadList = "";
-	for($i=0; $i<$config['upload_count']; $i++) {
-		if($i == 0) $style = "style='display:visible'";
-		else $style = "style='display:none'";
-		$uploadList .= "<input accept='image/jpeg,image/png,image/gif' size='10' ".
-			"id='data$i' name='data$i' $style onchange=\"showUp('data".($i+1)."')\" type='file'>\n";
-	}
-	$blocks[30] .= <<<EOD
-		<h3 id="upload-toggle" onclick="toggle('upload')">Upload</h3>
-		<div id="upload">
-			<form enctype='multipart/form-data' action='metablock.php?block=upload' method='post'>
-				<input type='hidden' name='max_file_size' value='$maxSize'>
-				$uploadList
-				<input id="tagBox" name='tags' type='text' value="tagme" autocomplete="off">
-				<input type='submit' value='Post'>
-			</form>
-			<div id="upload_completions" style="clear:both;"></div>
-		</div>
+			$uploadList = "";
+			for($i=0; $i<$config['upload_count']; $i++) {
+				if($i == 0) $style = "style='display:visible'";
+				else $style = "style='display:none'";
+				$uploadList .= "<input accept='image/jpeg,image/png,image/gif' size='10' ".
+					"id='data$i' name='data$i' $style onchange=\"showUp('data".($i+1)."')\" type='file'>\n";
+			}
+			return <<<EOD
+				<h3 id="upload-toggle" onclick="toggle('upload')">Upload</h3>
+				<div id="upload">
+					<form enctype='multipart/form-data' action='metablock.php?block=upload' method='post'>
+						<input type='hidden' name='max_file_size' value='$maxSize'>
+						$uploadList
+						<input id="tagBox" name='tags' type='text' value="tagme" autocomplete="off">
+						<input type='submit' value='Post'>
+					</form>
+					<div id="upload_completions" style="clear:both;"></div>
+				</div>
 EOD;
-}
-
-if(($pageType == "block") && ($config["upload_anon"] || user_or_die())) {
-	$owner_ip = $_SERVER['REMOTE_ADDR'];
-	$dir_images = $config['dir_images'];
-	$dir_thumbs = $config['dir_thumbs'];
-
-	$err = null;
-
-	if(count($_FILES) == 0) {
-		header("X-Shimmie-Status: Error - No Images Specified");
-		$title = "No Images Specified";
-		$body = "You need to select a file to be uploaded";
-		include_once "templates/generic.php";
-		exit;
+		}
 	}
-	else {
-		header("X-Shimmie-Status: OK - Images Uploaded");
+
+	function get_priority() {
+		return 30;
 	}
+
+	function check_filecount() {
+		if(count($_FILES) == 0) {
+			header("X-Shimmie-Status: Error - No Images Specified");
+			$title = "No Images Specified";
+			$body = "You need to select a file to be uploaded";
+			include_once "templates/generic.php";
+			exit;
+		}
+		else {
+			header("X-Shimmie-Status: OK - Images Uploaded");
+		}
+	}
+
+	function mime_to_ext($mime) {
+		$ext = null;
+		switch($mime) {
+			case "image/jpeg": $ext = "jpg"; break;
+			case "image/png":  $ext = "png"; break;
+			case "image/gif":  $ext = "gif"; break;
+		}
+		return $ext;
+	}
+
+	function run($action) {
+		if($config["upload_anon"] || user_or_die()) {
+			$owner_ip = $_SERVER['REMOTE_ADDR'];
+			$dir_images = $config['dir_images'];
+			$dir_thumbs = $config['dir_thumbs'];
+
+			$err = null;
+
+			$self->check_filecount();
 
 	/*
 	 * Check as many upload stots as there should be
@@ -59,20 +81,14 @@ if(($pageType == "block") && ($config["upload_anon"] || user_or_die())) {
 	for($dnum=0; $dnum<min($config['upload_count'], count($_FILES)); $dnum++) {
 		$dname = "data$dnum";
 
-		if(strlen($_FILES[$dname]['tmp_name']) < 4) continue;
+		if(strlen($_FILES[$dname]['tmp_name']) < 4) continue; // ?
 	
 		$tname = $_FILES[$dname]['tmp_name'];
 		$fname = sql_escape($_FILES[$dname]['name']);
 		$imgsize = getimagesize($tname);
 	
 		if($imgsize != false) {
-			$mime_type = $imgsize['mime'];
-			$ext = null;
-			switch($mime_type) {
-				case "image/jpeg": $ext = "jpg"; break;
-				case "image/png":  $ext = "png"; break;
-				case "image/gif":  $ext = "gif"; break;
-			}
+			$ext = $self->mime_to_ext($imgsize['mime']);
 			if(is_null($ext)) {
 				$err .= "<p>Unrecognised file type for '$fname' (not jpg/gif/png)";
 				continue;
@@ -160,5 +176,7 @@ if(($pageType == "block") && ($config["upload_anon"] || user_or_die())) {
 		header("Location: ./index.php");
 		echo "<p><a href='index.php'>Back</a>";
 	}
+}
+}
 }
 ?>

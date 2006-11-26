@@ -76,7 +76,7 @@ $configOptions .= makeOpt("Comment window", "comment_window", $config["comment_w
 $configOptions .= makeOpt("Comment count", "comment_limit", $config["comment_limit"] > 0);
 
 $title = "Shimmie Setup";
-$blocks = getBlocks("setup");
+$blocks = get_blocks_html("setup");
 require_once "templates/setup.php";
 
 

@@ -15,6 +15,6 @@ $baseurl = preg_replace('#[^/]+$#', '', $baseurl);
 $scale = $config['view_scale'] ? "style='width: 90%'" : "";
 
 $title = $image->tags;
-$blocks = getBlocks("view");
+$blocks = get_blocks_html("view");
 require_once "templates/view.php";
 ?>

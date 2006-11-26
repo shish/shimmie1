@@ -18,7 +18,7 @@ $action = $_GET['action'];
 if(is_null($action)) {
 	header("X-Shimmie-Status: OK - Admin Shown");
 	$title = "Board Admin";
-	$blocks = getBlocks("admin");
+	$blocks = get_blocks_html("admin");
 	
 	$banned_ip_list = "";
 	$res = sql_query("SELECT * FROM bans WHERE type='ip'");

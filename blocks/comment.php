@@ -1,17 +1,16 @@
 <?php
 /*
- * comments.php (c) Shish 2005, 2006
+ * comment.php (c) Shish 2005, 2006
  *
  * Make a block of recent comments
  */
 
-require_once "header.php";
-
-if(($pageType == "index") || ($pageType == "view")) {
-	$com_count = $config['recent_count'];
-
-	if($pageType == "index") {
-		$com_query = <<<EOD
+class comment extends block {
+	function get_index_query() {
+		global $config;
+		$com_count = $config["recent_count"];
+		
+		return "
 		SELECT 
 			shm_comments.id as id, image_id, name, owner_ip, 
 			if(
@@ -20,14 +19,15 @@ if(($pageType == "index") || ($pageType == "view")) {
 				comment
 			) as scomment FROM shm_comments
 		LEFT JOIN users ON shm_comments.owner_id=users.id 
-		$where
 		ORDER BY shm_comments.id DESC
 		LIMIT $com_count
-EOD;
+		";
 	}
-	else if($pageType == "view") {
+
+	function get_view_query() {
 		$image_id = (int)$_GET['image_id'];
-		$com_query = <<<EOD
+		
+		return "
 		SELECT 
 			shm_comments.id as id, image_id, 
 			name, owner_ip, comment as scomment
@@ -35,11 +35,12 @@ EOD;
 		LEFT JOIN users ON shm_comments.owner_id=users.id 
 		WHERE image_id=$image_id
 		ORDER BY shm_comments.id DESC
-EOD;
+		";
 	}
-	$com_result = sql_query($com_query);
-	$commentBlock = "<h3 id=\"comments-toggle\" onclick=\"toggle('comments')\">Comments</h3>\n<div id=\"comments\">";
-	while($row = sql_fetch_row($com_result)) {
+
+	function comment_to_html($row) {
+		global $user;
+
 		$cid = $row['id'];
 		$iid = $row['image_id'];
 		$oip = $row['owner_ip'];
@@ -47,58 +48,57 @@ EOD;
 		$comment = htmlentities($row['scomment']);
 		$dellink = $user->isAdmin() ? 
 			"<br>(<a href='metablock.php?block=comment&amp;".
-			"action=delete&amp;comment_id=$cid'>X</a>) ($oip)" : "";
-		$commentBlock .= "<p><a href='view.php?image_id=$iid'>$uname</a>: $comment$dellink</p>\n";
+			"action=delete&amp;comment_id=$cid'>Del</a>) ($oip)" : "";
+		return "<p><a href='view.php?image_id=$iid'>$uname</a>: $comment$dellink</p>\n";
 	}
-	if($image_id) {
+
+	function get_postbox_html() {
 		$image_id = (int)$_GET['image_id'];
-		$commentBlock .= <<<EOD
-		<form action="metablock.php?block=comment" method="POST">
+		return <<<EOD
+		<form action="metablock.php?block=comment&amp;action=add" method="POST">
 			<input type="hidden" name="image_id" value="$image_id">
 			<input id="commentBox" type="text" name="comment" value="Comment">
 			<input type="submit" value="Say" style="display: none;">
 		</form>
 EOD;
 	}
-	$commentBlock .= "</div>\n";
 
-	$blocks[40] .= $commentBlock;
-}
-
-
-/*
- * Remove a comment from the database
- */
-if(($pageType == "block") && ($_GET["action"] == "delete")) {
-	admin_or_die();
-
-	$comment_id = (int)defined_or_die($_GET["comment_id"]);
-	sql_query("DELETE FROM shm_comments WHERE id=$comment_id");
-	header("X-Shimmie-Status: OK - Comment Deleted");
-	header("Location: index.php");
-	echo "<a href='index.php'>Back</a>";
-}
-
-
-/*
- * Add a comment to the database
- */
-if(($pageType == "block") && ($config["comment_anon"] || user_or_die())) {
-	// get input
-	$image_id = (int)defined_or_die($_POST['image_id']);
-	$owner_id = $user->id;
-	$owner_ip = $_SERVER['REMOTE_ADDR'];
-	$comment = sql_escape(defined_or_die($_POST['comment']));
-
-	// check validity
-	if(trim($comment) == "") {
-		header("X-Shimmie-Status: Error - Blank Comment");
-		$title = "No Message";
-		$message = "Comment was empty; <a href='view.php?image_id=$image_id'>Back</a>";
-		require_once "templates/generic.php";
+	function query_to_html($query) {
+		$com_result = sql_query($query);
+		$comments = "";
+		while($comment = sql_fetch_row($com_result)) {
+			 $comments .= $this->comment_to_html($comment);
+		}
+		return $comments;
 	}
-	else {
-		// update database
+
+	function get_html($pageType) {
+		if($pageType == "index" || $pageType == "view") {
+			$commentBlock = "<h3 id=\"comments-toggle\" onclick=\"toggle('comments')\">Comments</h3>";
+			$commentBlock .= "<div id=\"comments\">";
+
+			if($pageType == "index") {
+				$commentBlock .= $this->query_to_html($this->get_index_query());
+			}
+			if($pageType == "view") {
+				$commentBlock .= $this->query_to_html($this->get_view_query());
+				$commentBlock .= $this->get_postbox_html();
+			}
+		
+			$commentBlock .= "</div>\n";
+
+			return $commentBlock;
+		}
+	}
+
+	function get_priority() {
+		return 40;
+	}
+
+	function is_comment_limit_hit() {
+		global $config;
+
+		$owner_ip = $_SERVER['REMOTE_ADDR'];
 		$window = $config['comment_window'];
 		$max = $config['comment_limit'];
 		
@@ -107,24 +107,59 @@ if(($pageType == "block") && ($config["comment_anon"] || user_or_die())) {
 					  "AND posted > date_sub(now(), interval $window minute)";
 		$row = sql_fetch_row(sql_query($last_query));
 		$recent_comments = $row["recent_comments"];
-		
-		if($recent_comments >= $max) {
-			header("X-Shimmie-Status: Error - Comment Limit Hit");
-			$title = "Comment Limit Hit";
-			$message = "To prevent spam, users are only allowed $max comments per $window minutes";
-			require_once "templates/generic.php";
+
+		return ($recent_comments >= $max);
+	}
+
+	function run($action) {
+		if($action == "delete") {
+			admin_or_die();
+
+			$comment_id = (int)defined_or_die($_GET["comment_id"]);
+			sql_query("DELETE FROM shm_comments WHERE id=$comment_id");
+			header("X-Shimmie-Status: OK - Comment Deleted");
+			header("Location: index.php");
+			echo "<a href='index.php'>Back</a>";
 		}
-		else {
-			$new_query = "INSERT INTO shm_comments(image_id, owner_id, owner_ip, posted, comment) ".
-			             "VALUES($image_id, $owner_id, '$owner_ip', now(), '$comment')";
-			sql_query($new_query);
-			$cid = sql_insert_id();
+
+
+		if(($action == "add") && ($config["comment_anon"] || user_or_die())) {
+			global $user, $config;
+
+			// get input
+			$image_id = (int)defined_or_die($_POST['image_id']);
+			$owner_id = $user->id;
+			$owner_ip = $_SERVER['REMOTE_ADDR'];
+			$comment = sql_escape(defined_or_die($_POST['comment']));
+
+			// check validity
+			if(trim($comment) == "") {
+				header("X-Shimmie-Status: Error - Blank Comment");
+				$title = "No Message";
+				$message = "Comment was empty; <a href='view.php?image_id=$image_id'>Back</a>";
+				require_once "templates/generic.php";
+			}
+			else if($this->is_comment_limit_hit()) {
+				$window = $config['comment_window'];
+				$max = $config['comment_limit'];
+
+				header("X-Shimmie-Status: Error - Comment Limit Hit");
+				$title = "Comment Limit Hit";
+				$message = "To prevent spam, users are only allowed $max comments per $window minutes";
+				require_once "templates/generic.php";
+			}
+			else {
+				$new_query = "INSERT INTO shm_comments(image_id, owner_id, owner_ip, posted, comment) ".
+				             "VALUES($image_id, $owner_id, '$owner_ip', now(), '$comment')";
+				sql_query($new_query);
+				$cid = sql_insert_id();
 		
-			// go back to the viewed page
-			header("Location: view.php?image_id=$image_id");
-			header("X-Shimmie-Status: OK - Comment Added");
-			header("X-Shimmie-Comment-ID: $cid");
-			echo "<a href='view.php?image_id=$image_id'>Back</a>";
+				// go back to the viewed page
+				header("Location: view.php?image_id=$image_id");
+				header("X-Shimmie-Status: OK - Comment Added");
+				header("X-Shimmie-Comment-ID: $cid");
+				echo "<a href='view.php?image_id=$image_id'>Back</a>";
+			}
 		}
 	}
 }

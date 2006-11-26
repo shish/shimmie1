@@ -7,7 +7,7 @@
  */
 
 
-$version = "Shimmie 0.6.3";
+$version = "Shimmie 0.7.0";
 
 
 /*
@@ -58,43 +58,52 @@ $config_defaults = Array(
  * simple name:value pairs, as given by the admin control panel (which
  * is why ""=false and "on"=true -- that's how checkbox data is sent)
  */
-$config_result = sql_query("SELECT * FROM shm_config");
-while($config_row = sql_fetch_row($config_result)) {
-	$config[$config_row['name']] = $config_row['value'];
+function get_config() {
+	global $config_defaults;
+
+	$config_result = sql_query("SELECT * FROM shm_config");
+	while($config_row = sql_fetch_row($config_result)) {
+		$config[$config_row['name']] = $config_row['value'];
+	}
+
+	$config_default_keys = array_keys($config_defaults);
+	foreach($config_default_keys as $cname) {
+		if(is_null($config[$cname])) {
+			$config[$cname] = $config_defaults[$cname];
+		}
+		else if($config[$cname] == "") {
+			$config[$cname] = false;
+		}
+		else if($config[$cname] == "on") {
+			$config[$cname] = true;
+		}
+	}
+
+	return $config;
 }
 
-$config_default_keys = array_keys($config_defaults);
-foreach($config_default_keys as $cname) {
-	if(is_null($config[$cname])) {
-		$config[$cname] = $config_defaults[$cname];
-	}
-	else if($config[$cname] == "") {
-		$config[$cname] = false;
-	}
-	else if($config[$cname] == "on") {
-		$config[$cname] = true;
-	}
-}
+$config = get_config();
 
 
 /*
  * check for bans
  */
-{
-	$user_ip = $_SERVER['REMOTE_ADDR'];
-	$ban_result = sql_query("SELECT * FROM shm_bans WHERE type='ip' AND value='$user_ip'");
-
-	if($row = sql_fetch_row($ban_result)) {
-		$reason = $row['reason'];
-		$date = $row['date'];
-		
-		header("X-Shimmie-Status: Error - IP Banned");
-		$title = "IP Banned";
-		$message = "IP $user_ip has been banned at $date for $reason";
-		require_once "templates/generic.php";
-		exit;
-	}
+function get_ban_info($type, $value) {
+	return sql_fetch_row(sql_query("SELECT * FROM shm_bans WHERE type='$type' AND value='$value'"));
 }
+
+function print_ip_ban($ip, $date, $reason) {
+	header("X-Shimmie-Status: Error - IP Banned");
+	$title = "IP Banned";
+	$message = "IP $ip was banned at $date for $reason";
+	require_once "templates/generic.php";
+}
+
+if($row = get_ban_info('ip', $_SERVER['REMOTE_ADDR'])) {
+	print_ip_ban($row['value'], $row['date'], $row['reason']);
+	exit;
+}
+
 
 /*
  * Make sure a web site viewer has permission to view a page.
@@ -143,23 +152,50 @@ function defined_or_die($var, $name=null) {
  * A couple of pages want to be able to update tags for an image,
  * so it got put into it's own function.
  */
-function updateTags($image_id, $tagList) {
-	$tags = explode(" ", $tagList);
+function delete_tags($image_id) {
+	sql_query("DELETE FROM shm_tags WHERE image_id=$image_id");
+}
+function delete_comments($image_id) {
+	sql_query("DELETE FROM shm_comments WHERE image_id=$image_id");
+}
 
+function add_tags($image_id, $tag_list) {
+	$tags = Array();
+	
+	if(is_array($tag_list)) {
+		$tags = $tag_list;
+	}
+	else if(is_string($tag_list)) {
+		$tags = explode(" ", strtolower($tag_list));
+	}
+	
 	if(count($tags) == 0) {
 		$tags = Array("tagme");
 	}
 
-	// clear old tags
-	sql_query("DELETE FROM shm_tags WHERE image_id=$image_id");
-
 	// insert each new tag
 	foreach($tags as $tag) {
-		$ltag = strtolower($tag);
-		sql_query("INSERT INTO shm_tags(image_id, tag) VALUES($image_id, '$ltag')");
+		sql_query("INSERT INTO shm_tags(image_id, tag) VALUES($image_id, '$tag')");
 	}
 }
 
+function updateTags($image_id, $tag_list) {
+	delete_tags($image_id);
+	add_tags($image_id, $tag_list);
+}
+
+function delete_image($image_id) {
+	delete_tags($image_id);
+	delete_comments($image_id);
+
+	$row = sql_fetch_row(sql_query("SELECT ext FROM shm_images WHERE id=$image_id"));
+	$iname = $config['dir_images']."/$image_id.".$row['ext'];
+	$tname = $config['dir_thumbs']."/$image_id.jpg";
+	if(file_exists($iname)) unlink($iname);
+	if(file_exists($tname)) unlink($tname);
+
+	sql_query("DELETE FROM shm_images WHERE id=$image_id");
+}
 
 /*
  * Check that a user has the right password
@@ -216,32 +252,48 @@ function up_login() {
 /*
  * get blocks for a page
  */
-function getBlocks($pageType) {
-	global $config, $user;
+class block {
+	function get_html($pageType) {}
+	function get_priority() {return 999;}
+	function run($action) {}
+}
 
+function block_filename_to_name($fname) {
+	$fname = str_replace("blocks/", "", $fname);
+	$fname = str_replace(".php", "", $fname);
+	return $fname;
+}
+
+function get_blocks() {
 	$blockFiles = glob("blocks/*.php");
-	foreach($blockFiles as $block) {
-		require_once $block;
+	$blocks = Array();
+
+	foreach($blockFiles as $fname) {
+		$blockname = block_filename_to_name($fname);
+		require_once $fname;
+
+		$block = new $blockname();
+		
+		$n = $block->get_priority();
+		while(isset($blocks[$n])) {$n++;}
+		$blocks[$n] = $block;
 	}
 
+	return $blocks;
+}
+
+function block_array_to_html($blocks, $pageType) {
 	$allBlocks = "";
 	ksort($blocks);
 	foreach($blocks as $block) {
-		$allBlocks .= $block;
+		if($block instanceof block)
+			$allBlocks .= $block->get_html($pageType);
 	}
 	return $allBlocks;
 }
 
-
-/*
- * parse a link templated
- */
-function parseLinkTemplate($tmpl, $img) {
-	$tmpl = str_replace('$id',   $img->id,   $tmpl);
-	$tmpl = str_replace('$hash', $img->hash, $tmpl);
-	$tmpl = str_replace('$tags', $img->tags, $tmpl);
-	$tmpl = str_replace('$ext',  $img->ext,  $tmpl);
-	return $tmpl;
+function get_blocks_html($pageType) {
+	return block_array_to_html(get_blocks(), $pageType);
 }
 
 
@@ -343,8 +395,8 @@ EOD;
 			}
 			$this->tags = implode(" ", $this->tag_array);
 			
-			$this->link = parseLinkTemplate($config['image_link'], $this);
-			$this->slink = parseLinkTemplate($config['image_slink'], $this);
+			$this->link = $this->parse_link_template($config['image_link'], $this);
+			$this->slink = $this->parse_link_template($config['image_slink'], $this);
 		}
 		else {
 			header("X-Shimmie-Status: Error - No Such Image");
@@ -353,6 +405,14 @@ EOD;
 			require_once "templates/generic.php";
 			exit;
 		}
+	}
+	
+	function parse_link_template($tmpl, $img) {
+		$tmpl = str_replace('$id',   $img->id,   $tmpl);
+		$tmpl = str_replace('$hash', $img->hash, $tmpl);
+		$tmpl = str_replace('$tags', $img->tags, $tmpl);
+		$tmpl = str_replace('$ext',  $img->ext,  $tmpl);
+		return $tmpl;
 	}
 }
 

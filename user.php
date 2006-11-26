@@ -18,11 +18,10 @@ else {
 if(is_null($_GET['action'])) {
 	header("X-Shimmie-Status: OK - Settings Shown");
 	$title = "$user->name's settings";
-	$blocks = getBlocks("user");
+	$blocks = get_blocks_html("user");
 	require_once "templates/user.php";
 }
 else if($_GET['action'] == "pass") {
-	// md5(concat(lower('${_POST[admin_name]}'), '${_POST[admin_pass]}'))
 	$old1 = md5($_POST['old1']);
 	$new1 = md5($_POST['new1']);
 	$new2 = md5($_POST['new2']);

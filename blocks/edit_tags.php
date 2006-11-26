@@ -4,11 +4,13 @@
  *
  * A block to edit image tags
  */
+class edit_tags extends block {
+	function get_html($pageType) {
+		if($pageType == "view") {
+			global $image, $user;
 
-if($pageType == "view") {
-	global $image;
-
-	$blocks[20] .= <<<EOD
+			if($user->isAnonymous()) {
+				return <<<EOD
 	<script language="javascript">
 		function tagEditConfirm() {
 			if(getCookie("I_know_that_edit_is_not_search")) {
@@ -29,24 +31,45 @@ if($pageType == "view") {
 	</script>
 	<h3 id="edit_tags-toggle" onclick="toggle('edit_tags')">Edit Tags</h3>
 	<div id="edit_tags">
-		<form onSubmit="return tagEditConfirm();" action="metablock.php?block=edit_tags" method="POST">
+		<form onSubmit="return tagEditConfirm();" action="metablock.php?block=edit_tags&amp;action=update" method="POST">
 			<input name="image_id" type="hidden" value="$image->id">
 			<input name="tags" type="text" value="$image->tags">
 			<!-- <input type="submit" value="Set"> -->
 		</form>
 	</div>
 EOD;
-}
+			}
+			else {
+				return <<<EOD
+	<h3 id="edit_tags-toggle" onclick="toggle('edit_tags')">Edit Tags</h3>
+	<div id="edit_tags">
+		<form action="metablock.php?block=edit_tags&amp;action=update" method="POST">
+			<input name="image_id" type="hidden" value="$image->id">
+			<input name="tags" type="text" value="$image->tags">
+			<!-- <input type="submit" value="Set"> -->
+		</form>
+	</div>
+EOD;
+			}
+		}
+	}
 
-if($pageType == "block") {
-	$config['upload_anon'] || user_or_die();
+	function get_priority() {
+		return 20;
+	}
 
-	// get input
-	$image_id = (int)$_POST['image_id'];
-	updateTags($image_id, sql_escape($_POST['tags']));
+	function run($action) {
+		if($action == "update") {
+			$config['upload_anon'] || user_or_die();
 
-	// go back
-	header("Location: view.php?image_id=$image_id");
-	echo "<p><a href='view.php?image_id=$image_id'>Back</a>";
+			// get input
+			$image_id = (int)defined_or_die($_POST['image_id']);
+			updateTags($image_id, sql_escape(defined_or_die($_POST['tags'])));
+
+			// go back
+			header("Location: view.php?image_id=$image_id");
+			echo "<p><a href='view.php?image_id=$image_id'>Back</a>";
+		}
+	}
 }
 ?>
