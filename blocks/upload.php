@@ -63,6 +63,8 @@ EOD;
 	}
 
 	function run($action) {
+		global $config, $user;
+
 		if($config["upload_anon"] || user_or_die()) {
 			$owner_ip = $_SERVER['REMOTE_ADDR'];
 			$dir_images = $config['dir_images'];
@@ -70,7 +72,7 @@ EOD;
 
 			$err = null;
 
-			$self->check_filecount();
+			$this->check_filecount();
 
 	/*
 	 * Check as many upload stots as there should be
@@ -88,7 +90,7 @@ EOD;
 		$imgsize = getimagesize($tname);
 	
 		if($imgsize != false) {
-			$ext = $self->mime_to_ext($imgsize['mime']);
+			$ext = $this->mime_to_ext($imgsize['mime']);
 			if(is_null($ext)) {
 				$err .= "<p>Unrecognised file type for '$fname' (not jpg/gif/png)";
 				continue;
