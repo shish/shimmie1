@@ -20,8 +20,9 @@ if($_POST["action"] == "set") {
 	
 	$config_keys = array_keys($config_defaults);
 	foreach($config_keys as $cname) {
-		$cval = sql_escape($_POST[$cname]);
-		sql_query("INSERT INTO shm_config(name, value) VALUES('$cname', '$cval')");
+		$s_cname = sql_escape($cname);
+		$s_cval = sql_escape($_POST[$cname]);
+		sql_query("INSERT INTO shm_config(name, value) VALUES('$s_cname', '$s_cval')");
 		$config[$cname] = $cval; // update here so the display below is correct
 	}
 }

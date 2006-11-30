@@ -13,7 +13,7 @@ if(is_null($_GET['start']) || ($_GET['start'] == "")) {
 }
 
 $start = sql_escape($_GET['start']);
-$tags_min = $config['tags_min'];
+$tags_min = int_escape($config['tags_min']);
 
 $query = <<<EOD
 	SELECT tag,COUNT(image_id) AS count

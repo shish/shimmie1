@@ -17,7 +17,7 @@ $imagesPerPage = $config['index_images'];
  * isn't specified
  */
 if(!is_null($_GET['page'])) {
-	$vpage = (int)$_GET['page'];
+	$vpage = int_escape($_GET['page']);
 }
 else {
 	$vpage = 1;
@@ -70,10 +70,9 @@ $start = $cpage * $imagesPerPage;
 $searchString = "";
 
 $htmlSafeTags = ""; // don't include negators in the title
-$sqlSafeTags = sql_escape($_GET['tags']);
 
 if($_GET['tags']) {
-	$tags = explode(" ", str_replace("  ", " ", $sqlSafeTags));
+	$tags = explode(" ", str_replace("  ", " ", $_GET["tags"]));
 
 	if(count($tags) > 1) $moreHtmlTags = "<meta name='robots' content='noindex,follow'>";
 	
@@ -82,15 +81,17 @@ if($_GET['tags']) {
 	$tnum = 0;
 	foreach($tags as $tag) {
 		if($tag[0] == '-') continue;
+		$s_tag = sql_escape($tag);
+		$h_tag = html_escape($tag);
 		if($tnum == 0) {
-			$search_sql .= "(tag LIKE '$tag' ";
-			$searchString .= "$tag";
-			$htmlSafeTags .= htmlentities($tag);
+			$search_sql .= "(tag LIKE '$s_tag' ";
+			$searchString .= $h_tag;
+			$htmlSafeTags .= $h_tag;
 		}
 		else {
-			$search_sql .= "OR tag LIKE '$tag' ";
-			$searchString .= " $tag";
-			$htmlSafeTags .= " ".htmlentities($tag);
+			$search_sql .= "OR tag LIKE '$s_tag' ";
+			$searchString .= " $h_tag";
+			$htmlSafeTags .= " $h_tag";
 		}
 		$tnum++;
 	}
@@ -102,13 +103,15 @@ if($_GET['tags']) {
 		if($tag[0] != '-') continue;
 		$searchString .= " $tag";
 		$tag = preg_replace("/^-/", "", $tag);
+		$s_tag = sql_escape($tag);
+		$h_tag = html_escape($tag);
 		if($tnum == 0) {
-			$search_sql .= "-(tag LIKE '$tag' ";
-			$subtitle = "Ignoring: $tag";
+			$search_sql .= "-(tag LIKE '$s_tag' ";
+			$subtitle = "Ignoring: $h_tag";
 		}
 		else {
-			$search_sql .= "OR tag LIKE '$tag' ";
-			$subtitle .= ", $tag";
+			$search_sql .= "OR tag LIKE '$s_tag' ";
+			$subtitle .= ", $h_tag";
 		}
 		$tnum++;
 	}
@@ -168,17 +171,17 @@ $dir_thumbs = $config['dir_thumbs'];
 while($row = sql_fetch_row($list_result)) {
 	$image_id = $row['id'];
 	$hash = $row['hash'];
-	$filename = htmlentities($row['filename']);
+	$h_filename = html_escape($row['filename']);
 
 	# FIXME: Do this better
-	$tags = "";
+	$h_tags = "";
 	$tags_result = sql_query("SELECT * FROM shm_tags WHERE image_id=$image_id");
-	while($row = sql_fetch_row($tags_result)) {$tags .= $row['tag']." ";}
+	while($row = sql_fetch_row($tags_result)) {$h_tags .= html_escape($row['tag'])." ";}
 	
 
 	if($i%$width==0) $imageTable .= "\n<tr>\n";
 	$imageTable .= "\t<td>".
-		"<a href='view.php?image_id=$image_id'><img src='$dir_thumbs/$image_id.jpg' alt='$filename' title='$tags'></a>".
+		"<a href='view.php?image_id=$image_id'><img src='$dir_thumbs/$image_id.jpg' alt='$h_filename' title='$h_tags'></a>".
 		"</td>\n";
 	if($i%$width==$width-1) $imageTable .= "\n</tr>\n";
 	$i++;
@@ -208,7 +211,7 @@ $paginator .= ($morePages ? "<a href='index.php?page=$vnext&tags=$htmlSafeTags'>
  * If not, show the version string.
  */
 if($_GET['tags']) $title = "$htmlSafeTags / $vpage";
-else $title = $config['title']." / $vpage";
+else $title = html_escape($config['title'])." / $vpage";
 
 
 /*

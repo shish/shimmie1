@@ -52,16 +52,6 @@ EOD;
 		}
 	}
 
-	function mime_to_ext($mime) {
-		$ext = null;
-		switch($mime) {
-			case "image/jpeg": $ext = "jpg"; break;
-			case "image/png":  $ext = "png"; break;
-			case "image/gif":  $ext = "gif"; break;
-		}
-		return $ext;
-	}
-
 	function run($action) {
 		global $config, $user;
 
@@ -74,111 +64,37 @@ EOD;
 
 			$this->check_filecount();
 
-	/*
-	 * Check as many upload stots as there should be
-	 *
-	 * FIXME: If a slot isn't used, ignore it. Currently this is done
-	 * in several nasty ways -- is there a way to do it properly?
-	 */
-	for($dnum=0; $dnum<min($config['upload_count'], count($_FILES)); $dnum++) {
-		$dname = "data$dnum";
-
-		if(strlen($_FILES[$dname]['tmp_name']) < 4) continue; // ?
-	
-		$tname = $_FILES[$dname]['tmp_name'];
-		$fname = sql_escape($_FILES[$dname]['name']);
-		$imgsize = getimagesize($tname);
-	
-		if($imgsize != false) {
-			$ext = $this->mime_to_ext($imgsize['mime']);
-			if(is_null($ext)) {
-				$err .= "<p>Unrecognised file type for '$fname' (not jpg/gif/png)";
-				continue;
-			}
-
-			$hash = md5_file($tname);
-	
 			/*
-			 * Check for an existing image
+			 * Check as many upload stots as there should be
+			 *
+			 * FIXME: If a slot isn't used, ignore it. Currently this is done
+			 * in several nasty ways -- is there a way to do it properly?
 			 */
-			$existing_result = sql_query("SELECT * FROM shm_images WHERE hash='$hash'");
-			if($existing_row = sql_fetch_row($existing_result)) {
-				header("X-Shimmie-Status: Error - Hash Clash");
-				$iid = $existing_row['id'];
-				$err .= "<p>Upload of '$fname' failed:";
-				$err .= "<br>There's already an image with hash '$hash' (<a href='view.php?image_id=$iid'>view</a>)";
-				continue;
+			// for($dnum=0; $dnum<min($config['upload_count'], count($_FILES)); $dnum++) {
+			//	$info = $_FILES["data$dnum"];
+			foreach($_FILES as $info) {
+				if(strlen($info['name']) > 0) {
+					$ok = add_image($info['tmp_name'], $info['name'], $_POST['tags']);
+					if(!$ok) {
+						$err .= "<br>Failed to upload: '".html_escape($info['name'])."'";
+					}
+				}
 			}
-			
-			$image = imagecreatefromstring(file_get_contents($_FILES[$dname]['tmp_name']));
-		
-			$width = $imgsize[0];
-			$height = $imgsize[1];
-			$max_width  = $config['thumb_w'];
-			$max_height = $config['thumb_h'];
-			$xscale = ($max_height / $height);
-			$yscale = ($max_width / $width);
-			$scale = ($xscale < $yscale) ? $xscale : $yscale;
-			
-			if($scale >= 1) {
-				$thumb = $image;
+
+			/*
+			 * If the error flag is set, keep on the current page so the user
+			 * can see the error message. If all is OK, redirect back automatically
+			 */
+			if(!is_null($err)) {
+				$title = "Upload error";
+				$message = $err;
+				require_once "templates/generic.php";
 			}
 			else {
-				$thumb = imagecreatetruecolor($width*$scale, $height*$scale);
-				imagecopyresampled(
-					$thumb, $image, 0, 0, 0, 0,
-					$width*$scale, $height*$scale, $width, $height
-				);
+				header("Location: ./index.php");
+				echo "<p><a href='index.php'>Back</a>";
 			}
-
-			// actually insert the info
-			$new_query = "INSERT INTO shm_images(owner_id, owner_ip, filename, hash, ext) ".
-			             "VALUES($user->id, '$owner_ip', '$fname', '$hash', '$ext')";
-			sql_query($new_query);
-			$id = sql_insert_id();
-			$del_query = "DELETE FROM shm_images WHERE id=$id";
-		
-			/*
-			 * If no errors: move the file from the temporary upload
-			 * area to the main file store, create a thumbnail, and
-			 * insert the image info into the database
-			 */
-			if(!move_uploaded_file($_FILES[$dname]['tmp_name'], "$dir_images/$id.$ext")) {
-				$err .= "<p>The image couldn't be moved from the temporary area to the
-				         main data store -- is the web server allowed to write to '$dir_images'?";
-				sql_query($del_query);
-				continue;
-			}
-			if(!imagejpeg($thumb, "$dir_thumbs/$id.jpg", $config['thumb_q'])) {
-				$err .= "<p>The image thumbnail couldn't be generated -- is the web
-				         server allowed to write to '$dir_thumbs'?";
-				sql_query($del_query);
-				continue;
-			}
-			
-			header("X-Shimmie-Image-ID: $id");
-			updateTags($id, sql_escape($_POST['tags']));
-		}
-		else {
-			$err .= "<p>$fname upload failed";
 		}
 	}
-
-
-	/*
-	 * If the error flag is set, keep on the current page so the user
-	 * can see the error message. If all is OK, redirect back automatically
-	 */
-	if(!is_null($err)) {
-		$title = "Upload error";
-		$message = $err;
-		require_once "templates/generic.php";
-	}
-	else {
-		header("Location: ./index.php");
-		echo "<p><a href='index.php'>Back</a>";
-	}
-}
-}
 }
 ?>

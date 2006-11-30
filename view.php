@@ -14,7 +14,7 @@ $baseurl = "http://" . $_SERVER["HTTP_HOST"] . $_SERVER['REQUEST_URI'];
 $baseurl = preg_replace('#[^/]+$#', '', $baseurl);
 $scale = $config['view_scale'] ? "style='width: 90%'" : "";
 
-$title = $image->tags;
+$title = html_escape($image->tags);
 $blocks = get_blocks_html("view");
 require_once "templates/view.php";
 ?>

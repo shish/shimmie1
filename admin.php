@@ -23,9 +23,9 @@ if(is_null($action)) {
 	$banned_ip_list = "";
 	$res = sql_query("SELECT * FROM bans WHERE type='ip'");
 	while($row = sql_fetch_row($res)) {
-		$ip = $row["value"];
-		$date = $row["date"];
-		$reason = $row["reason"];
+		$ip = html_escape($row["value"]);
+		$date = html_escape($row["date"]);
+		$reason = html_escape($row["reason"]);
 		$banned_ip_list .= "<br>$ip at $date for $reason (<a href='admin.php?action=removeipban&ip=$ip'>X</a>)\n";
 	}
 
@@ -50,6 +50,20 @@ else if($action == "replacetag") {
 	header("X-Shimmie-Status: OK - Tags Replaced");
 	header("Location: admin.php");
 	echo "<a href='admin.php'>Back</a>";
+}
+
+
+/*
+ * bulk add from a folder
+ */
+else if($action == "bulkadd") {
+	$list = add_dir(defined_or_die($_POST["dir"]));
+	
+	header("X-Shimmie-Status: OK - Images Uploaded");
+	$title = "Bulk Upload";
+	$message = "<br><a href='admin.php'>Back</a><br>";
+	$data = $list;
+	include_once "templates/generic.php";
 }
 
 

@@ -8,7 +8,8 @@
 class comment extends block {
 	function get_index_query() {
 		global $config;
-		$com_count = $config["recent_count"];
+		
+		$com_count = int_escape($config["recent_count"]);
 		
 		return "
 		SELECT 
@@ -25,7 +26,7 @@ class comment extends block {
 	}
 
 	function get_view_query() {
-		$image_id = (int)$_GET['image_id'];
+		$s_image_id = int_escape($_GET['image_id']);
 		
 		return "
 		SELECT 
@@ -33,7 +34,7 @@ class comment extends block {
 			name, owner_ip, comment as scomment
 		FROM shm_comments
 		LEFT JOIN users ON shm_comments.owner_id=users.id 
-		WHERE image_id=$image_id
+		WHERE image_id=$s_image_id
 		ORDER BY shm_comments.id DESC
 		";
 	}
@@ -53,14 +54,14 @@ class comment extends block {
 	}
 
 	function get_postbox_html() {
-		$image_id = (int)$_GET['image_id'];
-		return <<<EOD
-		<form action="metablock.php?block=comment&amp;action=add" method="POST">
-			<input type="hidden" name="image_id" value="$image_id">
-			<input id="commentBox" type="text" name="comment" value="Comment">
-			<input type="submit" value="Say" style="display: none;">
-		</form>
-EOD;
+		$image_id = int_escape($_GET['image_id']);
+		return "
+			<form action='metablock.php?block=comment&amp;action=add' method='POST'>
+				<input type='hidden' name='image_id' value='$image_id'>
+				<input id='commentBox' type='text' name='comment' value='Comment'>
+				<input type='submit' value='Say' style='display: none;'>
+			</form>
+		";
 	}
 
 	function query_to_html($query) {
@@ -96,14 +97,13 @@ EOD;
 	}
 
 	function is_comment_limit_hit() {
-		global $config;
+		global $config, $user;
 
-		$owner_ip = $_SERVER['REMOTE_ADDR'];
-		$window = $config['comment_window'];
-		$max = $config['comment_limit'];
+		$window = int_escape($config['comment_window']);
+		$max = int_escape($config['comment_limit']);
 		
 		$last_query = "SELECT count(*) AS recent_comments FROM shm_comments ".
-		              "WHERE owner_ip = '$owner_ip' ".
+		              "WHERE owner_ip = '{$user->ip}' ".
 					  "AND posted > date_sub(now(), interval $window minute)";
 		$row = sql_fetch_row(sql_query($last_query));
 		$recent_comments = $row["recent_comments"];
@@ -115,7 +115,7 @@ EOD;
 		if($action == "delete") {
 			admin_or_die();
 
-			$comment_id = (int)defined_or_die($_GET["comment_id"]);
+			$comment_id = int_escape(defined_or_die($_GET["comment_id"]));
 			sql_query("DELETE FROM shm_comments WHERE id=$comment_id");
 			header("X-Shimmie-Status: OK - Comment Deleted");
 			header("Location: index.php");
@@ -123,13 +123,13 @@ EOD;
 		}
 
 
-		if(($action == "add") && ($config["comment_anon"] || user_or_die())) {
+		if($action == "add") {
 			global $user, $config;
 
+			$config["comment_anon"] || user_or_die();
+
 			// get input
-			$image_id = (int)defined_or_die($_POST['image_id']);
-			$owner_id = $user->id;
-			$owner_ip = $_SERVER['REMOTE_ADDR'];
+			$image_id = int_escape(defined_or_die($_POST['image_id']));
 			$comment = sql_escape(defined_or_die($_POST['comment']));
 
 			// check validity
@@ -150,7 +150,7 @@ EOD;
 			}
 			else {
 				$new_query = "INSERT INTO shm_comments(image_id, owner_id, owner_ip, posted, comment) ".
-				             "VALUES($image_id, $owner_id, '$owner_ip', now(), '$comment')";
+				             "VALUES($image_id, {$user->id}, '{$user->ip}', now(), '$comment')";
 				sql_query($new_query);
 				$cid = sql_insert_id();
 		

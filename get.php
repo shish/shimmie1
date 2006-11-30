@@ -16,6 +16,11 @@ preg_match("#/(\d+) - .*\.(jpg|gif|png)#", $_SERVER['PATH_INFO'], $args);
 $image_dir = $config['dir_images'];
 $filename = "$image_dir/{$args[1]}.{$args[2]}";
 
+
+/*
+ * Check if the user's version of the file matches the server's,
+ * if it does, simply reply "your version is OK"
+ */
 $if_modified_since = preg_replace('/;.*$/', '', $_SERVER["HTTP_IF_MODIFIED_SINCE"]);
 $gmdate_mod = gmdate('D, d M Y H:i:s', filemtime($filename)) . ' GMT';
 

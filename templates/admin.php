@@ -22,6 +22,15 @@ echo <<<EOD
 		</table>
 	</form>
 	$banned_ip_list
+
+	<h3>Add Folder</h3>
+	<form action="admin.php?action=bulkadd" method="POST">
+		<table style="width: 300px">
+			<tr><td colspan="2">subfolder names will be used as tags</td></tr>
+			<tr><td>Folder<td><input name='dir' type='text'></tr>
+			<tr><td colspan="2"><input type='submit' value='Add'></td></tr>
+		</table>
+	</form>
 </div>
 EOD;
 require_once "templates/footer.php";

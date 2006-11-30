@@ -10,7 +10,7 @@ class popular extends block {
 		global $htmlSafeTags, $config;
 	
 		if(($pageType == "index") && (strlen($htmlSafeTags) == 0)) {
-			$pop_count = $config['popular_count'];
+			$pop_count = int_escape($config['popular_count']);
 			$pop_query = <<<EOD
 				SELECT 
 					tag,
@@ -25,7 +25,7 @@ EOD;
 
 			$popularBlock = "<h3 id=\"popular-toggle\" onclick=\"toggle('popular')\">Popular Tags</h3>\n<div id=\"popular\">";
 			while($row = sql_fetch_row($pop_result)) {
-				$tag = htmlentities($row['tag']);
+				$tag = html_escape($row['tag']);
 				$count = $row['count'];
 				if($n++) $popularBlock .= "<br/>";
 				$popularBlock .= "<a href='index.php?tags=$tag'>$tag ($count)</a>\n";

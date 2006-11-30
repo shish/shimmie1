@@ -17,14 +17,14 @@ else {
 
 if(is_null($_GET['action'])) {
 	header("X-Shimmie-Status: OK - Settings Shown");
-	$title = "$user->name's settings";
+	$title = html_escape($user->name)."'s settings";
 	$blocks = get_blocks_html("user");
 	require_once "templates/user.php";
 }
 else if($_GET['action'] == "pass") {
-	$old1 = md5($_POST['old1']);
-	$new1 = md5($_POST['new1']);
-	$new2 = md5($_POST['new2']);
+	$old1 = md5(strtolower($user->name) . $_POST['old1']);
+	$new1 = md5(strtolower($user->name) . $_POST['new1']);
+	$new2 = md5(strtolower($user->name) . $_POST['new2']);
 	if($old1 == $user->pass) {
 		if($new1 == $new2) {
 			$query = "UPDATE shm_users SET pass='$new1' WHERE pass='$old1' AND id='$user->id'";

@@ -7,7 +7,7 @@
  */
 
 
-$version = "Shimmie 0.7.0";
+$version = "Shimmie 0.7.2";
 
 
 /*
@@ -93,9 +93,13 @@ function get_ban_info($type, $value) {
 }
 
 function print_ip_ban($ip, $date, $reason) {
+	$s_ip = html_escape($ip);
+	$s_date = html_escape($date);
+	$s_reason = html_escape($reason);
+
 	header("X-Shimmie-Status: Error - IP Banned");
 	$title = "IP Banned";
-	$message = "IP $ip was banned at $date for $reason";
+	$message = "IP $s_ip was banned at $s_date for $s_reason";
 	require_once "templates/generic.php";
 }
 
@@ -139,7 +143,8 @@ function defined_or_die($var, $name=null) {
 			$message = "variable not specified";
 		}
 		else {
-			$message = "not set: '$name'";
+			$s_name = html_escape($name);
+			$message = "not set: '$s_name'";
 		}
 		require_once "templates/generic.php";
 		exit;
@@ -149,14 +154,28 @@ function defined_or_die($var, $name=null) {
 
 
 /*
+ * some sanitisers
+ */
+function int_escape($var) {
+	return (int)$var;
+}
+function html_escape($var) {
+	return htmlentities($var);
+}
+// sql_escape is in libabsql.php
+
+
+/*
  * A couple of pages want to be able to update tags for an image,
  * so it got put into it's own function.
  */
 function delete_tags($image_id) {
-	sql_query("DELETE FROM shm_tags WHERE image_id=$image_id");
+	$s_image_id = int_escape($image_id);
+	sql_query("DELETE FROM shm_tags WHERE image_id=$s_image_id");
 }
 function delete_comments($image_id) {
-	sql_query("DELETE FROM shm_comments WHERE image_id=$image_id");
+	$s_image_id = int_escape($image_id);
+	sql_query("DELETE FROM shm_comments WHERE image_id=$s_image_id");
 }
 
 function add_tags($image_id, $tag_list) {
@@ -174,8 +193,10 @@ function add_tags($image_id, $tag_list) {
 	}
 
 	// insert each new tag
+	$s_image_id = int_escape($image_id);
 	foreach($tags as $tag) {
-		sql_query("INSERT INTO shm_tags(image_id, tag) VALUES($image_id, '$tag')");
+		$s_tag = sql_escape($tag);
+		sql_query("INSERT INTO shm_tags(image_id, tag) VALUES($s_image_id, '$s_tag')");
 	}
 }
 
@@ -187,21 +208,212 @@ function updateTags($image_id, $tag_list) {
 function delete_image($image_id) {
 	delete_tags($image_id);
 	delete_comments($image_id);
+	
+	$s_image_id = int_escape($image_id);
+	$row = sql_fetch_row(sql_query("SELECT ext FROM shm_images WHERE id=$s_image_id"));
 
-	$row = sql_fetch_row(sql_query("SELECT ext FROM shm_images WHERE id=$image_id"));
 	$iname = $config['dir_images']."/$image_id.".$row['ext'];
 	$tname = $config['dir_thumbs']."/$image_id.jpg";
 	if(file_exists($iname)) unlink($iname);
 	if(file_exists($tname)) unlink($tname);
 
-	sql_query("DELETE FROM shm_images WHERE id=$image_id");
+	sql_query("DELETE FROM shm_images WHERE id=$s_image_id");
+}
+
+function mime_to_ext($mime) {
+	$ext = null;
+	switch($mime) {
+		case "image/jpeg": $ext = "jpg"; break;
+		case "image/png":  $ext = "png"; break;
+		case "image/gif":  $ext = "gif"; break;
+	}
+	return $ext;
+}
+
+function is_dupe($hash) {
+	$s_hash = sql_escape($hash);
+	$existing_result = sql_query("SELECT * FROM shm_images WHERE hash='$s_hash'");
+	return sql_fetch_row($existing_result);
+}
+
+function get_thumb($tmpname) {
+	global $config;
+
+	$image = imagecreatefromstring(read_file($tmpname));
+		
+	$width = imagesx($image);
+	$height = imagesy($image);
+	$max_width  = $config['thumb_w'];
+	$max_height = $config['thumb_h'];
+	$xscale = ($max_height / $height);
+	$yscale = ($max_width / $width);
+	$scale = ($xscale < $yscale) ? $xscale : $yscale;
+	
+	if($scale >= 1) {
+		$thumb = $image;
+	}
+	else {
+		$thumb = imagecreatetruecolor($width*$scale, $height*$scale);
+		imagecopyresampled(
+			$thumb, $image, 0, 0, 0, 0,
+			$width*$scale, $height*$scale, $width, $height
+		);
+	}
+
+	return $thumb;
+}
+
+function add_image($tmpname, $filename, $tags) {
+	global $config, $user;
+	
+	$dir_images = $config['dir_images'];
+	$dir_thumbs = $config['dir_thumbs'];
+
+	$imgsize = getimagesize($tmpname);
+	$h_filename = html_escape($filename);
+	
+	if($imgsize) {
+		$ext = mime_to_ext($imgsize['mime']);
+		if(is_null($ext)) {
+			print "<p>Unrecognised file type for '$h_filename' (not jpg/gif/png)";
+			return false;
+		}
+
+		$hash = md5_file($tmpname);
+	
+		/*
+		 * Check for an existing image
+		 */
+		if(is_dupe($hash)) {
+			header("X-Shimmie-Status: Error - Hash Clash");
+			$iid = $existing_row['id'];
+			$err .= "<p>Upload of '$h_filename' failed:";
+			$err .= "<br>There's already an image with hash '$hash' (<a href='view.php?image_id=$iid'>view</a>)";
+			return false;
+		}
+			
+		$thumb = get_thumb($tmpname);
+
+		// actually insert the info
+		$s_filename = sql_escape($filename);
+		$new_query = "INSERT INTO shm_images(owner_id, owner_ip, filename, hash, ext) ".
+		             "VALUES({$user->id}, '{$user->ip}', '$s_filename', '$hash', '$ext')";
+		sql_query($new_query);
+		$id = sql_insert_id();
+		$rollback_query = "DELETE FROM shm_images WHERE id=$id";
+		
+		/*
+		 * If no errors: move the file from the temporary upload
+		 * area to the main file store, create a thumbnail, and
+		 * insert the image info into the database
+		 */
+		if(!move($tmpname, "$dir_images/$id.$ext")) {
+			print "<p>The image couldn't be moved from the temporary area to the
+			         main data store -- is the web server allowed to write to '$dir_images'?";
+			sql_query($rollback_query);
+			return false;
+		}
+		chmod("$dir_images/$id.$ext", 644);
+		if(!imagejpeg($thumb, "$dir_thumbs/$id.jpg", $config['thumb_q'])) {
+			print "<p>The image thumbnail couldn't be generated -- is the web
+			         server allowed to write to '$dir_thumbs'?";
+			sql_query($rollback_query);
+			return false;
+		}
+		
+		header("X-Shimmie-Image-ID: $id");
+		add_tags($id, $tags);
+		return true;
+	}
+	else {
+		print "<p>$h_filename upload failed";
+		return false;
+	}
+}
+
+function write_temp_file($data) {
+	$tname = tempnam("/tmp", "shm_tmp_");
+	write_file($tname, $data);
+	return $tname;
+}
+
+function write_file($fname, $data) {
+	$tmp = fopen($fname, "w");
+	fwrite($tmp, $data);
+	fclose($tmp);
+}
+
+function read_file($fname) {
+	// FIXME: php4
+	return file_get_contents($fname);
+}
+
+function move($from, $to) {
+	// FIXME: php4
+	return rename($from, $to);
+}
+
+function read_url($url) {
+	global $config;
+		
+	$fp = fopen($url, "r");
+	$size = 0;
+	$maxsize = $config["uploads_size"];
+	$content = '';
+	while(!feof($fp)) {
+		$tmp = fread($fp, 4096);
+		$content .= $tmp;
+		$size += strlen($tmp);
+		if($size > $maxsize) {
+			fclose($fp);
+			$title = "File too big";
+			$mkb = $maxsize/1024;
+			$message = "Max upload size is $maxsize bytes ($mkb KB)";
+			require_once "templates/generic.php";
+			exit;
+		}
+	}
+	fclose($fp);
+
+	return $content;
+}
+
+function add_dir($base, $subdir="") {
+	$list = "";
+
+	$dir = opendir("$base/$subdir");
+	while($filename = readdir($dir)) {
+		$fullpath = "$base/$subdir/$filename";
+		
+		if(is_dir($fullpath)) {
+			if($filename[0] != ".") {
+				$list .= add_dir($base, "$subdir/$filename");
+			}
+		}
+		else {
+			$tmpfile = write_temp_file(read_file($fullpath));
+			$list .= html_escape("$subdir/$filename (".str_replace("/", ",", $subdir).")...");
+			if(add_image($tmpfile, $filename, str_replace("/", " ", $subdir))) {
+				$list .= "ok\n";
+			}
+			else {
+				$list .= "failed\n";
+			}
+			unlink($tmpfile);
+		}
+	}
+	closedir($dir);
+
+	return $list;
 }
 
 /*
  * Check that a user has the right password
  */
 function up_passCheck($name, $hash) {
-	$pc_query = "SELECT * FROM shm_users WHERE name LIKE '$name' AND pass = '$hash'";
+	$s_name = sql_escape($name);
+	$s_hash = sql_escape($hash);
+	$pc_query = "SELECT * FROM shm_users WHERE name LIKE '$s_name' AND pass = '$s_hash'";
 	return (sql_num_rows(sql_query($pc_query)) == 1);
 }
 
@@ -210,11 +422,13 @@ function up_passCheck($name, $hash) {
  */
 function up_login() {
 	global $base_url;
-	$name = sql_escape($_POST['user']);
+	
+	$name = $_POST['user'];
 	$hash = md5( strtolower($_POST['user']) . $_POST['pass'] );
+	
 	if(up_passCheck($name, $hash)) {
 		session_start();
-		setcookie("shm_login", "true", time()+60*60*24*30);
+		setcookie("shm_login", "true"); //, time()+60*60*24*30);
 		$_SESSION["shm_user"] = $name;
 		$_SESSION["shm_pass"] = $hash;
 
@@ -225,8 +439,9 @@ function up_login() {
 		require_once "templates/generic.php";
 	}
 	else if($_POST['create']) {
-		if(sql_num_rows(sql_query("SELECT * FROM shm_users WHERE name='$name'")) == 0) {
-			sql_query("INSERT INTO shm_users(name, pass) VALUES('$name', '$hash')");
+		$s_name = sql_escape($name);
+		if(sql_num_rows(sql_query("SELECT * FROM shm_users WHERE name='$s_name'")) == 0) {
+			sql_query("INSERT INTO shm_users(name, pass) VALUES('$s_name', '$hash')");
 			
 			header("X-Shimmie-Status: OK");
 			$title = "Account Created";
@@ -303,7 +518,8 @@ function get_blocks_html($pageType) {
  * store results in count['tag']
  */
 function countImagesForTag($tag) {
-	$tag_query = "SELECT count(*) as count FROM shm_tags WHERE tag='$tag'";
+	$s_tag = sql_escape($tag);
+	$tag_query = "SELECT count(*) as count FROM shm_tags WHERE tag='$s_tag'";
 	$row = sql_fetch_row(sql_query($tag_query));
 	return $row['count'];
 }
@@ -316,14 +532,19 @@ class User {
 	var $id = null;
 	var $name = 'Anonymous';
 	var $uconfig = Array();
+	var $ip = null;
 
 	function User($cname) {
 		global $config;
+		
 		$this->id = $config['anon_id'];
+		$this->ip = $_SERVER['REMOTE_ADDR'];
 
 		if(is_null($cname)) return;
 
-		$result = sql_query("SELECT * FROM shm_users WHERE name LIKE '$cname'");
+		$s_cname = sql_escape($cname);
+
+		$result = sql_query("SELECT * FROM shm_users WHERE name LIKE '$s_cname'");
 		if(sql_num_rows($result) == 1) {
 			$row = sql_fetch_row($result);
 			$this->id = $row['id'];
@@ -370,13 +591,16 @@ class Image {
 
 	function Image($id) {
 		global $config;
-		if(is_null((int)$id)) return;
+		
+		if(is_null($id)) return;
+
+		$s_id = int_escape($id);
 
 		$img_query = <<<EOD
 			SELECT shm_images.*, shm_users.name
 			FROM shm_images
 			LEFT JOIN shm_users ON shm_images.owner_id=shm_users.id
-			WHERE shm_images.id=$id
+			WHERE shm_images.id=$s_id
 EOD;
 		$img_result = sql_query($img_query);
 		if(sql_num_rows($img_result) == 1) {
@@ -422,7 +646,7 @@ EOD;
  */
 if($_COOKIE['shm_login']) {
 	session_start();
-	if(up_passCheck(sql_escape($_SESSION['shm_user']), $_SESSION['shm_pass'])) {
+	if(up_passCheck($_SESSION['shm_user'], $_SESSION['shm_pass'])) {
 		$cuser = $_SESSION['shm_user'];
 		$cpass = $_SESSION['shm_pass'];
 	}

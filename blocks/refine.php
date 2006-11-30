@@ -7,15 +7,16 @@
 
 class refine extends block {
 	function get_html($pageType) {
-		global $htmlSafeTags, $sqlSafeTags, $config;
+		global $htmlSafeTags, $config;
 	
-		if(($pageType == "index") && (strlen($htmlSafeTags) > 0)) {
+		if(($pageType == "index") && (strlen($_GET["tags"]) > 0)) {
 			$sqlListTags = "";
 
 			$n = 0;
-			foreach(explode(" ", $sqlSafeTags) as $tag) {
+			foreach(explode(" ", $_GET["tags"]) as $tag) {
 				if($n++) $sqlListTags .= ", ";
-				$sqlListTags .= "'$tag'";
+				$s_tag = sql_escape($tag);
+				$sqlListTags .= "'$s_tag'";
 			}
 
 			$pop_count = $config['popular_count'];
@@ -53,15 +54,16 @@ EOD;
 			$result = sql_query($related_query_tables);
 			$n = 0;
 
-			$popularBlock = "<h3 id=\"refine-toggle\" onclick=\"toggle('refine')\">Refine Search</h3>\n<div id=\"refine\">";
+			$popularBlock = "<h3 id=\"refine-toggle\" onclick=\"toggle('refine')\">Refine Search</h3>\n";
+			$popularBlock .= "<div id='refine'>\n";
 			while($row = sql_fetch_row($result)) {
-				$tag = htmlentities($row['tag']);
+				$tag = html_escape($row['tag']);
 				if($n++) $popularBlock .= "<br/>";
 				$untagged = trim(preg_replace("/-?$tag/", "", $htmlSafeTags));
 				$popularBlock .= "<a href='index.php?tags=$tag'>$tag</a> (";
-				$popularBlock .= "<a href='index.php?tags=$untagged $tag' title='add tag to the current search'>a</a>, ";
-				$popularBlock .= "<a href='index.php?tags=$untagged' title='remove tag from the current search'>r</a>, ";
-				$popularBlock .= "<a href='index.php?tags=$untagged -$tag' title='subtract matching images from the results'>s</a>)\n";
+				$popularBlock .= "<a href='index.php?tags=$untagged+$tag' title='add tag to the current search'>a</a>/";
+				$popularBlock .= "<a href='index.php?tags=$untagged' title='remove tag from the current search'>r</a>/";
+				$popularBlock .= "<a href='index.php?tags=$untagged+-$tag' title='subtract matching images from the results'>s</a>)\n";
 			}
 			$popularBlock .= "</div>";
 

@@ -7,11 +7,11 @@
 
 require_once "header.php";
 
-if(is_null($_GET['mode'])) $mode = $config['tags_default'];
-else $mode = $_GET['mode'];
+if(is_null($_GET['mode'])) $mode = html_escape($config['tags_default']);
+else $mode = html_escape($_GET['mode']);
 
-if(is_null($_GET['tags_min'])) $tags_min = $config['tags_min'];
-else $tags_min = $_GET['tags_min'];
+if(is_null($_GET['tags_min'])) $tags_min = int_escape($config['tags_min']);
+else $tags_min = int_escape($_GET['tags_min']);
 
 if($tags_min > 0) {
 	$listMore = "Only tags with more than $tags_min uses are shown; ".
@@ -37,13 +37,13 @@ if($mode == "popular") {
 	$tlist = "Results grouped by log<sub>e</sub>(n)";
 	$lastLog = 0;
 	while($row = sql_fetch_row($tlist_result)) {
-		$tag = $row['tag'];
+		$h_tag = html_escape($row['tag']);
 		$count = $row['count'];
 		if($lastLog != floor(log($count))) {
 			$lastLog = floor(log($count));
 			$tlist .= "<p>$lastLog<br>";
 		}
-		$tlist .= "<a href='index.php?tags=$tag'>$tag&nbsp;($count)</a>\n";
+		$tlist .= "<a href='index.php?tags=$h_tag'>$h_tag&nbsp;($count)</a>\n";
 	}
 }
 
@@ -57,13 +57,13 @@ else if($mode == "alphabet") {
 	$n = 0;
 	$lastLetter = 0;
 	while($row = sql_fetch_row($tlist_result)) {
-		$tag = $row['tag'];
+		$h_tag = html_escape($row['tag']);
 		$count = $row['count'];
-		if($lastLetter != substr($tag, 0, 1)) {
-			$lastLetter = substr($tag, 0, 1);
+		if($lastLetter != substr($h_tag, 0, 1)) {
+			$lastLetter = substr($h_tag, 0, 1);
 			$tlist .= "<p>$lastLetter<br>";
 		}
-		$tlist .= "<a href='index.php?tags=$tag'>$tag&nbsp;($count)</a>\n";
+		$tlist .= "<a href='index.php?tags=$h_tag'>$h_tag&nbsp;($count)</a>\n";
 	}
 }
 
@@ -78,11 +78,11 @@ else {
 	$tlist_result = sql_query($tlist_query);
 	$n = 0;
 	while($row = sql_fetch_row($tlist_result)) {
-		$tag = $row['tag'];
+		$h_tag = html_escape($row['tag']);
 		$count = $row['count'];
 		if($count > 1) {
 			$size = floor(log(log($row['count'])+1)*1.5*100)/100;
-			$tlist .= "&nbsp;<a style='font-size: ${size}em' href='index.php?tags=$tag'>$tag</a>&nbsp;\n";
+			$tlist .= "&nbsp;<a style='font-size: ${size}em' href='index.php?tags=$h_tag'>$h_tag</a>&nbsp;\n";
 		}
 	}
 }

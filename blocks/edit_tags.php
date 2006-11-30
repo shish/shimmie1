@@ -9,6 +9,8 @@ class edit_tags extends block {
 		if($pageType == "view") {
 			global $image, $user;
 
+			$h_tags = html_escape($image->tags);
+			
 			if($user->isAnonymous()) {
 				return <<<EOD
 	<script language="javascript">
@@ -33,7 +35,7 @@ class edit_tags extends block {
 	<div id="edit_tags">
 		<form onSubmit="return tagEditConfirm();" action="metablock.php?block=edit_tags&amp;action=update" method="POST">
 			<input name="image_id" type="hidden" value="$image->id">
-			<input name="tags" type="text" value="$image->tags">
+			<input name="tags" type="text" value="$h_tags">
 			<!-- <input type="submit" value="Set"> -->
 		</form>
 	</div>
@@ -45,7 +47,7 @@ EOD;
 	<div id="edit_tags">
 		<form action="metablock.php?block=edit_tags&amp;action=update" method="POST">
 			<input name="image_id" type="hidden" value="$image->id">
-			<input name="tags" type="text" value="$image->tags">
+			<input name="tags" type="text" value="$h_tags">
 			<!-- <input type="submit" value="Set"> -->
 		</form>
 	</div>
@@ -63,8 +65,8 @@ EOD;
 			$config['upload_anon'] || user_or_die();
 
 			// get input
-			$image_id = (int)defined_or_die($_POST['image_id']);
-			updateTags($image_id, sql_escape(defined_or_die($_POST['tags'])));
+			$image_id = int_escape(defined_or_die($_POST['image_id']));
+			updateTags($image_id, defined_or_die($_POST['tags']));
 
 			// go back
 			header("Location: view.php?image_id=$image_id");

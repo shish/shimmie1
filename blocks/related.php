@@ -10,7 +10,7 @@ class related extends block {
 		if($pageType == "view") {
 			global $image, $config;
 
-			$pop_count = $config['popular_count'];
+			$pop_count = int_escape($config['popular_count']);
 			$related_query = <<<EOD
 				SELECT COUNT(t3.image_id) as count, t3.tag 
 				FROM
@@ -30,7 +30,7 @@ EOD;
 
 			$relatedBlock = "<h3 id=\"related-toggle\" onclick=\"toggle('related')\">Related Tags</h3>\n<div id=\"related\">";
 			while($row = sql_fetch_row($result)) {
-				$tag = htmlentities($row['tag']);
+				$tag = html_escape($row['tag']);
 				$count = $row['count'];
 				if($n++) $relatedBlock .= "<br/>";
 				$relatedBlock .= "<a href='index.php?tags=$tag'>$tag</a>\n";
