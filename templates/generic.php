@@ -10,12 +10,6 @@ echo <<<EOD
 	<div id="navigate">
 		<a href="index.php">index</a>
 	</div>
-
-	$uploadBlock
-	$commentBlock
-	$popularBlock
-	$userBlock
-	$adminBlock
 </div>
 
 <div id="body">
