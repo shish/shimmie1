@@ -70,6 +70,6 @@ else {
 	function sql_fetch_row($resultSet) {return mysql_fetch_assoc($resultSet);}
 	function sql_num_rows($resultSet) {return mysql_num_rows($resultSet);}
 	function sql_insert_id() {return mysql_insert_id();}
-	function sql_escape($string) {return mysql_escape_string($string);}
+	function sql_escape($string) {return mysql_real_escape_string($string);}
 }
 ?>
