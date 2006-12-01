@@ -28,12 +28,27 @@ class navigate extends block {
 EOD;
 		}
 		else if($pageType == "index") {
-			global $cpage, $vprev, $vnext, $h_tag_list, $morePages;
+			global $page, $total_pages, $h_tag_list;
+			
+			if(strlen($h_tag_list) > 0) {
+				$tags = "&tags=$h_tag_list";
+			}
 
-			$pageNav =
-				($cpage>0   ? "<a href='index.php?page=$vprev&tags=$h_tag_list'>Prev</a> | " : "Prev | ").
-				"<a href='index.php'>Index</a> | ".
-				($morePages ? "<a href='index.php?page=$vnext&tags=$h_tag_list'>Next</a>" : "Next");
+			if($page == 0) {$current_page = $total_pages;}
+			else {$current_page = $page;}
+			
+			$next = $current_page + 1;
+			$prev = $current_page - 1;
+		
+			$pageNav = "";
+	
+			if($current_page == $total_pages) {$pageNav .= "Next | ";}
+			else {$pageNav .= "<a href='index.php?page=$next$tags'>Next</a> | ";}
+	
+			$pageNav .= "<a href='index.php'>Index</a> | ";
+
+			if($current_page == 1 || $total_pages <= 1) {$pageNav .= "Prev";}
+			else {$pageNav .= "<a href='index.php?page=$prev$tags'>Prev</a>";}
 		}
 		else if($pageType == "view") {
 			global $image;

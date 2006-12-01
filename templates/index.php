@@ -6,7 +6,7 @@ echo <<<EOD
 
 <div id="body">
 	<h3>List</h3>
-	<table>$imageTable</table>
+	$image_table
 	<div id="pagelist">$paginator</div>
 </div>
 EOD;

@@ -9,7 +9,7 @@ require_once "header.php";
 
 header("X-Shimmie-Status: OK - Index Successful");
 
-$imagesPerPage = $config['index_images'];
+$images_per_page = $config['index_images'];
 
 
 /*
@@ -17,19 +17,11 @@ $imagesPerPage = $config['index_images'];
  * isn't specified
  */
 if(!is_null($_GET['page'])) {
-	$vpage = int_escape($_GET['page']);
+	$page = int_escape($_GET['page']);
 }
 else {
-	$vpage = 1;
+	$page = 0;
 }
-
-
-// visible page numbers start at 1, code page numbers start at 0
-$vnext = $vpage + 1;
-$vprev = $vpage - 1;
-$cpage = $vpage - 1;
-$start = $cpage * $imagesPerPage;
-
 
 /*
  * Do the SQL to get the images to display; generate a search query
@@ -109,42 +101,55 @@ if($_GET['tags']) {
 	if($tnum > 0) $search_sql .= ") ";
 	$h_tag_list = trim($h_tag_list);
 
-	$list_query = <<<EOD
+	$full_query = <<<EOD
 		SELECT 
-			images.id AS id, images.hash AS hash, images.ext AS ext, 
+			shm_images.id AS id, shm_images.hash AS hash, shm_images.ext AS ext, 
 			SUM($search_sql) AS score
 		FROM shm_tags
 		LEFT JOIN shm_images ON image_id=shm_images.id
-		GROUP BY image_id 
-		HAVING score >= $min_score
-	    ORDER BY image_id DESC 
-	    LIMIT $start,$imagesPerPage
-EOD;
-
-	$total_query = <<<EOD
-		SELECT 
-			*,
-			SUM($search_sql) AS score
-		FROM shm_tags
-		LEFT JOIN shm_images ON image_id=shm_images.id
-		GROUP BY image_id 
+		GROUP BY shm_images.id 
 		HAVING score >= $min_score
 EOD;
 }
 else {
-	$list_query = "SELECT * FROM shm_images ORDER BY id DESC LIMIT $start,$imagesPerPage";
-	$total_query = "SELECT * FROM shm_images";
+	$full_query = "SELECT * FROM shm_images";
 }
-$list_result = sql_query($list_query);
 
-$total_result = sql_query($total_query);
-$totalImages = sql_num_rows($total_result);
+$total_images = sql_num_rows(sql_query($full_query));
 
-if($totalImages == 0) {
+if($page == 0) {
+	$list_query = $full_query . " ORDER BY shm_images.id DESC LIMIT $images_per_page";
+}
+else {
+	$start = $total_images - ($page * $images_per_page);
+	if($start < 0) {
+		$start_pad = -$start;
+		$images_per_page -= $start_pad;
+		$start = 0;
+	}
+	$list_query = $full_query . " ORDER BY shm_images.id DESC LIMIT $start,$images_per_page";
+}
+
+
+if($total_images == 0) {
 	header("X-Shimmie-Status: Error - No Results");
 }
 else {
 	header("X-Shimmie-Status: OK - Search Successful");
+}
+
+
+function get_table_div($num, $width, $content) {
+	$html = "";
+	
+	if($num % $width == 0) {
+		$html .= "\n<tr>\n";
+	}
+	$html .= "\t<td>$content</td>\n";
+	if($i % $width == $width-1) {
+		$html .= "\n</tr>\n";
+	}
+	return $html;
 }
 
 /*
@@ -154,60 +159,121 @@ else {
  * sepatate query for every image. MySQL's group_concat is what we
  * want, but that's a 4.1 feature, and debian stable is still 4.0.
  */
-$imageTable = "";
-$i = 0;
-$width = 3;
-$dir_thumbs = $config['dir_thumbs'];
-while($row = sql_fetch_row($list_result)) {
-	$image_id = $row['id'];
-	$hash = $row['hash'];
-	$h_filename = html_escape($row['filename']);
+function query_to_image_table($query, $start_pad) {
+	global $config;
 
-	# FIXME: Do this better
-	$h_tags = "";
-	$tags_result = sql_query("SELECT * FROM shm_tags WHERE image_id=$image_id");
-	while($row = sql_fetch_row($tags_result)) {$h_tags .= html_escape($row['tag'])." ";}
+	$imageTable = "<table>\n";
+	$i = 0;
+	$width = 3;
+	$dir_thumbs = $config['dir_thumbs'];
+	$list_result = sql_query($query);
 	
+	for($j=0; $j<$start_pad; $j++) {
+		$imageTable .= get_table_div($i++, $width, "&nbsp;");
+	}
+	
+	while($row = sql_fetch_row($list_result)) {
+		$image_id = $row['id'];
+		$hash = $row['hash'];
+		$h_filename = html_escape($row['filename']);
 
-	if($i%$width==0) $imageTable .= "\n<tr>\n";
-	$imageTable .= "\t<td>".
-		"<a href='view.php?image_id=$image_id'><img src='$dir_thumbs/$image_id.jpg' alt='$h_filename' title='$h_tags'></a>".
-		"</td>\n";
-	if($i%$width==$width-1) $imageTable .= "\n</tr>\n";
-	$i++;
+		# FIXME: Do this better
+		$h_tags = "";
+		$tags_result = sql_query("SELECT * FROM shm_tags WHERE image_id=$image_id");
+		while($row = sql_fetch_row($tags_result)) {$h_tags .= html_escape($row['tag'])." ";}
+
+		$imageTable .= get_table_div($i++, $width, "<a href='view.php?image_id=$image_id'>".
+				"<img src='$dir_thumbs/$image_id.jpg' alt='$h_filename' title='$h_tags'></a>");
+	}
+
+	$imageTable .= "</table>";
+
+	return $imageTable;
 }
+
 
 
 /*
  * Calculate navigation bars ("prev | next" for the nav bar,
  * "prev | page numbers | next" in the footer)
  */
-$morePages = (($cpage+1)*$config['index_images'] < $totalImages);
-
-$paginator = ($cpage>0 ? "<a href='index.php?page=$vprev&tags=$h_tag_list'>Prev</a> | " : "Prev | ");
-for($i=0, $j=$cpage-5; $i<11; $j++) {
-	if($j > 0) {
-		if(($j-1)*$config['index_images'] < $totalImages) {
-			$paginator .= "<a href='index.php?page=$j&tags=$h_tag_list' style='width: 20px;'>$j</a> | ";
-		}
-		$i++;
+function gen_paginator($current_page, $total_pages, $h_tag_list) {
+	if(strlen($h_tag_list) > 0) {
+		$tags = "&tags=$h_tag_list";
 	}
+
+	$given_page = $current_page;
+	
+	if($current_page == 0) {
+		$current_page = $total_pages;
+	}
+	$next = $current_page + 1;
+	$prev = $current_page - 1;
+
+	$paginator = "";
+	
+	if($current_page == $total_pages) {
+		$paginator .= "Next | ";
+	}
+	else {
+		$paginator .= "<a href='index.php?page=$next$tags'>Next</a> | ";
+	}
+	
+	$start = $current_page-5 > 1 ? $current_page-5 : 1;
+	$end = $start+10 < $total_pages ? $start+10 : $total_pages;
+	for($i=$end; $i>=$start; $i--) {
+		if($i == $given_page) $paginator .= "<b>";
+		$paginator .= "<a href='index.php?page=$i$tags' style='width: 20px;'>$i</a>";
+		if($i == $given_page) $paginator .= "</b>";
+		$paginator .= " | ";
+	}
+
+	if($current_page == 1 || $total_pages <= 1) {
+		$paginator .= "Prev";
+	}
+	else {
+		$paginator .= "<a href='index.php?page=$prev$tags'>Prev</a>";
+	}
+
+/*
+	$morePages = (($cpage+1)*$config['index_images'] < $total_images);
+	
+	$paginator = ($cpage>0 ? "<a href='index.php?page=$vprev&tags=$h_tag_list'>Prev</a> | " : "Prev | ");
+	for($i=0, $j=$cpage-5; $i<11; $j++) {
+		if($j > 0) {
+			if(($j-1)*$config['index_images'] < $total_images) {
+				$paginator .= "<a href='index.php?page=$j&tags=$h_tag_list' style='width: 20px;'>$j</a> | ";
+			}
+			$i++;
+		}
+	}
+	$paginator .= ($morePages ? "<a href='index.php?page=$vnext&tags=$h_tag_list'>Next</a>" : "Next");
+*/
+	return $paginator;
 }
-$paginator .= ($morePages ? "<a href='index.php?page=$vnext&tags=$h_tag_list'>Next</a>" : "Next");
+
+$total_pages = ceil($total_images / $config['index_images']);
+$paginator = gen_paginator($page, $total_pages, $h_tag_list);
 
 
 /*
  * If we're running a search, show the search terms.
- * If not, show the version string.
+ * If not, show the title string.
  */
-if($_GET['tags']) $title = "$h_title / $vpage";
-else $title = html_escape($config['title'])." / $vpage";
+function get_title_html($title, $page) {
+	global $config;
+	if(strlen($title) == 0) {
+		$title = html_escape($config['title']);
+	}
+	if($page != 0) {
+		$title .= " / $page";
+	}
+	return $title;
+}
 
+$title = get_title_html($h_title, $page);
 $subtitle = $h_subtitle;
-
-/*
- * Finally display the page \o/
- */
+$image_table = query_to_image_table($list_query, $start_pad);
 $blocks = get_blocks_html("index");
 require_once "templates/index.php";
 ?>
