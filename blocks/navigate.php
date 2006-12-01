@@ -7,10 +7,13 @@
 
 class navigate extends block {
 	function get_html($pageType) {
-		global $searchString;
+		global $h_tag_list;
 
-		if($searchString == null) {
-			$searchString = "Search";
+		if($h_tag_list == null) {
+			$search_string = "Search";
+		}
+		else {
+			$search_string = $h_tag_list;
 		}
 
 		if(($pageType == "user") || ($pageType == "admin") || ($pageType == "setup")) {
@@ -25,12 +28,12 @@ class navigate extends block {
 EOD;
 		}
 		else if($pageType == "index") {
-			global $cpage, $vprev, $vnext, $htmlSafeTags, $morePages;
+			global $cpage, $vprev, $vnext, $h_tag_list, $morePages;
 
 			$pageNav =
-				($cpage>0   ? "<a href='index.php?page=$vprev&tags=$htmlSafeTags'>Prev</a> | " : "Prev | ").
+				($cpage>0   ? "<a href='index.php?page=$vprev&tags=$h_tag_list'>Prev</a> | " : "Prev | ").
 				"<a href='index.php'>Index</a> | ".
-				($morePages ? "<a href='index.php?page=$vnext&tags=$htmlSafeTags'>Next</a>" : "Next");
+				($morePages ? "<a href='index.php?page=$vnext&tags=$h_tag_list'>Next</a>" : "Next");
 		}
 		else if($pageType == "view") {
 			global $image;
@@ -51,7 +54,7 @@ EOD;
 	<div id="navigate">
 		$pageNav
 		<p><form action="index.php" method="GET">
-			<input id="searchBox" name="tags" type="text" value="$searchString" autocomplete="off">
+			<input id="searchBox" name="tags" type="text" value="$search_string" autocomplete="off">
 			<input type="submit" value="Find" style="display: none;">
 		</form>
 		<div id="search_completions"></div>

@@ -7,16 +7,18 @@
 
 class refine extends block {
 	function get_html($pageType) {
-		global $htmlSafeTags, $config;
+		global $h_tag_list, $config;
 	
 		if(($pageType == "index") && (strlen($_GET["tags"]) > 0)) {
-			$sqlListTags = "";
+			$s_tag_list = "";
 
 			$n = 0;
 			foreach(explode(" ", $_GET["tags"]) as $tag) {
-				if($n++) $sqlListTags .= ", ";
-				$s_tag = sql_escape($tag);
-				$sqlListTags .= "'$s_tag'";
+				if($tag[0] != '-') {
+					if($n++) $s_tag_list .= ", ";
+					$s_tag = sql_escape($tag);
+					$s_tag_list .= "'$s_tag'";
+				}
 			}
 
 			$pop_count = $config['popular_count'];
@@ -34,7 +36,7 @@ EOD;
 					tag,
 					COUNT(image_id) AS count
 				FROM shm_tags
-				WHERE image_id IN (SELECT image_id FROM tags WHERE tag IN($sqlListTags) GROUP BY image_id)
+				WHERE image_id IN (SELECT image_id FROM tags WHERE tag IN($s_tag_list) GROUP BY image_id)
 				GROUP BY tag
 				ORDER BY count DESC
 				LIMIT $pop_count
@@ -45,7 +47,7 @@ EOD;
 					tags AS t1,
 					tags AS t2
 				WHERE 
-					t1.tag IN($sqlListTags)
+					t1.tag IN($s_tag_list)
 					AND t1.image_id=t2.image_id
 				GROUP BY t2.tag 
 				ORDER BY count
@@ -59,11 +61,16 @@ EOD;
 			while($row = sql_fetch_row($result)) {
 				$tag = html_escape($row['tag']);
 				if($n++) $popularBlock .= "<br/>";
-				$untagged = trim(preg_replace("/-?$tag/", "", $htmlSafeTags));
+				$untagged = trim(preg_replace("/-?$tag/", "", $h_tag_list));
 				$popularBlock .= "<a href='index.php?tags=$tag'>$tag</a> (";
-				$popularBlock .= "<a href='index.php?tags=$untagged+$tag' title='add tag to the current search'>a</a>/";
-				$popularBlock .= "<a href='index.php?tags=$untagged' title='remove tag from the current search'>r</a>/";
-				$popularBlock .= "<a href='index.php?tags=$untagged+-$tag' title='subtract matching images from the results'>s</a>)\n";
+				$popularBlock .= "<a href='index.php?tags=$untagged+$tag' ".
+				                 "title='add tag to the current search'>a</a>/";
+				if($untagged != $h_tag_list) {
+					$popularBlock .= "<a href='index.php?tags=$untagged' ".
+					                 "title='remove tag from the current search'>r</a>/";
+				}
+				$popularBlock .= "<a href='index.php?tags=$untagged+-$tag' ".
+				                 "title='subtract matching images from the results'>s</a>)\n";
 			}
 			$popularBlock .= "</div>";
 

@@ -67,9 +67,10 @@ $start = $cpage * $imagesPerPage;
   = one blocked, score = -99999)
   
  */
-$searchString = "";
-
-$htmlSafeTags = ""; // don't include negators in the title
+ 
+$h_title = ""; // searches
+$h_subtitle = ""; // negators
+$h_tag_list = ""; // both
 
 if($_GET['tags']) {
 	$tags = explode(" ", str_replace("  ", " ", $_GET["tags"]));
@@ -83,41 +84,30 @@ if($_GET['tags']) {
 		if($tag[0] == '-') continue;
 		$s_tag = sql_escape($tag);
 		$h_tag = html_escape($tag);
-		if($tnum == 0) {
-			$search_sql .= "(tag LIKE '$s_tag' ";
-			$searchString .= $h_tag;
-			$htmlSafeTags .= $h_tag;
-		}
-		else {
-			$search_sql .= "OR tag LIKE '$s_tag' ";
-			$searchString .= " $h_tag";
-			$htmlSafeTags .= " $h_tag";
-		}
+		$search_sql .= ($tnum == 0 ? "(" : "OR");
+		$search_sql .= " tag LIKE '$s_tag' ";
+		$h_title    .= " $h_tag";
+		$h_tag_list .= " $h_tag";
 		$tnum++;
 	}
-	$tagCount = $tnum;
+	$min_score = $tnum;
 	if($tnum > 0) $search_sql .= ") ";
 
 	$tnum = 0;
 	foreach($tags as $tag) {
 		if($tag[0] != '-') continue;
-		$searchString .= " $tag";
 		$tag = preg_replace("/^-/", "", $tag);
 		$s_tag = sql_escape($tag);
 		$h_tag = html_escape($tag);
-		if($tnum == 0) {
-			$search_sql .= "-(tag LIKE '$s_tag' ";
-			$subtitle = "Ignoring: $h_tag";
-		}
-		else {
-			$search_sql .= "OR tag LIKE '$s_tag' ";
-			$subtitle .= ", $h_tag";
-		}
+		$search_sql .= ($tnum == 0 ? "-(" : "OR");
+		$search_sql .= " tag LIKE '$s_tag' ";
+		$h_subtitle .= ($tnum == 0 ? "Ignoring:" : ",");
+		$h_subtitle .= " $h_tag";
+		$h_tag_list .= " -$h_tag";
 		$tnum++;
 	}
 	if($tnum > 0) $search_sql .= ") ";
-
-	$searchString = trim($searchString);
+	$h_tag_list = trim($h_tag_list);
 
 	$list_query = <<<EOD
 		SELECT 
@@ -126,7 +116,7 @@ if($_GET['tags']) {
 		FROM shm_tags
 		LEFT JOIN shm_images ON image_id=shm_images.id
 		GROUP BY image_id 
-		HAVING score=$tagCount
+		HAVING score >= $min_score
 	    ORDER BY image_id DESC 
 	    LIMIT $start,$imagesPerPage
 EOD;
@@ -138,7 +128,7 @@ EOD;
 		FROM shm_tags
 		LEFT JOIN shm_images ON image_id=shm_images.id
 		GROUP BY image_id 
-		HAVING score=$tagCount
+		HAVING score >= $min_score
 EOD;
 }
 else {
@@ -194,25 +184,26 @@ while($row = sql_fetch_row($list_result)) {
  */
 $morePages = (($cpage+1)*$config['index_images'] < $totalImages);
 
-$paginator = ($cpage>0 ? "<a href='index.php?page=$vprev&tags=$htmlSafeTags'>Prev</a> | " : "Prev | ");
+$paginator = ($cpage>0 ? "<a href='index.php?page=$vprev&tags=$h_tag_list'>Prev</a> | " : "Prev | ");
 for($i=0, $j=$cpage-5; $i<11; $j++) {
 	if($j > 0) {
 		if(($j-1)*$config['index_images'] < $totalImages) {
-			$paginator .= "<a href='index.php?page=$j&tags=$htmlSafeTags' style='width: 20px;'>$j</a> | ";
+			$paginator .= "<a href='index.php?page=$j&tags=$h_tag_list' style='width: 20px;'>$j</a> | ";
 		}
 		$i++;
 	}
 }
-$paginator .= ($morePages ? "<a href='index.php?page=$vnext&tags=$htmlSafeTags'>Next</a>" : "Next");
+$paginator .= ($morePages ? "<a href='index.php?page=$vnext&tags=$h_tag_list'>Next</a>" : "Next");
 
 
 /*
  * If we're running a search, show the search terms.
  * If not, show the version string.
  */
-if($_GET['tags']) $title = "$htmlSafeTags / $vpage";
+if($_GET['tags']) $title = "$h_title / $vpage";
 else $title = html_escape($config['title'])." / $vpage";
 
+$subtitle = $h_subtitle;
 
 /*
  * Finally display the page \o/
