@@ -61,6 +61,8 @@ EOD;
 	}
 
 	function run($action) {
+		global $config;
+
 		if($action == "update") {
 			$config['upload_anon'] || user_or_die();
 
