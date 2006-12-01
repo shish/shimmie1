@@ -230,12 +230,18 @@ function mime_to_ext($mime) {
 	return $ext;
 }
 
+/*
+ * check if an image with the given hash already exists
+ */
 function is_dupe($hash) {
 	$s_hash = sql_escape($hash);
 	$existing_result = sql_query("SELECT * FROM shm_images WHERE hash='$s_hash'");
 	return sql_fetch_row($existing_result);
 }
 
+/*
+ * get a thumbnail from a file
+ */
 function get_thumb($tmpname) {
 	global $config;
 
@@ -263,6 +269,10 @@ function get_thumb($tmpname) {
 	return $thumb;
 }
 
+/*
+ * add the file "tmpname" to the database, with the original
+ * filename and tags noted
+ */
 function add_image($tmpname, $filename, $tags) {
 	global $config, $user;
 	
@@ -331,31 +341,61 @@ function add_image($tmpname, $filename, $tags) {
 	}
 }
 
+/*
+ * put the data somewhere, return a filename for it
+ */
 function write_temp_file($data) {
 	$tname = tempnam("/tmp", "shm_tmp_");
 	write_file($tname, $data);
 	return $tname;
 }
 
+/*
+ * PHP4 lacks file_put_contents
+ */
 function write_file($fname, $data) {
-	$tmp = fopen($fname, "w");
+	$fp = fopen($fname, "w");
+	if(!$fp) return false;
+	
 	fwrite($tmp, $data);
 	fclose($tmp);
+	
+	return true;
 }
 
+/*
+ * PHP4 lacks file_get_contents
+ */
 function read_file($fname) {
-	// FIXME: php4
-	return file_get_contents($fname);
+	$fp = fopen($fname, "r");
+	if(!$fp) return false;
+	
+	$data = fread($fp, filesize($fname));
+	fclose($fp);
+	
+	return $data;
 }
 
+/*
+ * PHP4's "rename" doesn't work across partitions :-/
+ */
 function move($from, $to) {
-	// FIXME: php4
-	return rename($from, $to);
+	$data = read_file($from);
+	if(!$data) {return false;}
+
+	$written = write_file($to, $data);
+	if(!$written) {return false;}
+
+	unlink($from);
+	return true;
 }
 
+/*
+ * PHP4 lacks a consistent URL reader function
+ */
 function read_url($url) {
 	global $config;
-		
+
 	$fp = fopen($url, "r");
 	$size = 0;
 	$maxsize = $config["uploads_size"];
@@ -378,8 +418,14 @@ function read_url($url) {
 	return $content;
 }
 
+/*
+ * Add all the images in a folder, recursively. Any folders
+ * below the base one will be used as tags.
+ */
 function add_dir($base, $subdir="") {
 	$list = "";
+
+	if(!is_dir($base)) return "$base is not a directory";
 
 	$dir = opendir("$base/$subdir");
 	while($filename = readdir($dir)) {
