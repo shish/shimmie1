@@ -313,7 +313,7 @@ function add_image($tmpname, $filename, $tags) {
 			sql_query($rollback_query);
 			return false;
 		}
-		chmod("$dir_images/$id.$ext", 644);
+		chmod("$dir_images/$id.$ext", 0644);
 		if(!imagejpeg($thumb, "$dir_thumbs/$id.jpg", $config['thumb_q'])) {
 			print "<p>The image thumbnail couldn't be generated -- is the web
 			         server allowed to write to '$dir_thumbs'?";
