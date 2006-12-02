@@ -59,9 +59,6 @@ EOD;
 
 	$configOptions .= "<tbody id='mysqlconf' style='display: none;'>\n";
 	$configOptions .= makeOpt("Host", "mysql_host");
-//	$configOptions .= makeOptCheck("Create account", "mysql_createaccount");
-//	$configOptions .= makeOpt("MySQL Admin Name", "mysql_auser");
-//	$configOptions .= makeOpt("MySQL Admin Password", "mysql_apass");
 	$configOptions .= makeOpt("User Name", "mysql_user");
 	$configOptions .= makeOpt("Password", "mysql_pass");
 	$configOptions .= makeOpt("Database", "mysql_db");
@@ -118,18 +115,6 @@ else if($_GET["action"] == "set") {
 		$mysql_db = $_POST['mysql_db'];
 		$tp = $_POST["mysql_prefix"];
 
-		if($mysql_createaccount) {
-			if(!@mysql_connect($mysql_host, $mysql_user, $mysql_pass)) {
-				$title = "Error";
-				$message = "Unable to connect to database server '$mysql_host' ".
-				           "using login '$mysql_user:$mysql_pass'";
-				$data = mysql_error();
-				require_once "templates/error.php";
-				exit;
-			}
-			mysql_query2("GRANT ALL on $mysql_db.* TO '$mysql_user'@'%' IDENTIFIED BY '$mysql_pass'");
-		}
-		
 		if(!@mysql_connect($mysql_host, $mysql_user, $mysql_pass)) {
 			$title = "Error";
 			$message = "Unable to connect to database server '$mysql_host' ".
