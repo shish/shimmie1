@@ -351,7 +351,7 @@ function write_temp_file($data) {
 }
 
 /*
- * PHP4 lacks file_put_contents
+ * file_put_contents requires PHP 5.0
  */
 function write_file($fname, $data) {
 	$fp = fopen($fname, "w");
@@ -364,7 +364,7 @@ function write_file($fname, $data) {
 }
 
 /*
- * PHP4 lacks file_get_contents
+ * file_get_contents requires PHP 4.3
  */
 function read_file($fname) {
 	$fp = fopen($fname, "r");
@@ -377,17 +377,10 @@ function read_file($fname) {
 }
 
 /*
- * PHP4's "rename" doesn't work across partitions :-/
+ * "rename" that works across partitions needs PHP 4.3.3
  */
 function move($from, $to) {
-	$data = read_file($from);
-	if(!$data) {return false;}
-
-	$written = write_file($to, $data);
-	if(!$written) {return false;}
-
-	unlink($from);
-	return true;
+	return (copy($from, $to) && unlink($from));
 }
 
 /*
