@@ -28,40 +28,60 @@ class navigate extends block {
 EOD;
 		}
 		else if($pageType == "index") {
-			global $page, $total_pages, $h_tag_list;
+			global $page, $total_pages, $h_tag_list, $config;
 			
 			if(strlen($h_tag_list) > 0) {
 				$tags = "&tags=$h_tag_list";
 			}
 
-			if($page == 0) {$current_page = $total_pages;}
+			if($page == 0 && !$config['index_invert']) {$current_page = $total_pages;}
 			else {$current_page = $page;}
 			
 			$next = $current_page + 1;
 			$prev = $current_page - 1;
 		
-			$pageNav = "";
+			if($current_page == $total_pages) {$next_html .= "Next";}
+			else {$next_html .= "<a href='index.php?page=$next$tags'>Next</a>";}
 	
-			if($current_page == $total_pages) {$pageNav .= "Next | ";}
-			else {$pageNav .= "<a href='index.php?page=$next$tags'>Next</a> | ";}
-	
-			$pageNav .= "<a href='index.php'>Index</a> | ";
+			$index_html .= "<a href='index.php'>Index</a>";
 
-			if($current_page == 1 || $total_pages <= 1) {$pageNav .= "Prev";}
-			else {$pageNav .= "<a href='index.php?page=$prev$tags'>Prev</a>";}
+			if($current_page <= 1 || $total_pages <= 1) {$prev_html .= "Prev";}
+			else {$prev_html .= "<a href='index.php?page=$prev$tags'>Prev</a>";}
+
+			if($config['index_invert']) {
+				$pageNav = "$prev_html | $index_html | $next_html";
+			}
+			else {
+				$pageNav = "$next_html | $index_html | $prev_html";
+			}
 		}
 		else if($pageType == "view") {
-			global $image;
+			global $image, $config;
 
 			$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id < {$image->id} ORDER BY id DESC LIMIT 1"));
-			$previd = $row ? $row['id'] : null;
+			$lowerid = $row ? $row['id'] : null;
 			$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id > {$image->id} ORDER BY id ASC  LIMIT 1"));
-			$nextid = $row ? $row['id'] : null;
+			$higherid = $row ? $row['id'] : null;
 
-			$pageNav =
-				($previd ? "<a href='view.php?image_id=$previd'>Prev</a> | " : "Prev | ").
-				"<a href='index.php'>Index</a> | ".
-				($nextid ? "<a href='view.php?image_id=$nextid'>Next</a>" : "Next");
+			if($config['index_invert']) {
+				$nextid = $lowerid;
+				$previd = $higherid;
+			}
+			else {
+				$nextid = $higherid;
+				$previd = $lowerid;
+			}
+
+			$prev_html = ($previd ? "<a href='view.php?image_id=$previd'>Prev</a>" : "Prev");
+			$index_html = "<a href='index.php'>Index</a>";
+			$next_html = ($nextid ? "<a href='view.php?image_id=$nextid'>Next</a>" : "Next");
+				
+			if($config['index_invert']) {
+				$pageNav = "$prev_html | $index_html | $next_html";
+			}
+			else {
+				$pageNav = "$next_html | $index_html | $prev_html";
+			}
 		}
 
 		return <<<EOD

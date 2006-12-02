@@ -121,7 +121,12 @@ if($page == 0) {
 	$list_query = $full_query . " ORDER BY shm_images.id DESC LIMIT $images_per_page";
 }
 else {
-	$start = $total_images - ($page * $images_per_page);
+	if($config['index_invert']) {
+		$start = (($page-1) * $images_per_page);
+	}
+	else {
+		$start = $total_images - ($page * $images_per_page);
+	}
 	if($start < 0) {
 		$start_pad = -$start;
 		$images_per_page -= $start_pad;
@@ -197,14 +202,24 @@ function query_to_image_table($query, $start_pad) {
  * Calculate navigation bars ("prev | next" for the nav bar,
  * "prev | page numbers | next" in the footer)
  */
+function gen_page_link($target, $current_page, $tags) {
+	$paginator = "";
+	if($target == $current_page) $paginator .= "<b>";
+	$paginator .= "<a href='index.php?page=$target$tags' style='width: 20px;'>$target</a>";
+	if($target == $current_page) $paginator .= "</b>";
+	$paginator .= " | ";
+	return $paginator;
+}
 function gen_paginator($current_page, $total_pages, $h_tag_list) {
+	global $config;
+	
 	if(strlen($h_tag_list) > 0) {
 		$tags = "&tags=$h_tag_list";
 	}
 
 	$given_page = $current_page;
 	
-	if($current_page == 0) {
+	if($current_page == 0 && !$config['index_invert']) {
 		$current_page = $total_pages;
 	}
 	$next = $current_page + 1;
@@ -213,43 +228,38 @@ function gen_paginator($current_page, $total_pages, $h_tag_list) {
 	$paginator = "";
 	
 	if($current_page == $total_pages) {
-		$paginator .= "Next | ";
+		$next_html = "Next";
 	}
 	else {
-		$paginator .= "<a href='index.php?page=$next$tags'>Next</a> | ";
+		$next_html = "<a href='index.php?page=$next$tags'>Next</a>";
 	}
 	
 	$start = $current_page-5 > 1 ? $current_page-5 : 1;
 	$end = $start+10 < $total_pages ? $start+10 : $total_pages;
-	for($i=$end; $i>=$start; $i--) {
-		if($i == $given_page) $paginator .= "<b>";
-		$paginator .= "<a href='index.php?page=$i$tags' style='width: 20px;'>$i</a>";
-		if($i == $given_page) $paginator .= "</b>";
-		$paginator .= " | ";
-	}
-
-	if($current_page == 1 || $total_pages <= 1) {
-		$paginator .= "Prev";
-	}
-	else {
-		$paginator .= "<a href='index.php?page=$prev$tags'>Prev</a>";
-	}
-
-/*
-	$morePages = (($cpage+1)*$config['index_images'] < $total_images);
-	
-	$paginator = ($cpage>0 ? "<a href='index.php?page=$vprev&tags=$h_tag_list'>Prev</a> | " : "Prev | ");
-	for($i=0, $j=$cpage-5; $i<11; $j++) {
-		if($j > 0) {
-			if(($j-1)*$config['index_images'] < $total_images) {
-				$paginator .= "<a href='index.php?page=$j&tags=$h_tag_list' style='width: 20px;'>$j</a> | ";
-			}
-			$i++;
+	if($config['index_invert']) {
+		for($i=$start; $i<=$end; $i++) {
+			$paginator .= gen_page_link($i, $given_page, $tags);
 		}
 	}
-	$paginator .= ($morePages ? "<a href='index.php?page=$vnext&tags=$h_tag_list'>Next</a>" : "Next");
-*/
-	return $paginator;
+	else {
+		for($i=$end; $i>=$start; $i--) {
+			$paginator .= gen_page_link($i, $given_page, $tags);
+		}
+	}
+
+	if($current_page <= 1 || $total_pages <= 1) {
+		$prev_html = "Prev";
+	}
+	else {
+		$prev_html = "<a href='index.php?page=$prev$tags'>Prev</a>";
+	}
+
+	if($config['index_invert']) {
+		return "$prev_html | $paginator $next_html";
+	}
+	else {
+		return "$next_html | $paginator $prev_html";
+	}
 }
 
 $total_pages = ceil($total_images / $config['index_images']);

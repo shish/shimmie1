@@ -32,6 +32,7 @@ $config_defaults = Array(
 	'dir_images' => 'images',
 	'dir_thumbs' => 'thumbs',
 	'index_images' => 12,
+	'index_invert' => true,
 	'thumb_w' => 192,
 	'thumb_h' => 192,
 	'thumb_q' => 75,
