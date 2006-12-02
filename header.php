@@ -547,7 +547,7 @@ function block_array_to_html($blocks, $pageType) {
 	$allBlocks = "";
 	ksort($blocks);
 	foreach($blocks as $block) {
-		if($block instanceof block)
+		if(is_a($block, "block"))
 			$allBlocks .= $block->get_html($pageType);
 	}
 	return $allBlocks;
