@@ -357,8 +357,8 @@ function write_file($fname, $data) {
 	$fp = fopen($fname, "w");
 	if(!$fp) return false;
 	
-	fwrite($tmp, $data);
-	fclose($tmp);
+	fwrite($fp, $data);
+	fclose($fp);
 	
 	return true;
 }
