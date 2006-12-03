@@ -42,7 +42,8 @@ $configOptions .= makeOpt("Thumbnails", "dir_thumbs", is_writable($config["dir_t
 
 $configOptions .= makeRow();
 $configOptions .= makeRow("Index Page");
-$configOptions .= makeOpt("Images", "index_images", $config["index_images"] > 0);
+$configOptions .= makeOpt("Width", "index_width", $config["index_width"] > 0);
+$configOptions .= makeOpt("Height", "index_height", $config["index_height"] > 0);
 $configOptions .= makeOptCheck("Invert List", "index_invert", null);
 
 $configOptions .= makeRow();

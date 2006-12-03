@@ -9,7 +9,7 @@ require_once "header.php";
 
 header("X-Shimmie-Status: OK - Index Successful");
 
-$images_per_page = $config['index_images'];
+$images_per_page = $config['index_width'] * $config['index_height'];
 
 
 /*
@@ -22,6 +22,7 @@ if(!is_null($_GET['page'])) {
 else {
 	$page = 0;
 }
+
 
 /*
  * Do the SQL to get the images to display; generate a search query
@@ -169,7 +170,7 @@ function query_to_image_table($query, $start_pad) {
 
 	$imageTable = "<table>\n";
 	$i = 0;
-	$width = 3;
+	$width = $config['index_width'];
 	$dir_thumbs = $config['dir_thumbs'];
 	$list_result = sql_query($query);
 	
@@ -266,7 +267,7 @@ function gen_paginator($current_page, $total_pages, $h_tag_list) {
 	}
 }
 
-$total_pages = ceil($total_images / $config['index_images']);
+$total_pages = ceil($total_images / ($config['index_width'] * $config['index_height']));
 $paginator = gen_paginator($page, $total_pages, $h_tag_list);
 
 

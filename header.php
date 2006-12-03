@@ -7,7 +7,7 @@
  */
 
 
-$version = "Shimmie 0.7.3";
+$version = "Shimmie 0.7.4";
 
 // only images are good for caching, and
 // they have cache turned on explicitly
@@ -37,7 +37,8 @@ $config_defaults = Array(
 	'anon_id' => 0,
 	'dir_images' => 'images',
 	'dir_thumbs' => 'thumbs',
-	'index_images' => 12,
+	'index_width' => 3,
+	'index_height' => 4,
 	'index_invert' => true,
 	'thumb_w' => 192,
 	'thumb_h' => 192,
@@ -68,29 +69,17 @@ $config_defaults = Array(
 function get_config() {
 	global $config_defaults;
 
+	$config = $config_defaults;
+
 	$config_result = sql_query("SELECT * FROM shm_config");
 	while($config_row = sql_fetch_row($config_result)) {
 		$config[$config_row['name']] = $config_row['value'];
-	}
-
-	$config_default_keys = array_keys($config_defaults);
-	foreach($config_default_keys as $cname) {
-		if(is_null($config[$cname])) {
-			$config[$cname] = $config_defaults[$cname];
-		}
-		else if($config[$cname] == "") {
-			$config[$cname] = false;
-		}
-		else if($config[$cname] == "on") {
-			$config[$cname] = true;
-		}
 	}
 
 	return $config;
 }
 
 $config = get_config();
-
 
 /*
  * check for bans
