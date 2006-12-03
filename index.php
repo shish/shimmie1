@@ -202,13 +202,19 @@ function query_to_image_table($query, $start_pad) {
  * Calculate navigation bars ("prev | next" for the nav bar,
  * "prev | page numbers | next" in the footer)
  */
-function gen_page_link($target, $current_page, $tags) {
-	$paginator = "";
+function gen_page_link($page, $tags, $name) {
+	return "<a href='index.php?page=$page$tags'>$name</a>";
+}
+function gen_page_link_block($target, $current_page, $tags) {
 	if($target == $current_page) $paginator .= "<b>";
-	$paginator .= "<a href='index.php?page=$target$tags' style='width: 20px;'>$target</a>";
+	$paginator .= gen_page_link($target, $tags, $target);
 	if($target == $current_page) $paginator .= "</b>";
-	$paginator .= " | ";
 	return $paginator;
+}
+function swap(&$a, &$b) {
+	$c = $a;
+	$a = $b;
+	$b = $c;
 }
 function gen_paginator($current_page, $total_pages, $h_tag_list) {
 	global $config;
@@ -225,40 +231,38 @@ function gen_paginator($current_page, $total_pages, $h_tag_list) {
 	$next = $current_page + 1;
 	$prev = $current_page - 1;
 
-	$paginator = "";
 	
-	if($current_page == $total_pages) {
-		$next_html = "Next";
-	}
-	else {
-		$next_html = "<a href='index.php?page=$next$tags'>Next</a>";
-	}
+	$at_start = ($current_page <= 1 || $total_pages <= 1);
+	$at_end = ($current_page == $total_pages);
 	
+	$first_html  = $at_start ? "First" : gen_page_link(1, $tags, "First");
+	$prev_html   = $at_start ? "Prev"  : gen_page_link($prev, $tags, "Prev");
+	$random_html =                       gen_page_link(rand(1, $total_pages), $tags, "Random");
+	$next_html   = $at_end   ? "Next"  : gen_page_link($next, $tags, "Next");
+	$last_html   = $at_end   ? "Last"  : gen_page_link($total_pages, $tags, "Last");
+	
+	/*
+	 *
+	 */
 	$start = $current_page-5 > 1 ? $current_page-5 : 1;
 	$end = $start+10 < $total_pages ? $start+10 : $total_pages;
 	
-	if(!$config['index_invert']) {
-		$tmp = $start;
-		$start = $end;
-		$end = $tmp;
-	} 
+	if(!$config['index_invert']) {swap($start, $end);}
 	
+	$pages = array();
 	foreach(range($start, $end) as $i) {
-		$paginator .= gen_page_link($i, $given_page, $tags);
-	} 
+		$pages[] = gen_page_link_block($i, $given_page, $tags);
+	}
+	$pages_html = implode(" | ", $pages);
 
-	if($current_page <= 1 || $total_pages <= 1) {
-		$prev_html = "Prev";
-	}
-	else {
-		$prev_html = "<a href='index.php?page=$prev$tags'>Prev</a>";
-	}
 
 	if($config['index_invert']) {
-		return "$prev_html | $paginator $next_html";
+		return "$first_html | $prev_html | $random_html | $next_html | $last_html".
+		       "<br>&lt;&lt; $pages_html &gt;&gt;";
 	}
 	else {
-		return "$next_html | $paginator $prev_html";
+		return "$last_html | $next_html | $random_html | $prev_html | $first_html".
+		       "<br>&lt;&lt; $pages_html &gt;&gt;";
 	}
 }
 
