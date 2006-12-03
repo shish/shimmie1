@@ -7,7 +7,7 @@
  */
 
 
-$version = "Shimmie 0.7.2";
+$version = "Shimmie 0.7.3";
 
 // only images are good for caching, and
 // they have cache turned on explicitly
