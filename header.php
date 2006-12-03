@@ -618,8 +618,7 @@ EOD;
 		$tmpl = str_replace('$hash', $img->hash, $tmpl);
 		$tmpl = str_replace('$tags', $img->tags, $tmpl);
 		$tmpl = str_replace('$ext',  $img->ext,  $tmpl);
-		$tmpl = preg_replace("/[^a-zA-Z0-9\._\- ]/", " ", $tmpl); // keep punctuation out of links
-		$tmpl = preg_replace("/\s\s+/", " ", $tmpl); // get rid of those extra spaces
+		$tmpl = preg_replace("/[^a-zA-Z0-9\._\- ]/", "", $tmpl); // keep punctuation out of links
 		return $tmpl;
 	}
 }
