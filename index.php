@@ -236,16 +236,16 @@ function gen_paginator($current_page, $total_pages, $h_tag_list) {
 	
 	$start = $current_page-5 > 1 ? $current_page-5 : 1;
 	$end = $start+10 < $total_pages ? $start+10 : $total_pages;
-	if($config['index_invert']) {
-		for($i=$start; $i<=$end; $i++) {
-			$paginator .= gen_page_link($i, $given_page, $tags);
-		}
-	}
-	else {
-		for($i=$end; $i>=$start; $i--) {
-			$paginator .= gen_page_link($i, $given_page, $tags);
-		}
-	}
+	
+	if(!$config['index_invert']) {
+		$tmp = $start;
+		$start = $end;
+		$end = $tmp;
+	} 
+	
+	foreach(range($start, $end) as $i) {
+		$paginator .= gen_page_link($i, $given_page, $tags);
+	} 
 
 	if($current_page <= 1 || $total_pages <= 1) {
 		$prev_html = "Prev";
