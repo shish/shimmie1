@@ -47,7 +47,7 @@ else if($_GET['action'] == "pass") {
 	}
 }
 else if($_GET['action'] == "logout") {
-	session_destroy();
+	setcookie("shm_hash", "");
 	header("X-Shimmie-Status: OK - Logged Out");
 	header("Location: index.php");
 	echo "<a href='index.php'>To index</a>";

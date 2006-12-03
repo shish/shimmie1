@@ -5,13 +5,50 @@
  * Make a block of recent comments
  */
 
+define(ERR_COMMENT_EMPTY, "Empty comment");
+define(ERR_COMMENT_LIMIT_HIT, "Comment limit hit");
+define(ERR_COMMENT_NO_ANON, "Anonymous commenting disabled");
+define(ERR_COMMENT_NOT_ADMIN, "You need to be an admin to do that");
+
 class comment extends block {
-	function get_index_query() {
+	function query_to_array($query) {
+		$result = sql_query($query);
+		$array = array();
+		while($row = sql_fetch_row($result)) {
+			 $array[] = $row;
+		}
+		return $array;
+	}
+	
+	/*
+	 * get comments for the image with id $image_id
+	 */
+	function get_comments($image_id) {
+		$s_image_id = int_escape($image_id);
+		
+		$query = "
+		SELECT 
+			shm_comments.id as id, image_id, 
+			name, owner_ip, comment as scomment
+		FROM shm_comments
+		LEFT JOIN users ON shm_comments.owner_id=users.id 
+		WHERE image_id=$s_image_id
+		ORDER BY shm_comments.id DESC
+		";
+
+		return $this->query_to_array($query);
+	}
+
+	/*
+	 * get an array of the $count most recent comments,
+	 * use the site default if $count is -1
+	 */
+	function get_recent_comments($count) {
 		global $config;
+
+		$s_count = int_escape($count >= 0 ? $count : $config['recent_count']);
 		
-		$com_count = int_escape($config["recent_count"]);
-		
-		return "
+		$query = "
 		SELECT 
 			shm_comments.id as id, image_id, name, owner_ip, 
 			if(
@@ -21,22 +58,10 @@ class comment extends block {
 			) as scomment FROM shm_comments
 		LEFT JOIN users ON shm_comments.owner_id=users.id 
 		ORDER BY shm_comments.id DESC
-		LIMIT $com_count
+		LIMIT $s_count
 		";
-	}
 
-	function get_view_query() {
-		$s_image_id = int_escape($_GET['image_id']);
-		
-		return "
-		SELECT 
-			shm_comments.id as id, image_id, 
-			name, owner_ip, comment as scomment
-		FROM shm_comments
-		LEFT JOIN users ON shm_comments.owner_id=users.id 
-		WHERE image_id=$s_image_id
-		ORDER BY shm_comments.id DESC
-		";
+		return $this->query_to_array($query);
 	}
 
 	function comment_to_html($row) {
@@ -79,10 +104,16 @@ class comment extends block {
 			$commentBlock .= "<div id=\"comments\">";
 
 			if($pageType == "index") {
-				$commentBlock .= $this->query_to_html($this->get_index_query());
+				$comments = $this->get_recent_comments(-1);
+				foreach($comments as $comment) {
+					$commentBlock .= $this->comment_to_html($comment);
+				}
 			}
 			if($pageType == "view") {
-				$commentBlock .= $this->query_to_html($this->get_view_query());
+				$comments = $this->get_comments($_GET['image_id']);
+				foreach($comments as $comment) {
+					$commentBlock .= $this->comment_to_html($comment);
+				}
 				$commentBlock .= $this->get_postbox_html();
 			}
 		
@@ -111,56 +142,98 @@ class comment extends block {
 		return ($recent_comments >= $max);
 	}
 
+	function add_comment($image_id, $comment) {
+		global $user, $config;
+		
+		$s_image_id = int_escape($image_id);
+		$s_comment = sql_escape($comment);
+		
+		if(!$config['comment_anon'] && $user->isAnonymous()) {
+			return ERR_COMMENT_NO_ANON;
+		}
+		else if(trim($comment) == "") {
+			return ERR_COMMENT_EMPTY;
+		}
+		else if($this->is_comment_limit_hit()) {
+			return ERR_COMMENT_LIMIT_HIT;
+		}
+		else {
+			$new_query = "INSERT INTO shm_comments(image_id, owner_id, owner_ip, posted, comment) ".
+			             "VALUES($s_image_id, {$user->id}, '{$user->ip}', now(), '$s_comment')";
+			sql_query($new_query);
+			$cid = sql_insert_id();
+
+			return $cid;
+		}
+	}
+
+	function delete_comment($comment_id) {
+		global $user;
+		
+		if($user->isAdmin()) {
+			$i_comment_id = int_escape($comment_id);
+			sql_query("DELETE FROM shm_comments WHERE id=$i_comment_id");
+			return true;
+		}
+		else {
+			return ERR_COMMENT_NOT_ADMIN;
+		}
+	}
+
 	function run($action) {
 		if($action == "delete") {
 			admin_or_die();
-
-			$comment_id = int_escape(defined_or_die($_GET["comment_id"]));
-			sql_query("DELETE FROM shm_comments WHERE id=$comment_id");
+			delete_comment(defined_or_die($_GET["comment_id"]));
 			header("X-Shimmie-Status: OK - Comment Deleted");
 			header("Location: index.php");
 			echo "<a href='index.php'>Back</a>";
 		}
 
-
 		if($action == "add") {
-			global $user, $config;
-
-			$config["comment_anon"] || user_or_die();
-
-			// get input
-			$image_id = int_escape(defined_or_die($_POST['image_id']));
-			$comment = sql_escape(defined_or_die($_POST['comment']));
-
-			// check validity
-			if(trim($comment) == "") {
-				header("X-Shimmie-Status: Error - Blank Comment");
-				$title = "No Message";
-				$message = "Comment was empty; <a href='view.php?image_id=$image_id'>Back</a>";
-				require_once "templates/generic.php";
-			}
-			else if($this->is_comment_limit_hit()) {
-				$window = $config['comment_window'];
-				$max = $config['comment_limit'];
-
-				header("X-Shimmie-Status: Error - Comment Limit Hit");
-				$title = "Comment Limit Hit";
-				$message = "To prevent spam, users are only allowed $max comments per $window minutes";
-				require_once "templates/generic.php";
-			}
-			else {
-				$new_query = "INSERT INTO shm_comments(image_id, owner_id, owner_ip, posted, comment) ".
-				             "VALUES($image_id, {$user->id}, '{$user->ip}', now(), '$comment')";
-				sql_query($new_query);
-				$cid = sql_insert_id();
-		
-				// go back to the viewed page
-				header("Location: view.php?image_id=$image_id");
-				header("X-Shimmie-Status: OK - Comment Added");
-				header("X-Shimmie-Comment-ID: $cid");
-				echo "<a href='view.php?image_id=$image_id'>Back</a>";
+			$image_id = defined_or_die($_POST['image_id']);
+			$comment = defined_or_die($_POST['comment']);
+			$i_image_id = int_escape($image_id);
+			
+			$comment_id = $this->add_comment($image_id, $comment);
+						
+			switch($comment_id) {
+				case ERR_COMMENT_NO_ANON:
+					$i_image_id = int_escape($image_id);
+					header("X-Shimmie-Status: Error - Anonymous commenting disabled");
+					$title = "Anonymous commenting disabled";
+					$message = "<a href='view.php?image_id=$i_image_id'>Back</a>";
+					require_once "templates/generic.php";
+					break;
+				case ERR_COMMENT_EMPTY:
+					$i_image_id = int_escape($image_id);
+					header("X-Shimmie-Status: Error - Blank Comment");
+					$title = "No Message";
+					$message = "Comment was empty; <a href='view.php?image_id=$i_image_id'>Back</a>";
+					require_once "templates/generic.php";
+					break;
+				case ERR_COMMENT_LIMIT_HIT:
+					global $config;
+					$window = $config['comment_window'];
+					$max = $config['comment_limit'];
+					$i_image_id = int_escape($image_id);
+					header("X-Shimmie-Status: Error - Comment Limit Hit");
+					$title = "Comment Limit Hit";
+					$message = "To prevent spam, users are only allowed $max comments per $window minutes";
+					require_once "templates/generic.php";
+					break;
+				default:
+					// go back to the viewed page
+					header("Location: view.php?image_id=$i_image_id");
+					header("X-Shimmie-Status: OK - Comment Added");
+					header("X-Shimmie-Comment-ID: $comment_id");
+					echo "<a href='view.php?image_id=$i_image_id'>Back</a>";
+					break;
 			}
 		}
+	}
+
+	function get_xmlrpc_funclist() {
+		return array("get_comments", "get_recent_comments", "add_comment", "delete_comment");
 	}
 }
 ?>

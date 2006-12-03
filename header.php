@@ -9,6 +9,10 @@
 
 $version = "Shimmie 0.7.2";
 
+// only images are good for caching, and
+// they have cache turned on explicitly
+session_cache_limiter('nocache');
+
 
 /*
  * If we're ready to run, run. If not, show installer.
@@ -29,6 +33,7 @@ require_once "libabsql.php";
  */
 $config_defaults = Array(
 	'title' => $version,
+	'anon_id' => 0,
 	'dir_images' => 'images',
 	'dir_thumbs' => 'thumbs',
 	'index_images' => 12,
@@ -448,29 +453,17 @@ function add_dir($base, $subdir="") {
 }
 
 /*
- * Check that a user has the right password
- */
-function up_passCheck($name, $hash) {
-	$s_name = sql_escape($name);
-	$s_hash = sql_escape($hash);
-	$pc_query = "SELECT * FROM shm_users WHERE name LIKE '$s_name' AND pass = '$s_hash'";
-	return (sql_num_rows(sql_query($pc_query)) == 1);
-}
-
-/*
  * Take care of the whole login process
  */
 function up_login() {
-	global $base_url;
+	global $base_url, $user;
 	
 	$name = $_POST['user'];
 	$hash = md5( strtolower($_POST['user']) . $_POST['pass'] );
 	
-	if(up_passCheck($name, $hash)) {
-		session_start();
-		setcookie("shm_login", "true"); //, time()+60*60*24*30);
-		$_SESSION["shm_user"] = $name;
-		$_SESSION["shm_pass"] = $hash;
+	if($user->load_from_name_hash($name, $hash)) {
+		setcookie("shm_user", $name);
+		setcookie("shm_hash", $hash);
 
 		header("X-Shimmie-Status: OK - Logged In");
 		header("Location: user.php");
@@ -510,6 +503,7 @@ function up_login() {
 class block {
 	function get_html($pageType) {}
 	function get_priority() {return 999;}
+	function get_xmlrpc_funclist() {return array();}
 	function run($action) {}
 }
 
@@ -574,27 +568,44 @@ class User {
 	var $uconfig = Array();
 	var $ip = null;
 
-	function User($cname) {
+	function User() {
 		global $config;
 		
 		$this->id = $config['anon_id'];
 		$this->ip = $_SERVER['REMOTE_ADDR'];
+	}
+	
+	function load_from_row($row) {
+		$this->id = $row['id'];
+		$this->name = $row['name'];
 
-		if(is_null($cname)) return;
-
-		$s_cname = sql_escape($cname);
-
-		$result = sql_query("SELECT * FROM shm_users WHERE name LIKE '$s_cname'");
-		if(sql_num_rows($result) == 1) {
-			$row = sql_fetch_row($result);
-			$this->id = $row['id'];
-			$this->name = $row['name'];
-
-			$result = sql_query("SELECT * FROM shm_user_configs WHERE owner_id={$this->id}");
-			while($row = sql_fetch_row($result)) {
-				$this->uconfig[$row['name']] = $row['value'];
-			}
+		$result = sql_query("SELECT * FROM shm_user_configs WHERE owner_id={$this->id}");
+		while($row = sql_fetch_row($result)) {
+			$this->uconfig[$row['name']] = $row['value'];
 		}
+
+		return true;
+	}
+	function load_from_query($query) {
+		$result = sql_query($query);
+		if(sql_num_rows($result) == 1) {
+			return $this->load_from_row(sql_fetch_row($result));
+		}
+		else {
+			return false;
+		}
+	}
+	function load_from_name($name) {
+		$s_name = sql_escape($name);
+		return $this->load_from_query("SELECT * FROM shm_users WHERE name LIKE '$s_name'");
+	}
+	function load_from_name_hash($name, $hash) {
+		$s_name = sql_escape($name);
+		$s_hash = sql_escape($hash);
+		return $this->load_from_query("SELECT * FROM shm_users WHERE name LIKE '$s_name' AND pass = '$s_hash'");
+	}
+	function load_from_name_pass($name, $pass) {
+		return $this->load_from_name_hash($name, md5(strtolower($name).$pass));
 	}
 
 	function isAdmin() {
@@ -684,16 +695,9 @@ EOD;
 /*
  * With all the settings and stuff ready, see if we have a user logged in
  */
-if($_COOKIE['shm_login']) {
-	session_start();
-	if(up_passCheck($_SESSION['shm_user'], $_SESSION['shm_pass'])) {
-		$cuser = $_SESSION['shm_user'];
-		$cpass = $_SESSION['shm_pass'];
-	}
-	else {
-		$cuser = null;
-		$cpass = null;
-	}
+$user = new User();
+
+if($_COOKIE['shm_user'] && $_COOKIE['shm_hash']) {
+	$user->load_from_name_hash($_COOKIE['shm_user'], $_COOKIE['shm_hash']);
 }
-$user = new User($cuser);
 ?>
