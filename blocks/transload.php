@@ -7,7 +7,7 @@
  
 class transload extends block {
 	function get_html($pageType) {
-		return "";
+		return ""; // this block is very beta
 
 		global $user, $config;
 		
@@ -37,7 +37,7 @@ EOD;
 	}
 
 	function get_priority() {
-		return 40;
+		return 31;
 	}
 
 	function check_url($url) {
@@ -68,7 +68,7 @@ EOD;
 				return;
 			}
 
-			$tmpname = write_temp_file(read_url($url));
+			$tmpname = write_temp_file(read_url($url, $config['uploads_size']));
 			add_image($tmpname, $url, $_POST['tags']);
 			unlink($tmpname);
 		}
