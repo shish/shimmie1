@@ -603,11 +603,11 @@ EOD;
 	}
 	
 	function parse_link_template($tmpl, $img) {
+		$safe_tags = preg_replace("/[^a-zA-Z0-9_\- ]/", "", $img->tags);
 		$tmpl = str_replace('$id',   $img->id,   $tmpl);
 		$tmpl = str_replace('$hash', $img->hash, $tmpl);
-		$tmpl = str_replace('$tags', $img->tags, $tmpl);
+		$tmpl = str_replace('$tags', $safe_tags, $tmpl);
 		$tmpl = str_replace('$ext',  $img->ext,  $tmpl);
-		$tmpl = preg_replace("/[^a-zA-Z0-9\._\-\/ ]/", "", $tmpl); // keep punctuation out of links
 		return $tmpl;
 	}
 }
