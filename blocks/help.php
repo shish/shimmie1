@@ -10,12 +10,14 @@ class help extends block {
 		if($pageType == "setup") {
 			return <<<EOD
 			<h3 id="help-toggle" onclick="toggle('help')">Help</h3>
-			<div id="navigate">
-				Extra notes'll go here
-		
-				<p>Make sure the web server can write to the
-				directories specified in "images" and "thumbnails"
+			<div id="help">
+				Hover over an option for help
 			</div>
+			<script>
+			function setHelp(text) {
+				if(text != "") document.getElementById('help').innerHTML = text;
+			}
+			</script>
 EOD;
 		}
 	}

@@ -119,5 +119,15 @@ FORM {margin: 0px;}
 	padding: 8px 4px 8px 4px;
 }
 
+.helpable {
+	border-bottom: 1px dashed gray;
+}
+
+.ok {
+	background: #AFA;
+}
+.bad {
+	background: #FAA;
+}
 
 
