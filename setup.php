@@ -96,7 +96,7 @@ function makeRow($content = "&nbsp;", $help=false) {
 	if($help) {
 		$helptag = " onMouseOver='setHelp(\"$help\")' class='helpable'";
 	}
-	return "<tr><td colspan='3'><span$helptag>$content</span></td></tr>\n";
+	return "<tr><td colspan='3'><span$helptag><b>$content</b></span></td></tr>\n";
 }
 function makeOptText($friendly, $varname, $ok=null, $help=false) {
 	global $config;
