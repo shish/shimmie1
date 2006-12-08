@@ -223,11 +223,9 @@ function gen_paginator($current_page, $total_pages, $h_tag_list) {
 	if(strlen($h_tag_list) > 0) {
 		$tags = "&tags=$h_tag_list";
 	}
-
-	$given_page = $current_page;
 	
-	if($current_page == 0 && !$config['index_invert']) {
-		$current_page = $total_pages;
+	if($current_page == 0) {
+		$current_page = $config['index_invert'] ? 1 : $total_pages;
 	}
 	$next = $current_page + 1;
 	$prev = $current_page - 1;
@@ -252,7 +250,7 @@ function gen_paginator($current_page, $total_pages, $h_tag_list) {
 	
 	$pages = array();
 	foreach(range($start, $end) as $i) {
-		$pages[] = gen_page_link_block($i, $given_page, $tags);
+		$pages[] = gen_page_link_block($i, $current_page, $tags);
 	}
 	$pages_html = implode(" | ", $pages);
 
