@@ -183,6 +183,9 @@ function add_tags($image_id, $tag_list) {
 	else if(is_string($tag_list)) {
 		$tags = explode(" ", strtolower($tag_list));
 	}
+	else {
+		$tags = array();
+	}
 	
 	if(count($tags) == 0) {
 		$tags = Array("tagme");
@@ -286,7 +289,7 @@ function add_image($tmpname, $filename, $tags) {
 		}
 
 		$hash = md5_file($tmpname);
-	
+
 		/*
 		 * Check for an existing image
 		 */
@@ -297,7 +300,7 @@ function add_image($tmpname, $filename, $tags) {
 			$err .= "<br>There's already an image with hash '$hash' (<a href='view.php?image_id=$iid'>view</a>)";
 			return false;
 		}
-			
+
 		$thumb = get_thumb($tmpname);
 
 		// actually insert the info
@@ -307,7 +310,7 @@ function add_image($tmpname, $filename, $tags) {
 		sql_query($new_query);
 		$id = sql_insert_id();
 		$rollback_query = "DELETE FROM shm_images WHERE id=$id";
-		
+
 		/*
 		 * If no errors: move the file from the temporary upload
 		 * area to the main file store, create a thumbnail, and
@@ -377,10 +380,10 @@ function add_dir($base, $subdir="") {
  */
 function up_login() {
 	global $base_url, $user;
-	
+
 	$name = $_POST['user'];
 	$hash = md5( strtolower($_POST['user']) . $_POST['pass'] );
-	
+
 	if($user->load_from_name_hash($name, $hash)) {
 		setcookie("shm_user", $name);
 		setcookie("shm_hash", $hash);
@@ -494,7 +497,7 @@ class User {
 		$this->id = $config['anon_id'];
 		$this->ip = $_SERVER['REMOTE_ADDR'];
 	}
-	
+
 	function load_from_row($row) {
 		$this->id = $row['id'];
 		$this->name = $row['name'];
@@ -601,7 +604,7 @@ EOD;
 			exit;
 		}
 	}
-	
+
 	function parse_link_template($tmpl, $img) {
 		$safe_tags = preg_replace("/[^a-zA-Z0-9_\- ]/", "", $img->tags);
 		$tmpl = str_replace('$id',   $img->id,   $tmpl);
