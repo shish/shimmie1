@@ -1,19 +1,21 @@
 <?php
 
-$base = "http://".$_SERVER["HTTP_HOST"].$_SERVER["SCRIPT_NAME"];
+$base = get_base_href();
 $scripts = glob("scripts/*.js");
 $scripthtml = "";
 foreach($scripts as $script) {
-	$scripthtml .= "<script src='$script' type='text/javascript'></script>\n";
+	$scripthtml .= "\t\t<script src='$script' type='text/javascript'></script>\n";
 }
+
 
 echo <<<EOD
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 	<head>
+		<base href="$base">
 		<title>$title</title>
 		<link rel="stylesheet" href="style.css" type="text/css">
-		$scripthtml
+$scripthtml
 		$moreHtmlHeaders
 	</head>
 

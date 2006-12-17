@@ -34,6 +34,7 @@ require_once "libsio.php";
  */
 $config_defaults = Array(
 	'title' => $version,
+	'base_href' => '',
 	'anon_id' => 0,
 	'dir_images' => 'images',
 	'dir_thumbs' => 'thumbs',
@@ -80,6 +81,19 @@ function get_config() {
 }
 
 $config = get_config();
+
+function get_base_href() {
+	global $config;
+
+	if(strlen($config['base_href']) > 0) {
+		return $config['base_href'];
+	}
+	else {
+		$baseurl = "http://" . $_SERVER["HTTP_HOST"] . $_SERVER['REQUEST_URI'];
+		$baseurl = preg_replace('#[^/]+$#', '', $baseurl);
+		return $baseurl;
+	}
+}
 
 /*
  * check for bans
