@@ -205,6 +205,8 @@ function add_tags($image_id, $tag_list) {
 		$tags = Array("tagme");
 	}
 
+	$tags = array_unique($tags); // remove any duplicate tags
+
 	// insert each new tag
 	$s_image_id = int_escape($image_id);
 	foreach($tags as $tag) {
