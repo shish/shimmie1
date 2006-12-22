@@ -7,6 +7,53 @@
 
 require_once "header.php";
 
+/*
+ * Take care of the whole login process
+ * (cut & paste from hader.php -- this is the only
+ * place it was used anyway...)
+ */
+function up_login() {
+	global $base_url, $user;
+
+	$name = $_POST['user'];
+	$hash = md5( strtolower($_POST['user']) . $_POST['pass'] );
+
+	if($user->load_from_name_hash($name, $hash)) {
+		setcookie("shm_user", $name);
+		setcookie("shm_hash", $hash);
+
+		header("X-Shimmie-Status: OK - Logged In");
+		header("Location: user.php");
+		$title = "Login OK";
+		$message = "<a href='user.php'>Continue</a>";
+		require_once "templates/generic.php";
+	}
+	else if($_POST['create']) {
+		$s_name = sql_escape($name);
+		if(sql_num_rows(sql_query("SELECT * FROM shm_users WHERE name='$s_name'")) == 0) {
+			sql_query("INSERT INTO shm_users(name, pass) VALUES('$s_name', '$hash')");
+			
+			header("X-Shimmie-Status: OK");
+			$title = "Account Created";
+			$message = "Now you can log in with that name and password";
+			require_once "templates/generic.php";
+		}
+		else {
+			header("X-Shimmie-Status: Error - Name Taken");
+			$title = "Name Taken";
+			$message = "Somebody is already using that username";
+			require_once "templates/generic.php";
+		}
+	}
+	else {
+		header("X-Shimmie-Status: Error - Bad Password");
+		$title = "Login Failed";
+		$message = "<a href='index.php'>Back to index</a>";
+		require_once "templates/generic.php";
+	}
+}
+
+
 if($_GET['action'] == "login") {
 	up_login();
 	exit;
@@ -19,8 +66,9 @@ if(is_null($_GET['action'])) {
 	header("X-Shimmie-Status: OK - Settings Shown");
 	$title = html_escape($user->name)."'s settings";
 	$blocks = get_blocks_html("user");
-	$image_count = stat_count_user_images($user->id);
-	$comment_count = stat_count_user_comments($user->id);
+	$days_old = $user->stat_days_old();
+	$image_count = $user->stat_count_images();
+	$comment_count = $user->stat_count_comments();
 	require_once "templates/user.php";
 }
 else if($_GET['action'] == "pass") {

@@ -1,6 +1,9 @@
 <?php
 require_once "templates/header.php";
 
+$image_rate = $image_count / $days_old;
+$comment_rate = $comment_count / $days_old;
+
 echo <<<EOD
 <div id="nav">$blocks</div>
 
@@ -8,8 +11,8 @@ echo <<<EOD
 	<h3>Board Settings</h3>
 	Things will go here as soon as there's something to set...
 	<h3>User Stats</h3>
-	Images uploaded: $image_count
-	<br>Comments made: $comment_count
+	<br>Images uploaded: $image_count ($image_rate / day)
+	<br>Comments made: $comment_count ($comment_rate / day)
 </div>
 EOD;
 

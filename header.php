@@ -399,51 +399,6 @@ function add_dir($base, $subdir="") {
 }
 
 /*
- * Take care of the whole login process
- */
-function up_login() {
-	global $base_url, $user;
-
-	$name = $_POST['user'];
-	$hash = md5( strtolower($_POST['user']) . $_POST['pass'] );
-
-	if($user->load_from_name_hash($name, $hash)) {
-		setcookie("shm_user", $name);
-		setcookie("shm_hash", $hash);
-
-		header("X-Shimmie-Status: OK - Logged In");
-		header("Location: user.php");
-		$title = "Login OK";
-		$message = "<a href='user.php'>Continue</a>";
-		require_once "templates/generic.php";
-	}
-	else if($_POST['create']) {
-		$s_name = sql_escape($name);
-		if(sql_num_rows(sql_query("SELECT * FROM shm_users WHERE name='$s_name'")) == 0) {
-			sql_query("INSERT INTO shm_users(name, pass) VALUES('$s_name', '$hash')");
-			
-			header("X-Shimmie-Status: OK");
-			$title = "Account Created";
-			$message = "Now you can log in with that name and password";
-			require_once "templates/generic.php";
-		}
-		else {
-			header("X-Shimmie-Status: Error - Name Taken");
-			$title = "Name Taken";
-			$message = "Somebody is already using that username";
-			require_once "templates/generic.php";
-		}
-	}
-	else {
-		header("X-Shimmie-Status: Error - Bad Password");
-		$title = "Login Failed";
-		$message = "<a href='index.php'>Back to index</a>";
-		require_once "templates/generic.php";
-	}
-}
-
-
-/*
  * get blocks for a page
  */
 class block {
@@ -504,19 +459,6 @@ function countImagesForTag($tag) {
 	return $row['count'];
 }
 
-function stat_count_user_images($id) {
-	$i_id = int_escape($id);
-	$tag_query = "SELECT count(*) as count FROM shm_images WHERE owner_id=$i_id";
-	$row = sql_fetch_row(sql_query($tag_query));
-	return $row['count'];
-}
-function stat_count_user_comments($id) {
-	$i_id = int_escape($id);
-	$tag_query = "SELECT count(*) as count FROM shm_comments WHERE owner_id=$i_id";
-	$row = sql_fetch_row(sql_query($tag_query));
-	return $row['count'];
-}
-
 /*
  * A PHP-friendly view of a row in the users table
  */
@@ -553,6 +495,10 @@ class User {
 			return false;
 		}
 	}
+	function load_from_id($id) {
+		$i_id = int_escape($id);
+		return $this->load_from_query("SELECT * FROM shm_users WHERE id=$i_id");
+	}
 	function load_from_name($name) {
 		$s_name = sql_escape($name);
 		return $this->load_from_query("SELECT * FROM shm_users WHERE name LIKE '$s_name'");
@@ -576,6 +522,25 @@ class User {
 	function isAnonymous() {
 		global $config;
 		return ($this->id == $config['anon_id']);
+	}
+
+	function stat_count_images() {
+		$i_id = int_escape($this->id);
+		$tag_query = "SELECT count(*) as count FROM shm_images WHERE owner_id=$i_id";
+		$row = sql_fetch_row(sql_query($tag_query));
+		return $row['count'];
+	}
+	function stat_count_comments() {
+		$i_id = int_escape($this->id);
+		$tag_query = "SELECT count(*) as count FROM shm_comments WHERE owner_id=$i_id";
+		$row = sql_fetch_row(sql_query($tag_query));
+		return $row['count'];
+	}
+	function stat_days_old() {
+		$i_id = int_escape($this->id);
+		$tag_query = "SELECT (now()-joindate)/86400 AS days_old FROM shm_users WHERE id=$i_id";
+		$row = sql_fetch_row(sql_query($tag_query));
+		return $row['days_old'];
 	}
 }
 
