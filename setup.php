@@ -59,8 +59,10 @@ $configOptions2 .= makeOptText("Quality %", "thumb_q", $config["thumb_q"] > 0 &&
 $configOptions2 .= makeRow();
 $configOptions2 .= makeRow("View Page", "Links can be made nicer by changing these, then adding some mod_rewrite rules in a .htaccess");
 $configOptions2 .= makeOptCheck("Scale by default", "view_scale", "whether or not images should fit the page");
-$configOptions2 .= makeOptText("Full link", "image_link", preg_match('/\$id/', $config['image_link']));
-$configOptions2 .= makeOptText("Short link", "image_slink", preg_match('/\$id/', $config['image_slink']));
+$configOptions2 .= makeOptText("Full link", "image_link", preg_match('/\$id/', $config['image_link']),
+                   'Available variables:<br/>$id<br/>$hash<br/>$tags<br/>$ext');
+$configOptions2 .= makeOptText("Short link", "image_slink", preg_match('/\$id/', $config['image_slink']),
+                   'Available variables:<br/>$id<br/>$hash<br/>$tags<br/>$ext');
 
 $configOptions2 .= makeRow();
 $configOptions2 .= makeRow("Tags Page");
