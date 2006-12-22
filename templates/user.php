@@ -1,8 +1,8 @@
 <?php
 require_once "templates/header.php";
 
-$image_rate = $image_count / $days_old;
-$comment_rate = $comment_count / $days_old;
+$image_rate = (int)($image_count / $days_old);
+$comment_rate = (int)($comment_count / $days_old);
 
 echo <<<EOD
 <div id="nav">$blocks</div>
