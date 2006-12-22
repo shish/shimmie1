@@ -497,6 +497,18 @@ function countImagesForTag($tag) {
 	return $row['count'];
 }
 
+function stat_count_user_images($id) {
+	$i_id = int_escape($id);
+	$tag_query = "SELECT count(*) as count FROM shm_images WHERE owner_id=$i_id";
+	$row = sql_fetch_row(sql_query($tag_query));
+	return $row['count'];
+}
+function stat_count_user_comments($id) {
+	$i_id = int_escape($id);
+	$tag_query = "SELECT count(*) as count FROM shm_comments WHERE owner_id=$i_id";
+	$row = sql_fetch_row(sql_query($tag_query));
+	return $row['count'];
+}
 
 /*
  * A PHP-friendly view of a row in the users table

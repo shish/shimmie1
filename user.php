@@ -19,6 +19,8 @@ if(is_null($_GET['action'])) {
 	header("X-Shimmie-Status: OK - Settings Shown");
 	$title = html_escape($user->name)."'s settings";
 	$blocks = get_blocks_html("user");
+	$image_count = stat_count_user_images($user->id);
+	$comment_count = stat_count_user_comments($user->id);
 	require_once "templates/user.php";
 }
 else if($_GET['action'] == "pass") {
