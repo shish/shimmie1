@@ -8,6 +8,7 @@
 
 
 $version = "Shimmie 0.7.4";
+$db_version = "0.7.5";
 
 // only images are good for caching, and
 // they have cache turned on explicitly
@@ -34,6 +35,7 @@ require_once "libsio.php";
  */
 $config_defaults = Array(
 	'title' => $version,
+	'db_version' => 'pre-0.7.5', // this should be managed by upgrade.php
 	'base_href' => '',
 	'anon_id' => 0,
 	'dir_images' => 'images',
@@ -81,6 +83,11 @@ function get_config() {
 }
 
 $config = get_config();
+
+if($config['db_version'] != $db_version) {
+	require_once "upgrade.php";
+}
+
 
 function get_base_href() {
 	global $config;

@@ -30,6 +30,11 @@ if($_POST["action"] == "set") {
 
 
 /*
+ * Things which need to be saved, but not changed
+ */
+$configOptions1 .= makeOptHidden("db_version");
+
+/*
  * Generate the HTML form
  */
 $configOptions1 .= makeRow("Global");
@@ -114,6 +119,13 @@ function makeOptText($friendly, $varname, $ok=null, $help=false) {
 			<td><span$helptag>$friendly</span></td>
 			<td><input type='text' name='$varname' value='$default' class='$okv'></td>
 		</tr>
+	";	
+}
+function makeOptHidden($varname) {
+	global $config;
+	$default = $config[$varname];
+	return "
+		<input type='hidden' name='$varname' value='$default'>
 	";	
 }
 function makeOptCheck($friendly, $varname, $help=false) {
