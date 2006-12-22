@@ -31,7 +31,7 @@ function up_login() {
 	else if($_POST['create']) {
 		$s_name = sql_escape($name);
 		if(sql_num_rows(sql_query("SELECT * FROM shm_users WHERE name='$s_name'")) == 0) {
-			sql_query("INSERT INTO shm_users(name, pass) VALUES('$s_name', '$hash')");
+			sql_query("INSERT INTO shm_users(name, pass, joindate) VALUES('$s_name', '$hash', now())");
 			
 			header("X-Shimmie-Status: OK");
 			$title = "Account Created";
