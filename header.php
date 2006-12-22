@@ -22,8 +22,8 @@ if(is_readable("config.php")) {require_once "config.php";}
 else {require_once "install.php"; exit;}
 
 
-require_once "libabsql.php";
-require_once "libsio.php";
+require_once "lib/libabsql.php";
+require_once "lib/libsio.php";
 
 
 /*
