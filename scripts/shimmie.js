@@ -17,7 +17,8 @@ function endWord(sentance) {
 	return words[words.length-1];
 }
 
-var resultCache = new Array("" => new Array());
+var resultCache = new Array();
+resultCache[""] = new Array();
 
 function complete(boxname, text) {
 	box = byId(boxname);
