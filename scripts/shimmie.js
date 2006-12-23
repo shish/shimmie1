@@ -17,7 +17,27 @@ function endWord(sentance) {
 	return words[words.length-1];
 }
 
-var resultCache = new Array();
+var resultCache = new Array("" => new Array());
+
+function complete(boxname, text) {
+	box = byId(boxname);
+	words = box.value.split(" ");
+	box.value = "";
+	for(n=0; n<words.length-1; n++) {
+		box.value += words[n]+" ";
+	}
+	box.value += text+" ";
+	box.focus();
+	return false;
+}
+
+function fillCompletionZone(boxname, areaname, results) {
+	byId(areaname).innerHTML = "";
+	for(i=0; i<results.length; i++) {
+		byId(areaname).innerHTML += "<br><a href=\"#\" onclick=\"complete('"+boxname+"', '"+results[i]+"');\">"+results[i]+"</a>";
+	}
+}
+
 function initAjax(boxname, areaname) {
 	var box = byId(boxname);
 	if(!box) return;
@@ -26,33 +46,23 @@ function initAjax(boxname, areaname) {
 		box,
 		"keyup", 
 		function f() {
-			if(box.value == "") {
-				byId(areaname).innerHTML = "";
-			}
-			else if(resultCache[endWord(box.value)]) {
-			/*	byId(areaname).innerHTML = resultCache[endWord(box.value)];*/
-				rc = resultCache[endWord(box.value)];
-				byId(areaname).innerHTML = "";
-				for(i=0; i<rc.length; i++) {
-					byId(areaname).innerHTML += "<br><a href=\"#\" onclick=\"complete('"+rc[i]+"')\">"+rc[i]+"</a>";
-				}
-			}
-			else {
-				ajaxRequest(
-					"ajax.php?start="+endWord(box.value), 
-					function g(text) {
-						rc = resultCache[endWord(box.value)] = text.split("\n");
-						byId(areaname).innerHTML = "";
-						for(i=0; i<rc.length; i++) {
-							byId(areaname).innerHTML += "<br><a href=\"#\" onclick=\"complete('"+rc[i]+"')\">"+rc[i]+"</a>";
-						}
-					}
-				);
-			}
+			starter = endWord(box.value);
+				
+			if(resultCache[starter]) {
+				fillCompletionZone(boxname, areaname, resultCache[starter]);
+			} 
+			else { 
+				ajaxRequest( 
+					"ajax.php?start="+starter, 
+					function g(text) { 
+						resultCache[starter] = text.split("\n");
+						fillCompletionZone(boxname, areaname, resultCache[starter]);
+					} 
+				); 
+			} 
 		},
 		false
 	);
-	
 }
 
 function initGray(boxname, text) {
