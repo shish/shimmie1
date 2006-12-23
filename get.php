@@ -12,9 +12,11 @@ session_cache_limiter('public'); // caching disabled for most pages -- turn it b
 /*
  * Get the ID of the image to view
  */
-preg_match("#/(\d+) - .*\.(jpg|gif|png)#", $_SERVER['PATH_INFO'], $args);
+preg_match("#/[^\d]*(\d+).*\.(jpg|gif|png)$#", $_SERVER['PATH_INFO'], $args);
 $image_dir = $config['dir_images'];
-$filename = "$image_dir/{$args[1]}.{$args[2]}";
+$name = $args[1];
+$ext = $args[2];
+$filename = "$image_dir/$name.$ext";
 
 
 /*
@@ -29,9 +31,9 @@ if($if_modified_since == $gmdate_mod) {
     header("Content-type: image/$ext");
 }
 else {
-    header("Content-type: image/$format");
+    header("Content-type: image/$ext");
     header("Last-Modified: $gmdate_mod");
-    print file_get_contents($filename);
+    print read_file($filename);
 }
 
 ?>
