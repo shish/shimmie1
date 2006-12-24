@@ -35,6 +35,7 @@ EOD;
 			}
 
 			if($page == 0 && !$config['index_invert']) {$current_page = $total_pages;}
+			else if($page == 0) {$current_page = 1;}
 			else {$current_page = $page;}
 			
 			$next = $current_page + 1;
