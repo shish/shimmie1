@@ -236,7 +236,7 @@ function gen_paginator($current_page, $total_pages, $h_tag_list) {
 
 	
 	$at_start = ($current_page <= 1 || $total_pages <= 1);
-	$at_end = ($current_page == $total_pages);
+	$at_end = ($current_page >= $total_pages);
 	
 	$first_html  = $at_start ? "First" : gen_page_link(1, $tags, "First");
 	$prev_html   = $at_start ? "Prev"  : gen_page_link($prev, $tags, "Prev");

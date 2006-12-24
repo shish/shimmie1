@@ -41,7 +41,7 @@ EOD;
 			$next = $current_page + 1;
 			$prev = $current_page - 1;
 		
-			if($current_page == $total_pages) {$next_html .= "Next";}
+			if($current_page >= $total_pages) {$next_html .= "Next";}
 			else {$next_html .= "<a href='index.php?page=$next$tags'>Next</a>";}
 	
 			$index_html .= "<a href='index.php'>Index</a>";
