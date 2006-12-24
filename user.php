@@ -13,7 +13,7 @@ require_once "header.php";
  * place it was used anyway...)
  */
 function up_login() {
-	global $base_url, $user;
+	global $base_url, $user, $db;
 
 	$name = $_POST['user'];
 	$hash = md5( strtolower($_POST['user']) . $_POST['pass'] );
@@ -29,10 +29,10 @@ function up_login() {
 		require_once "templates/generic.php";
 	}
 	else if($_POST['create']) {
-		$s_name = sql_escape($name);
-		if(sql_num_rows(sql_query("SELECT * FROM shm_users WHERE name='$s_name'")) == 0) {
-			sql_query("INSERT INTO shm_users(name, pass, joindate) VALUES('$s_name', '$hash', now())");
-			
+		$result = $db->Execute("SELECT * FROM users WHERE name=?", Array($name));
+		if($result->RecordCount() == 0) {
+			$db->Execute("INSERT INTO users(name, pass, joindate) VALUES(?, ?, now())", Array($name, $hash));
+
 			header("X-Shimmie-Status: OK");
 			$title = "Account Created";
 			$message = "Now you can log in with that name and password";
@@ -77,8 +77,7 @@ else if($_GET['action'] == "pass") {
 	$new2 = md5(strtolower($user->name) . $_POST['new2']);
 	if($old1 == $user->pass) {
 		if($new1 == $new2) {
-			$query = "UPDATE shm_users SET pass='$new1' WHERE pass='$old1' AND id='$user->id'";
-			sql_query($query);
+			$db->Execute("UPDATE users SET pass=? WHERE pass=? AND id=?", Array($new1, $old1, $user->id));
 			
 			$title = "Password Changed";
 			$message = "<a href='user.php'>Back</a>";

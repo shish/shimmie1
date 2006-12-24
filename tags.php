@@ -21,7 +21,7 @@ else {
 	$listMore = "";
 }
 
-$base_query = "SELECT tag,COUNT(image_id) AS count FROM shm_tags GROUP BY tag HAVING count > $tags_min";
+$base_query = "SELECT tag,COUNT(image_id) AS count FROM tags GROUP BY tag HAVING count > $tags_min";
 
 
 /*
@@ -32,11 +32,12 @@ $base_query = "SELECT tag,COUNT(image_id) AS count FROM shm_tags GROUP BY tag HA
  */
 if($mode == "popular") {
 	$tlist_query = "$base_query ORDER BY count DESC, tag ASC";
-	$tlist_result = sql_query($tlist_query);
+	$tlist_result = $db->Execute($tlist_query);
 	$n = 0;
 	$tlist = "Results grouped by log<sub>e</sub>(n)";
 	$lastLog = 0;
-	while($row = sql_fetch_row($tlist_result)) {
+	while(!$tlist_result->EOF) {
+		$row = $tlist_result->fields;
 		$h_tag = html_escape($row['tag']);
 		$count = $row['count'];
 		if($lastLog != floor(log($count))) {
@@ -44,6 +45,7 @@ if($mode == "popular") {
 			$tlist .= "<p>$lastLog<br>";
 		}
 		$tlist .= "<a href='index.php?tags=$h_tag'>$h_tag&nbsp;($count)</a>\n";
+		$tlist_result->MoveNext();
 	}
 }
 
@@ -53,10 +55,11 @@ if($mode == "popular") {
  */
 else if($mode == "alphabet") {
 	$tlist_query = "$base_query ORDER BY tag";
-	$tlist_result = sql_query($tlist_query);
+	$tlist_result = $db->Execute($tlist_query);
 	$n = 0;
 	$lastLetter = 0;
-	while($row = sql_fetch_row($tlist_result)) {
+	while(!$tlist_result->EOF) {
+		$row = $tlist_result->fields;
 		$h_tag = html_escape($row['tag']);
 		$count = $row['count'];
 		if($lastLetter != substr($h_tag, 0, 1)) {
@@ -64,6 +67,7 @@ else if($mode == "alphabet") {
 			$tlist .= "<p>$lastLetter<br>";
 		}
 		$tlist .= "<a href='index.php?tags=$h_tag'>$h_tag&nbsp;($count)</a>\n";
+		$tlist_result->MoveNext();
 	}
 }
 
@@ -75,15 +79,17 @@ else if($mode == "alphabet") {
  */
 else {
 	$tlist_query = "$base_query ORDER BY tag";
-	$tlist_result = sql_query($tlist_query);
+	$tlist_result = $db->Execute($tlist_query);
 	$n = 0;
-	while($row = sql_fetch_row($tlist_result)) {
+	while(!$tlist_result->EOF) {
+		$row = $tlist_result->fields;
 		$h_tag = html_escape($row['tag']);
 		$count = $row['count'];
 		if($count > 1) {
 			$size = floor(log(log($row['count'] - $tags_min + 1)+1)*1.5*100)/100;
 			$tlist .= "&nbsp;<a style='font-size: ${size}em' href='index.php?tags=$h_tag'>$h_tag</a>&nbsp;\n";
 		}
+		$tlist_result->MoveNext();
 	}
 }
 

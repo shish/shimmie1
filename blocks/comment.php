@@ -12,10 +12,12 @@ define(ERR_COMMENT_NOT_ADMIN, "You need to be an admin to do that");
 
 class comment extends block {
 	function query_to_array($query) {
-		$result = sql_query($query);
+		global $db;
+		$result = $db->Execute($query);
 		$array = array();
-		while($row = sql_fetch_row($result)) {
-			 $array[] = $row;
+		while(!$result->EOF) {
+			 $array[] = $result->fields;
+			 $result->MoveNext();
 		}
 		return $array;
 	}
@@ -24,16 +26,16 @@ class comment extends block {
 	 * get comments for the image with id $image_id
 	 */
 	function get_comments($image_id) {
-		$s_image_id = int_escape($image_id);
+		$i_image_id = int_escape($image_id);
 		
 		$query = "
 		SELECT 
-			shm_comments.id as id, image_id, 
+			comments.id as id, image_id, 
 			name, owner_ip, comment as scomment
-		FROM shm_comments
-		LEFT JOIN users ON shm_comments.owner_id=users.id 
-		WHERE image_id=$s_image_id
-		ORDER BY shm_comments.id DESC
+		FROM comments
+		LEFT JOIN users ON comments.owner_id=users.id 
+		WHERE image_id=$i_image_id
+		ORDER BY comments.id DESC
 		";
 
 		return $this->query_to_array($query);
@@ -46,19 +48,19 @@ class comment extends block {
 	function get_recent_comments($count) {
 		global $config;
 
-		$s_count = int_escape($count >= 0 ? $count : $config['recent_count']);
+		$i_count = int_escape($count >= 0 ? $count : $config['recent_count']);
 		
 		$query = "
 		SELECT 
-			shm_comments.id as id, image_id, name, owner_ip, 
+			comments.id as id, image_id, name, owner_ip, 
 			if(
 				length(comment) > 100,
 				concat(substring(comment, 1, 100), ' (...)'),
 				comment
-			) as scomment FROM shm_comments
-		LEFT JOIN users ON shm_comments.owner_id=users.id 
-		ORDER BY shm_comments.id DESC
-		LIMIT $s_count
+			) as scomment FROM comments
+		LEFT JOIN users ON comments.owner_id=users.id 
+		ORDER BY comments.id DESC
+		LIMIT $i_count
 		";
 
 		return $this->query_to_array($query);
@@ -90,10 +92,12 @@ class comment extends block {
 	}
 
 	function query_to_html($query) {
-		$com_result = sql_query($query);
+		global $db;
+		$result = $db->Execute($query);
 		$comments = "";
-		while($comment = sql_fetch_row($com_result)) {
-			 $comments .= $this->comment_to_html($comment);
+		while(!$result->EOF) {
+			 $comments .= $this->comment_to_html($result->fields);
+			 $result->MoveNext();
 		}
 		return $comments;
 	}
@@ -128,25 +132,21 @@ class comment extends block {
 	}
 
 	function is_comment_limit_hit() {
-		global $config, $user;
+		global $config, $user, $db;
 
 		$window = int_escape($config['comment_window']);
 		$max = int_escape($config['comment_limit']);
 		
-		$last_query = "SELECT count(*) AS recent_comments FROM shm_comments ".
-		              "WHERE owner_ip = '{$user->ip}' ".
-					  "AND posted > date_sub(now(), interval $window minute)";
-		$row = sql_fetch_row(sql_query($last_query));
-		$recent_comments = $row["recent_comments"];
+		$result = $db->Execute("SELECT * FROM comments WHERE owner_ip = ? ".
+							   "AND posted > date_sub(now(), interval ? minute)",
+					 		   Array($user->ip, $window));
+		$recent_comments = $result->RecordCount();
 
 		return ($recent_comments >= $max);
 	}
 
 	function add_comment($image_id, $comment) {
-		global $user, $config;
-		
-		$s_image_id = int_escape($image_id);
-		$s_comment = sql_escape($comment);
+		global $user, $config, $db;
 		
 		if(!$config['comment_anon'] && $user->isAnonymous()) {
 			return ERR_COMMENT_NO_ANON;
@@ -158,21 +158,17 @@ class comment extends block {
 			return ERR_COMMENT_LIMIT_HIT;
 		}
 		else {
-			$new_query = "INSERT INTO shm_comments(image_id, owner_id, owner_ip, posted, comment) ".
-			             "VALUES($s_image_id, {$user->id}, '{$user->ip}', now(), '$s_comment')";
-			sql_query($new_query);
-			$cid = sql_insert_id();
-
-			return $cid;
+			$db->Execute("INSERT INTO comments(image_id, owner_id, owner_ip, posted, comment) ".
+			             "VALUES(?, ?, ?, now(), ?)", Array($image_id, $user->id, $user->ip, $comment));
+			return $db->Insert_ID();
 		}
 	}
 
 	function delete_comment($comment_id) {
-		global $user;
+		global $user, $db;
 		
 		if($user->isAdmin()) {
-			$i_comment_id = int_escape($comment_id);
-			sql_query("DELETE FROM shm_comments WHERE id=$i_comment_id");
+			$db->Execute("DELETE FROM comments WHERE id=?", Array($comment_id));
 			return true;
 		}
 		else {

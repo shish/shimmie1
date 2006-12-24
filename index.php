@@ -75,10 +75,10 @@ if($_GET['tags']) {
 	$tnum = 0;
 	foreach($tags as $tag) {
 		if($tag[0] == '-') continue;
-		$s_tag = sql_escape($tag);
+		$s_tag = $db->Quote($tag);
 		$h_tag = html_escape($tag);
 		$search_sql .= ($tnum == 0 ? "(" : "OR");
-		$search_sql .= " tag LIKE '$s_tag' ";
+		$search_sql .= " tag LIKE $s_tag ";
 		$h_title    .= " $h_tag";
 		$h_tag_list .= " $h_tag";
 		$tnum++;
@@ -90,10 +90,10 @@ if($_GET['tags']) {
 	foreach($tags as $tag) {
 		if($tag[0] != '-') continue;
 		$tag = preg_replace("/^-/", "", $tag);
-		$s_tag = sql_escape($tag);
+		$s_tag = $db->Quote($tag);
 		$h_tag = html_escape($tag);
 		$search_sql .= ($tnum == 0 ? "-(" : "OR");
-		$search_sql .= " tag LIKE '$s_tag' ";
+		$search_sql .= " tag LIKE $s_tag ";
 		$h_subtitle .= ($tnum == 0 ? "Ignoring:" : ",");
 		$h_subtitle .= " $h_tag";
 		$h_tag_list .= " -$h_tag";
@@ -104,22 +104,24 @@ if($_GET['tags']) {
 
 	$full_query = <<<EOD
 		SELECT 
-			shm_images.id AS id, shm_images.hash AS hash, shm_images.ext AS ext, 
+			images.id AS id, images.hash AS hash, images.ext AS ext, 
 			SUM($search_sql) AS score
-		FROM shm_tags
-		LEFT JOIN shm_images ON image_id=shm_images.id
-		GROUP BY shm_images.id 
+		FROM tags
+		LEFT JOIN images ON image_id=images.id
+		GROUP BY images.id 
 		HAVING score >= $min_score
 EOD;
 }
 else {
-	$full_query = "SELECT * FROM shm_images";
+	$full_query = "SELECT * FROM images";
 }
 
-$total_images = sql_num_rows(sql_query($full_query));
+$total_result = $db->Execute($full_query);
+print $db->ErrorMsg();
+$total_images = $total_result->RecordCount();
 
 if($page == 0) {
-	$list_query = $full_query . " ORDER BY shm_images.id DESC LIMIT $images_per_page";
+	$list_query = $full_query . " ORDER BY images.id DESC LIMIT $images_per_page";
 }
 else {
 	if($config['index_invert']) {
@@ -133,7 +135,7 @@ else {
 		$images_per_page -= $start_pad;
 		$start = 0;
 	}
-	$list_query = $full_query . " ORDER BY shm_images.id DESC LIMIT $start,$images_per_page";
+	$list_query = $full_query . " ORDER BY images.id DESC LIMIT $start,$images_per_page";
 }
 
 
@@ -166,30 +168,32 @@ function get_table_div($num, $width, $content) {
  * want, but that's a 4.1 feature, and debian stable is still 4.0.
  */
 function query_to_image_table($query, $start_pad) {
-	global $config;
+	global $config, $db;
 
 	$imageTable = "<table>\n";
 	$i = 0;
 	$width = $config['index_width'];
 	$dir_thumbs = $config['dir_thumbs'];
-	$list_result = sql_query($query);
 	
 	for($j=0; $j<$start_pad; $j++) {
 		$imageTable .= get_table_div($i++, $width, "&nbsp;");
 	}
 	
-	while($row = sql_fetch_row($list_result)) {
+	$result = $db->Execute($query);
+	while(!$result->EOF) {
+		$row = $result->fields;
 		$image_id = $row['id'];
 		$hash = $row['hash'];
 		$h_filename = html_escape($row['filename']);
 
 		# FIXME: Do this better
 		$h_tags = "";
-		$tags_result = sql_query("SELECT * FROM shm_tags WHERE image_id=$image_id");
-		while($row = sql_fetch_row($tags_result)) {$h_tags .= html_escape($row['tag'])." ";}
+		$result2 = $db->Execute("SELECT tag FROM tags WHERE image_id=?", Array($image_id));
+		while(!$result2->EOF) {$row = $result2->fields; $h_tags .= html_escape($row['tag'])." "; $result2->MoveNext();}
 
 		$imageTable .= get_table_div($i++, $width, "<a href='view.php?image_id=$image_id'>".
 				"<img src='$dir_thumbs/$image_id.jpg' alt='$h_filename' title='$h_tags'></a>");
+		$result->MoveNext();
 	}
 
 	$imageTable .= "</table>";

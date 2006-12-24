@@ -7,7 +7,7 @@
  */
 
 
-$version = "Shimmie 0.7.4";
+$version = "Shimmie 0.8.0";
 $db_version = "0.7.5";
 
 // only images are good for caching, and
@@ -21,9 +21,20 @@ session_cache_limiter('nocache');
 if(is_readable("config.php")) {require_once "config.php";}
 else {require_once "install.php"; exit;}
 
-
-require_once "lib/libabsql.php";
 require_once "lib/libsio.php";
+require_once "lib/adodb/adodb.inc.php";
+if(is_null($config['database_dsn'])) {
+//	echo "WARNING: Shimmie has changed from using ";
+	$config['database_dsn'] = 
+		$config['database_api']."://".
+		$config['mysql_user'].":".
+		$config['mysql_pass']."@".
+		$config['mysql_host']."/".
+		$config['mysql_db'];
+
+}
+$db = NewADOConnection($config['database_dsn']);
+$db->SetFetchMode(ADODB_FETCH_ASSOC);
 
 
 /*
@@ -70,13 +81,20 @@ $config_defaults = Array(
  * is why ""=false and "on"=true -- that's how checkbox data is sent)
  */
 function get_config() {
-	global $config_defaults;
+	global $config_defaults, $db;
 
 	$config = $config_defaults;
 
-	$config_result = sql_query("SELECT * FROM shm_config");
-	while($config_row = sql_fetch_row($config_result)) {
-		$config[$config_row['name']] = $config_row['value'];
+	$row = $db->Execute("SELECT * FROM config");
+	while(!$row->EOF) {
+		$value = $row->fields['value'];
+		if(is_numeric($value)) {
+			$config[$row->fields['name']] = (int)$value;
+		}
+		else {
+			$config[$row->fields['name']] = $value;
+		}
+		$row->MoveNext();
 	}
 
 	return $config;
@@ -106,7 +124,9 @@ function get_base_href() {
  * check for bans
  */
 function get_ban_info($type, $value) {
-	return sql_fetch_row(sql_query("SELECT * FROM shm_bans WHERE type='$type' AND value='$value'"));
+	global $db;
+	$row = $db->Execute("SELECT * FROM bans WHERE type=? AND value=?", Array($type, $value));
+	return $row->fields;
 }
 
 function print_ip_ban($ip, $date, $reason) {
@@ -179,7 +199,6 @@ function int_escape($var) {
 function html_escape($var) {
 	return htmlentities($var);
 }
-// sql_escape is in libabsql.php
 
 
 /*
@@ -187,15 +206,21 @@ function html_escape($var) {
  * so it got put into it's own function.
  */
 function delete_tags($image_id) {
-	$s_image_id = int_escape($image_id);
-	sql_query("DELETE FROM shm_tags WHERE image_id=$s_image_id");
+	global $db;
+	$db->Execute("DELETE FROM tags WHERE image_id=?", Array($image_id));
 }
 function delete_comments($image_id) {
-	$s_image_id = int_escape($image_id);
-	sql_query("DELETE FROM shm_comments WHERE image_id=$s_image_id");
+	global $db;
+	$db->Execute("DELETE FROM comments WHERE image_id=?", Array($image_id));
+}
+function delete_comment($comment_id) {
+	global $db;
+	$db->Execute("DELETE FROM comments WHERE id=?", Array($comment_id));
 }
 
 function add_tags($image_id, $tag_list) {
+	global $db;
+	
 	$tags = Array();
 	
 	if(is_array($tag_list)) {
@@ -215,31 +240,33 @@ function add_tags($image_id, $tag_list) {
 	$tags = array_unique($tags); // remove any duplicate tags
 
 	// insert each new tag
-	$s_image_id = int_escape($image_id);
 	foreach($tags as $tag) {
-		$s_tag = sql_escape($tag);
-		sql_query("INSERT INTO shm_tags(image_id, tag) VALUES($s_image_id, '$s_tag')");
+		$db->Execute("INSERT INTO tags(image_id, tag) VALUES(?, ?)", Array($image_id, $tag));
 	}
 }
 
-function updateTags($image_id, $tag_list) {
+function update_tags($image_id, $tag_list) {
 	delete_tags($image_id);
 	add_tags($image_id, $tag_list);
 }
 
 function delete_image($image_id) {
+	global $db;
+
 	delete_tags($image_id);
 	delete_comments($image_id);
 	
-	$s_image_id = int_escape($image_id);
-	$row = sql_fetch_row(sql_query("SELECT ext FROM shm_images WHERE id=$s_image_id"));
+	$result = $db->Execute("SELECT ext FROM images WHERE id=?", Array($image_id));
+	if($result->RecordCount() == 0) return;
+	
+	$row = $result->fields;
 
 	$iname = $config['dir_images']."/$image_id.".$row['ext'];
 	$tname = $config['dir_thumbs']."/$image_id.jpg";
 	if(file_exists($iname)) unlink($iname);
 	if(file_exists($tname)) unlink($tname);
 
-	sql_query("DELETE FROM shm_images WHERE id=$s_image_id");
+	$db->Execute("DELETE FROM images WHERE id=?", Array($image_id));
 }
 
 function mime_to_ext($mime) {
@@ -256,9 +283,9 @@ function mime_to_ext($mime) {
  * check if an image with the given hash already exists
  */
 function is_dupe($hash) {
-	$s_hash = sql_escape($hash);
-	$existing_result = sql_query("SELECT * FROM shm_images WHERE hash='$s_hash'");
-	return sql_fetch_row($existing_result);
+	global $db;
+	$result = $db->Execute("SELECT * FROM images WHERE hash=?", Array($hash));
+	return $result->fields;
 }
 
 /*
@@ -296,7 +323,7 @@ function get_thumb($tmpname) {
  * filename and tags noted
  */
 function add_image($tmpname, $filename, $tags) {
-	global $config, $user;
+	global $config, $user, $db;
 	
 	$dir_images = $config['dir_images'];
 	$dir_thumbs = $config['dir_thumbs'];
@@ -316,9 +343,9 @@ function add_image($tmpname, $filename, $tags) {
 		/*
 		 * Check for an existing image
 		 */
-		if(is_dupe($hash)) {
+		if($row = is_dupe($hash)) {
 			header("X-Shimmie-Status: Error - Hash Clash");
-			$iid = $existing_row['id'];
+			$iid = $row['id'];
 			$err .= "<p>Upload of '$h_filename' failed:";
 			$err .= "<br>There's already an image with hash '$hash' (<a href='view.php?image_id=$iid'>view</a>)";
 			return false;
@@ -327,12 +354,10 @@ function add_image($tmpname, $filename, $tags) {
 		$thumb = get_thumb($tmpname);
 
 		// actually insert the info
-		$s_filename = sql_escape($filename);
-		$new_query = "INSERT INTO shm_images(owner_id, owner_ip, filename, hash, ext) ".
-		             "VALUES({$user->id}, '{$user->ip}', '$s_filename', '$hash', '$ext')";
-		sql_query($new_query);
-		$id = sql_insert_id();
-		$rollback_query = "DELETE FROM shm_images WHERE id=$id";
+		$db->Execute("INSERT INTO images(owner_id, owner_ip, filename, hash, ext) ".
+		             "VALUES (?, ?, ?, ?, ?)",
+					 Array($user->id, $user->ip, $filename, $hash, $ext));
+		$id = $db->Insert_ID();
 
 		/*
 		 * If no errors: move the file from the temporary upload
@@ -342,14 +367,14 @@ function add_image($tmpname, $filename, $tags) {
 		if(!move($tmpname, "$dir_images/$id.$ext")) {
 			print "<p>The image couldn't be moved from the temporary area to the
 			         main data store -- is the web server allowed to write to '$dir_images'?";
-			sql_query($rollback_query);
+			$db->Execute("DELETE FROM images WHERE id=?", Array($id));
 			return false;
 		}
 		chmod("$dir_images/$id.$ext", 0644);
 		if(!imagejpeg($thumb, "$dir_thumbs/$id.jpg", $config['thumb_q'])) {
 			print "<p>The image thumbnail couldn't be generated -- is the web
 			         server allowed to write to '$dir_thumbs'?";
-			sql_query($rollback_query);
+			$db->Execute("DELETE FROM images WHERE id=?", Array($id));
 			return false;
 		}
 		
@@ -453,10 +478,9 @@ function get_blocks_html($pageType) {
  * store results in count['tag']
  */
 function countImagesForTag($tag) {
-	$s_tag = sql_escape($tag);
-	$tag_query = "SELECT count(*) as count FROM shm_tags WHERE tag='$s_tag'";
-	$row = sql_fetch_row(sql_query($tag_query));
-	return $row['count'];
+	global $db;
+	$row = $db->Execute("SELECT count(*) AS count FROM tags WHERE tag=?", Array($tag));
+	return $row->fields['count'];
 }
 
 /*
@@ -476,20 +500,25 @@ class User {
 	}
 
 	function load_from_row($row) {
+		global $db;
+		
 		$this->id = $row['id'];
 		$this->name = $row['name'];
 
-		$result = sql_query("SELECT * FROM shm_user_configs WHERE owner_id={$this->id}");
-		while($row = sql_fetch_row($result)) {
-			$this->uconfig[$row['name']] = $row['value'];
+		$row = $db->Execute("SELECT * FROM user_configs WHERE owner_id=?", Array($this->id));
+		while(!$row->EOF) {
+			$this->uconfig[$row->fields['name']] = $row->fields['value'];
+			$row->MoveNext();
 		}
 
 		return true;
 	}
 	function load_from_query($query) {
-		$result = sql_query($query);
-		if(sql_num_rows($result) == 1) {
-			return $this->load_from_row(sql_fetch_row($result));
+		global $db;
+		
+		$result = $db->Execute($query);
+		if(!$result->EOF) {
+			return $this->load_from_row($result->fields);
 		}
 		else {
 			return false;
@@ -497,16 +526,18 @@ class User {
 	}
 	function load_from_id($id) {
 		$i_id = int_escape($id);
-		return $this->load_from_query("SELECT * FROM shm_users WHERE id=$i_id");
+		return $this->load_from_query("SELECT * FROM users WHERE id=$i_id");
 	}
 	function load_from_name($name) {
-		$s_name = sql_escape($name);
-		return $this->load_from_query("SELECT * FROM shm_users WHERE name LIKE '$s_name'");
+		global $db;
+		$s_name = $db->qstr($name);
+		return $this->load_from_query("SELECT * FROM users WHERE name LIKE $s_name");
 	}
 	function load_from_name_hash($name, $hash) {
-		$s_name = sql_escape($name);
-		$s_hash = sql_escape($hash);
-		return $this->load_from_query("SELECT * FROM shm_users WHERE name LIKE '$s_name' AND pass = '$s_hash'");
+		global $db;
+		$s_name = $db->qstr($name);
+		$s_hash = $db->qstr($hash);
+		return $this->load_from_query("SELECT * FROM users WHERE name LIKE $s_name AND pass = $s_hash");
 	}
 	function load_from_name_pass($name, $pass) {
 		return $this->load_from_name_hash($name, md5(strtolower($name).$pass));
@@ -525,22 +556,19 @@ class User {
 	}
 
 	function stat_count_images() {
-		$i_id = int_escape($this->id);
-		$tag_query = "SELECT count(*) as count FROM shm_images WHERE owner_id=$i_id";
-		$row = sql_fetch_row(sql_query($tag_query));
-		return $row['count'];
+		global $db;
+		$row = $db->Execute("SELECT count(*) AS count FROM images WHERE owner_id=?", Array($this->id));
+		return $row->fields['count'];
 	}
 	function stat_count_comments() {
-		$i_id = int_escape($this->id);
-		$tag_query = "SELECT count(*) as count FROM shm_comments WHERE owner_id=$i_id";
-		$row = sql_fetch_row(sql_query($tag_query));
-		return $row['count'];
+		global $db;
+		$row = $db->Execute("SELECT count(*) AS count FROM comments WHERE owner_id=?", Array($this->id));
+		return $row->fields['count'];
 	}
 	function stat_days_old() {
-		$i_id = int_escape($this->id);
-		$tag_query = "SELECT (now()-joindate)/86400 AS days_old FROM shm_users WHERE id=$i_id";
-		$row = sql_fetch_row(sql_query($tag_query));
-		return $row['days_old'];
+		global $db;
+		$row = $db->Execute("SELECT (now()-joindate)/86400 AS days_old FROM users WHERE id=?", Array($this->id));
+		return $row->fields['days_old'];
 	}
 }
 
@@ -564,32 +592,31 @@ class Image {
 	var $tags = null;
 
 	function Image($id) {
-		global $config;
+		global $config, $db;
 		
 		if(is_null($id)) return;
 
 		$s_id = int_escape($id);
 
-		$img_query = <<<EOD
-			SELECT shm_images.*, shm_users.name
-			FROM shm_images
-			LEFT JOIN shm_users ON shm_images.owner_id=shm_users.id
-			WHERE shm_images.id=$s_id
-EOD;
-		$img_result = sql_query($img_query);
-		if(sql_num_rows($img_result) == 1) {
-			$img_info = sql_fetch_row($img_result);
+		$row = $db->Execute("
+			SELECT images.*, users.name
+			FROM images
+			LEFT JOIN users ON images.owner_id=users.id
+			WHERE images.id=?
+			", Array($id));
+		if($row->RecordCount() == 1) {
+			$img_info = $row->fields;
 			$this->id = $img_info["id"];
 			$this->owner = htmlentities($img_info['name']);
 			$this->filename = $img_info['filename'];
 			$this->hash = $img_info['hash'];
 			$this->ext = $img_info['ext'];
 
-			$tag_query = "SELECT * FROM shm_tags WHERE image_id={$this->id}";
-			$tag_result = sql_query($tag_query);
 			$this->tag_array = Array();
-			while($row = sql_fetch_row($tag_result)) {
-				$this->tag_array[] = htmlentities($row['tag']);
+			$row = $db->Execute("SELECT * FROM tags WHERE image_id=?", Array($id));
+			while(!$row->EOF) {
+				$this->tag_array[] = $row->fields['tag'];
+				$row->MoveNext();
 			}
 			$this->tags = implode(" ", $this->tag_array);
 			

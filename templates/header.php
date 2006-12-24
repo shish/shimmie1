@@ -1,6 +1,5 @@
 <?php
-
-$base = get_base_href();
+// $base = get_base_href();
 $scripts = glob("scripts/*.js");
 $scripthtml = "";
 foreach($scripts as $script) {
@@ -12,7 +11,7 @@ echo <<<EOD
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 	<head>
-		<base href="$base">
+		<base href="$baseurl">
 		<title>$title</title>
 		<link rel="stylesheet" href="style.css" type="text/css">
 $scripthtml

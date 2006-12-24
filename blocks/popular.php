@@ -7,34 +7,37 @@
 
 class popular extends block {
 	function get_html($pageType) {
-		global $htmlSafeTags, $config;
+		global $htmlSafeTags, $config, $db;
 	
 		if(($pageType == "index") && (strlen($htmlSafeTags) == 0)) {
-			$pop_count = int_escape($config['popular_count']);
-			$pop_query = <<<EOD
-				SELECT 
-					tag,
-					COUNT(image_id) AS count
-				FROM shm_tags
+			$query = "
+				SELECT tag, COUNT(image_id) AS count
+				FROM tags
 				GROUP BY tag
 				ORDER BY count DESC
-				LIMIT $pop_count
-EOD;
-			$pop_result = sql_query($pop_query);
-			$n = 0;
+				LIMIT ?
+			";
 
-			$popularBlock = "<h3 id=\"popular-toggle\" onclick=\"toggle('popular')\">Popular Tags</h3>\n<div id=\"popular\">";
-			while($row = sql_fetch_row($pop_result)) {
+			$html .= "<h3 id='popular-toggle' onclick=\"toggle('popular')\">Popular Tags</h3>\n";
+			$html .= "<div id='popular'>\n";
+
+			$n = 0;
+			$result = $db->Execute($query, Array($config['popular_count']));
+			while(!$result->EOF) {
+				$row = $result->fields;
 				$tag = html_escape($row['tag']);
 				$count = $row['count'];
-				if($n++) $popularBlock .= "<br/>";
-				$popularBlock .= "<a href='index.php?tags=$tag'>$tag ($count)</a>\n";
-				if($htmlSafeTags) $popularBlock .= "<a href='index.php?tags=$htmlSafeTags $tag'>(+)</a>\n";
+				if($n++) $html .= "<br/>";
+				$html .= "<a href='index.php?tags=$tag'>$tag ($count)</a>\n";
+				if($htmlSafeTags) $html .= "<a href='index.php?tags=$htmlSafeTags+$tag'>(+)</a>\n";
+				$result->MoveNext();
 			}
-			$popularBlock .= "<p><a href='tags.php'>Full List &gt;&gt;&gt;</a>\n";
-			$popularBlock .= "</div>";
+			$result->Close();
 
-			return $popularBlock;
+			$html .= "<p><a href='tags.php'>Full List &gt;&gt;&gt;</a>\n";
+			$html .= "</div>";
+
+			return $html;
 		}
 	}
 

@@ -21,12 +21,13 @@ if(is_null($action)) {
 	$blocks = get_blocks_html("admin");
 	
 	$banned_ip_list = "";
-	$res = sql_query("SELECT * FROM bans WHERE type='ip'");
-	while($row = sql_fetch_row($res)) {
-		$ip = html_escape($row["value"]);
-		$date = html_escape($row["date"]);
-		$reason = html_escape($row["reason"]);
+	$row = $db->Execute("SELECT * FROM bans WHERE type='ip'");
+	while(!$row->EOF) {
+		$ip = html_escape($row->fields["value"]);
+		$date = html_escape($row->fields["date"]);
+		$reason = html_escape($row->fields["reason"]);
 		$banned_ip_list .= "<br>$ip at $date for $reason (<a href='admin.php?action=removeipban&ip=$ip'>X</a>)\n";
+		$row->MoveNext();
 	}
 
 	require_once "templates/admin.php";
@@ -41,10 +42,10 @@ if(is_null($action)) {
  * separate once merged?
  */
 else if($action == "replacetag") {
-	$search = sql_escape(defined_or_die($_POST["search"]));
-	$replace = sql_escape(defined_or_die($_POST["replace"]));
+	$search = defined_or_die($_POST["search"]);
+	$replace = defined_or_die($_POST["replace"]);
 
-	sql_query("UPDATE shm_tags SET tag='$replace' WHERE tag='$search'");
+	$db->Execute("UPDATE tags SET tag=? WHERE tag=?", Array($replace, $search));
 
 	// go back to the viewed page
 	header("X-Shimmie-Status: OK - Tags Replaced");
@@ -71,10 +72,11 @@ else if($action == "bulkadd") {
  * add an IP to the ban list
  */
 else if($action == "addipban") {
-	$ip = sql_escape(defined_or_die($_POST["ip"]));
-	$reason = sql_escape(defined_or_die($_POST["reason"]));
+	$ip = defined_or_die($_POST["ip"]);
+	$reason = defined_or_die($_POST["reason"]);
 
-	sql_query("INSERT INTO shm_bans(type, value, date, reason) VALUES ('ip', '$ip', now(), '$reason')");
+	$db->Execute("INSERT INTO bans(type, value, reason, date) ".
+		         "VALUES (?, ?, ?, now())", Array('ip', $ip, $reason));
 
 	// go back to the viewed page
 	header("X-Shimmie-Status: OK - IP Banned");
@@ -86,9 +88,9 @@ else if($action == "addipban") {
  * remove an IP from the ban list
  */
 else if($action == "removeipban") {
-	$ip = sql_escape(defined_or_die($_GET["ip"]));
+	$ip = defined_or_die($_GET["ip"]);
 
-	sql_query("DELETE FROM shm_bans WHERE type='ip' AND value='$ip'");
+	$db->Execute("DELETE FROM bans WHERE type=? AND value=?", Array('ip', $ip));
 
 	// go back to the viewed page
 	header("X-Shimmie-Status: OK - IP Allowed");

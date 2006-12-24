@@ -57,12 +57,10 @@ EOD;
 			}
 		}
 		else if($pageType == "view") {
-			global $image, $config;
+			global $image, $config, $db;
 
-			$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id < {$image->id} ORDER BY id DESC LIMIT 1"));
-			$lowerid = $row ? $row['id'] : null;
-			$row = sql_fetch_row(sql_query("SELECT id FROM shm_images WHERE id > {$image->id} ORDER BY id ASC  LIMIT 1"));
-			$higherid = $row ? $row['id'] : null;
+			$lowerid  = $db->GetOne("SELECT id FROM images WHERE id < ? ORDER BY id DESC", Array($image->id));
+			$higherid = $db->GetOne("SELECT id FROM images WHERE id > ? ORDER BY id ASC ", Array($image->id));
 
 			if($config['index_invert']) {
 				$nextid = $lowerid;

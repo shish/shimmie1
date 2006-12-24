@@ -16,16 +16,16 @@ admin_or_die();
  * do, so they'll be ready by the time the rest of the page is shown
  */
 if($_POST["action"] == "set") {
-	sql_query("DELETE FROM shm_config");
+	$db->StartTrans();
+	$db->Execute("DELETE FROM config");
 	
 	$config_keys = array_keys($config_defaults);
 	foreach($config_keys as $cname) {
 		$cval = $_POST[$cname];
-		$s_cname = sql_escape($cname);
-		$s_cval = sql_escape($cval);
-		sql_query("INSERT INTO shm_config(name, value) VALUES('$s_cname', '$s_cval')");
+		$db->Execute("INSERT INTO config(name, value) VALUES(?, ?)", Array($cname, $cval));
 		$config[$cname] = $cval; // update here so the display below is correct
 	}
+	$db->CommitTrans();
 }
 
 
@@ -33,6 +33,7 @@ if($_POST["action"] == "set") {
  * Things which need to be saved, but not changed
  */
 $configOptions1 .= makeOptHidden("db_version");
+$configOptions1 .= makeOptHidden("anon_id");
 
 /*
  * Generate the HTML form

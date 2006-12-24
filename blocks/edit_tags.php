@@ -68,7 +68,7 @@ EOD;
 
 			// get input
 			$image_id = int_escape(defined_or_die($_POST['image_id']));
-			updateTags($image_id, defined_or_die($_POST['tags']));
+			update_tags($image_id, defined_or_die($_POST['tags']));
 
 			// go back
 			header("Location: view.php?image_id=$image_id");
