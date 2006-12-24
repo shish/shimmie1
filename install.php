@@ -24,92 +24,80 @@ if(is_readable("config.php")) {
 require_once "lib/adodb/adodb.inc.php";
 require_once "lib/libsio.php";
 
+session_start(); // hold temp stuff in session
 
 /*
  * If nothing else is being done, show the install options
  */
-if(is_null($_GET['action'])) {
-	$configOptions .= makeRow("Database Config");
-	$configOptions .= makeOpt("DSN", "database_dsn");
-	$configOptions .= makeRow("ie: protocol://username:password@host/database?options");
-	$configOptions .= makeRow("eg: mysql://shimmie:pw123@localhost/shimmie?persist");
-
-	$configOptions .= makeRow();
-	$configOptions .= makeRow("Initial Admin User");
-	$configOptions .= makeOpt("Name", "admin_name");
-	$configOptions .= makeOpt("Password", "admin_pass");
+switch($_GET['stage']) {
+	default:
+		$title = "Shimmie Installer";
+		$heading = "Fill in this form";
+		$help = "
+			Shimmie is developed with MySQL, and support
+			for it is included. Other databases may work,
+			but you'll need to add the appropriate ADOdb
+			drivers yourself.";
+		$message = 
+			makeHtml("<form action='install.php?stage=createdb' method='POST'>").
+			makeHtml("<table style='width: 400px;'>").
+			makeRow("Database Config").
+			makeOpt("DSN", "database_dsn").
+			makeRow("ie: protocol://username:password@host/database?options").
+			makeRow("eg: mysql://shimmie:pw123@localhost/shimmie?persist").
+			makeRow().
+			makeRow("Initial Admin User").
+			makeOpt("Name", "admin_name").
+			makeOpt("Password", "admin_pass").
+			makeRow().
+			makeRow("<input type='submit' value='Install'>").
+			makeHtml("</table>").
+			makeHtml("</form>");
+		require_once "templates/generic.php";
+		break;
 	
-	$configOptions .= makeRow();
-	$configOptions .= makeRow("<input type=\"submit\" value=\"Install\">");
-
-	$title = "Shimmie Installer";
-	$target = "install.php?action=set";
-	require_once "templates/install.php";
-}
-
-
-/*
- * Check that all the settings are OK. If not, complain. If
- * they are, attempt to write a config file.
- */
-else if($_GET["action"] == "set") {
-	$dsn = $_POST['database_dsn'];
-	$admin_name = $_POST["admin_name"];
-	$admin_pass = $_POST["admin_pass"];
+	case 'createdb':
+		$dsn = $_SESSION['database_dsn'] = $_POST['database_dsn'];
+		$admin_name = $_SESSION['admin_name'] = $_POST["admin_name"];
+		$admin_pass = $_SESSION['admin_pass'] = $_POST["admin_pass"];
+		
+		$db = NewADOConnection($dsn);
+		if(!$db) {
+			$title = "Error";
+			$heading = "Couldn't connect to database";
+			$message = "Couldn't connect to \"$dsn\".<p><a href='install.php'>Back</a>";
+			require_once "templates/generic.php";
+			exit;
+		}
+		$db->SetFetchMode(ADODB_FETCH_ASSOC);
+		
+		if(initDb($db, $admin_name, $admin_pass)) {
+			header("Location: install.php?stage=writeconfig");
+			echo "Database installed OK<p><a href='install.php?stage=writeconfig'>Continue</a>";
+		}
+		break;
 	
-	$db = NewADOConnection($dsn);
-	if(!$db) {
-		$title = "Error";
-		$message = "Unable to connect to $dsn";
-		require_once "templates/error.php";
-		exit;
-	}
-	$db->SetFetchMode(ADODB_FETCH_ASSOC);
-
-	/*
-	 * Create a config file
-	 */
-	$data .= "<?php\n";
-	$data .= "\$config['database_dsn'] = '$dsn';\n";
-	$data .= "?>";
-
-	/*
-	 * Create the database
-	 */
-	initDb($db, $admin_name, $admin_pass);
-
-	/*
-	 * when they say "sql lite", they mean "insert, select, you do the rest"...
-	function sqlite_cb_concat($a, $b) {return $a.$b;}
-	sqlite_create_function($db, 'md5', 'md5', 1);
-	sqlite_create_function($db, 'concat', 'sqlite_cb_concat', 2);
-	sqlite_create_function($db, 'lower', 'strtolower', 2);
-	 */
-
-	/*
-	 * Create the database
-	sqlite_query2($db, "BEGIN TRANSACTION;");
-	initDb($db, "sqlite_query2", $tp, $admin_name, $admin_pass,
-		"integer primary key", "sqlite_last_insert_rowid");
-	sqlite_query2($db, "END TRANSACTION;");
-	 */
-
-	/*
-	 * With everything else done, try to seal the installation by
-	 * writing config.php. Once it exists, the installer is disabled.
-	 */
-	if(is_writable("./") && write_file("config.php", $data)) {
-		echo "Config written to 'config.php'<p><a href='setup.php'>Continue</a>";
-	}
-	else {
-		$title = "Error";
-		$message = "The web server isn't allowed to write to the config file; please copy
-		            the text below, save it as 'config.php', and upload it into the shimmie
-		            folder manually.
-					
-					<p>One done, <a href='setup.php'>Continue</a>";
-		require_once "templates/error.php";
-	}
+	case 'writeconfig':
+		$dsn = $_SESSION['database_dsn'];
+		
+		$data .= "<?php\n";
+		$data .= "\$config['database_dsn'] = '$dsn';\n";
+		$data .= "?>";
+		
+		if(is_writable("./") && write_file("config.php", $data)) {
+			header("Location: setup.php");
+			echo "Config written to 'config.php'<p><a href='setup.php'>Continue</a>";
+		}
+		else {
+			$title = "Error";
+			$message = "The web server isn't allowed to write to the config file; please copy
+			            the text below, save it as 'config.php', and upload it into the shimmie
+			            folder manually.
+						
+						<p>One done, <a href='setup.php'>Continue</a>";
+			require_once "templates/error.php";
+		}
+		break;
 }
 
 
@@ -205,19 +193,22 @@ function initDb($db, $admin_name, $admin_pass) {
 	$db->Execute($user_insert, Array($admin_name, $admin_pass));
 	$db->Execute($user_config_insert, Array($db->Insert_ID(), 'isadmin', 'true'));
 
-	$db->CommitTrans();
+	return $db->CommitTrans();
 }
 
 
 /*
  * Functions to easily generate an HTML form
  */
+function makeHtml($html) {
+	return $html;
+}
 function makeRow($content = "&nbsp;") {
 	return "<tr><td colspan='2'>$content</td></tr>\n";
 }
 function makeOpt($friendly, $varname) {
 	global $config;
-	$default = $config[$varname];
+	$default = $_SESSION[$varname];
 	return "<tr><td>$friendly</td><td><input type='text' name='$varname' value='$default'></td></tr>\n";
 }
 function makeOptCheck($friendly, $varname) {
