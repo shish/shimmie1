@@ -40,6 +40,12 @@ switch($config['db_version']) {
 	case '0.7.5':
 		break; // latest
 
+	default:
+		// something is screwy, claim to be latest
+		// and let the admin figure it out...
+		update_version($db_version);
+		break;
+
 	case 'future':
 		update_status("Moving tags to tags_old");
 		sql_query("
