@@ -47,7 +47,7 @@ $db->SetFetchMode(ADODB_FETCH_ASSOC);
 $config_defaults = Array(
 	'title' => $version,
 	'db_version' => 'pre-0.7.5', // this should be managed by upgrade.php
-	'base_href' => '',
+	'base_href' => preg_replace('#[^/]+$#', '', "http://".$_SERVER["HTTP_HOST"].$_SERVER['REQUEST_URI']),
 	'anon_id' => 0,
 	'dir_images' => 'images',
 	'dir_thumbs' => 'thumbs',
@@ -106,19 +106,6 @@ if($config['db_version'] != $db_version) {
 	require_once "upgrade.php";
 }
 
-
-function get_base_href() {
-	global $config;
-
-	if(strlen($config['base_href']) > 0) {
-		return $config['base_href'];
-	}
-	else {
-		$baseurl = "http://" . $_SERVER["HTTP_HOST"] . $_SERVER['REQUEST_URI'];
-		$baseurl = preg_replace('#[^/]+$#', '', $baseurl);
-		return $baseurl;
-	}
-}
 
 /*
  * check for bans

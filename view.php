@@ -10,7 +10,7 @@ require_once "header.php";
 $image = new Image($_GET['image_id']);
 
 $dir_images = $config['dir_images'];
-$baseurl = get_base_href();
+$baseurl = $config['base_href'];
 $scale = $config['view_scale'] ? "style='width: 90%'" : "";
 
 $title = html_escape($image->tags);
