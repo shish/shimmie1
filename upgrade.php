@@ -2,7 +2,6 @@
 function update_version($ver) {
 	sql_query("DELETE FROM shm_config WHERE name='db_version'");
 	sql_query("INSERT INTO shm_config (name, value) VALUES ('db_version', '$ver')");
-	update_status("DB updated to version $ver");
 }
 
 function update_status($text) {
@@ -12,31 +11,18 @@ function update_status($text) {
 $db_current = $config['db_version'];
 
 if($_GET['do_upgrade'] != 'yes') {
-	print <<<EOD
-<html>
-	<head>
-		<title>DB Update Needed</title>
-	</head>
-	<body>
-		DB is at version $db_current, should be $db_version
-		<p>
-		Please make sure you have done a database backup, then 
+	$title = "Database Update Needed";
+	$message = "DB is at version $db_current, should be $db_version
+		<p>Please make sure you have done a database backup, then
 		click <a href='index.php?do_upgrade=yes'>here</a> to 
-		update the database schema.
-	</body>
-</html>
-EOD;
+		update the database schema.";
+	require_once "templates/upgrade.php";
 	exit;
 }
 else {
-	print <<<EOD
-<html>
-	<head>
-		<title>DB Updating...</title>
-	</head>
-	<body>
-		Currently at DB version $db_current, updating to $db_version...
-EOD;
+	$title = "Updating...";
+	$message = "Currently at DB version $db_current, updating to $db_version...";
+	$data = "Update log:\n";
 
 	/*
 	 * Yay for falling through; this switch jumps to the current
@@ -45,12 +31,14 @@ EOD;
 	 */
 	switch($config['db_version']) {
 		case 'pre-0.7.5': // the default version
-			update_status("Adding joindate to users");
+			$data .= "At version pre-0.7.5\n";
+			$data .= "Adding joindate to users\n";
 			sql_query("ALTER TABLE shm_users ADD COLUMN joindate DATETIME NOT NULL");
 			sql_query("UPDATE shm_users SET joindate=now()");
 			update_version('0.7.5');
 		
 		case '0.7.5':
+			$data .= "At version 0.7.5\n";
 			break; // latest
 	
 		default:
@@ -103,11 +91,8 @@ EOD;
 			}
 			break;
 	}
-	print <<<EOD
-		<p>Done. <a href='index.php'>Back to index</a>.
-	</body>
-</html>
-EOD;
+	
+	require_once "templates/upgrade.php";
 	exit;
 }
 ?>
