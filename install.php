@@ -163,6 +163,7 @@ function initDb($db, $admin_name, $admin_pass) {
 		id int primary key auto_increment,
 		name char(16) not null,
 		pass char(32),
+		joindate datetime not null,
 		UNIQUE(name),
 		INDEX(id)
 	)");
