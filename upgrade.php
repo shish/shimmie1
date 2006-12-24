@@ -16,7 +16,7 @@ if($_GET['do_upgrade'] != 'yes') {
 		<p>Please make sure you have done a database backup, then
 		click <a href='index.php?do_upgrade=yes'>here</a> to 
 		update the database schema.";
-	require_once "templates/upgrade.php";
+	require_once "templates/generic.php";
 	exit;
 }
 else {
@@ -92,7 +92,7 @@ else {
 			break;
 	}
 	
-	require_once "templates/upgrade.php";
+	require_once "templates/generic.php";
 	exit;
 }
 ?>
