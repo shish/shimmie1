@@ -40,8 +40,8 @@ $configOptions1 .= makeOptHidden("anon_id");
  */
 $configOptions1 .= makeRow("Global");
 $configOptions1 .= makeOptText("Title", "title", strlen($config["title"]) > 0);
-$configOptions1 .= makeOptText("Base URL", "base_href", null, "explicitly set the ".
-                  "base URL; useful for mod_rewrite-fu");
+$configOptions1 .= makeOptText("Base URL", "base_href", null,
+                  "explicitly set the base URL; useful for mod_rewrite-fu");
 
 $configOptions1 .= makeRow();
 $configOptions1 .= makeRow("Directories", "Make sure the web server can write to these!");

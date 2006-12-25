@@ -11,7 +11,7 @@ echo <<<EOD
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 	<head>
-		<base href="$baseurl">
+		<!-- <base href="$baseurl"> -->
 		<title>$title</title>
 		<link rel="stylesheet" href="style.css" type="text/css">
 $scripthtml

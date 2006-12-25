@@ -19,8 +19,9 @@ class userinfo extends block {
 			<h3 id="user-toggle" onclick="toggle('user')">User Login</h3>
 			<div id="user">
 				<form action="user.php?action=login" method="POST">
-					<table border="1" width="150" summary="Login Form">
-						<tr><td>Name</td><td><input type="text" name="user"></td></tr>
+					<table border="1" summary="Login Form">
+					
+						<tr><td>Name</td><td width="50%"><input type="text" name="user"></td></tr>
 						<tr><td>Password</td><td><input type="password" name="pass"></td></tr>
 						<tr><td>New Account?</td><td><input type="checkbox" name="create" onchange="toggleLogin(this,gobu)"></td></tr>
 						<tr><td colspan="2"><input type="submit" name="gobu" value="Log In"></td></tr>

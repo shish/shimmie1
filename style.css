@@ -34,8 +34,7 @@ TD {
 	border-top: none;
 	background: #DDD;
 }
-TD INPUT[type="submit"] {width: 100%;}
-TD INPUT[type="text"] {width: 100%;}
+TD INPUT {width: 100%;}
 TD SELECT {width: 100%;}
 
 #footer {
@@ -60,29 +59,15 @@ FORM {margin: 0px;}
 	text-align: center;
 	font-size: 0.9em;
 }
-#nav INPUT[type="text"] {
-	width: 150px;
-	padding: 0px;
-}
-#nav TD INPUT[type="text"] {
-	width: 90%;
-	padding: 0px;
-}
-#nav INPUT[type="submit"] {
-	float: right;
-}
-
-#user TABLE {
+#nav TABLE {
 	width: 150px;
 }
-#user INPUT {
-	width: 50px;
-}
-#user INPUT[type="submit"] {
-	width: 100%;
-}
-#user TD {
+#nav TD {
 	vertical-align: middle;
+}
+#nav INPUT {
+	width: 100%;
+	padding: 0px;
 }
 
 #comments P {

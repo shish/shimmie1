@@ -62,7 +62,7 @@ else if($action == "bulkadd") {
 	
 	header("X-Shimmie-Status: OK - Images Uploaded");
 	$title = "Bulk Upload";
-	$message = "<br><a href='admin.php'>Back</a><br>";
+	$navigation = "<a href='index.php'>Index</a> | <a href='admin.php'>Admin</a><br>";
 	$data = $list;
 	include_once "templates/generic.php";
 }

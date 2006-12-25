@@ -10,15 +10,18 @@ if(!is_null($help)) {
 	$helpblock .= "<div id='help'>$help</div>\n";
 }
 
+if(!is_null($navigation)) {
+	$navblock .= "<h3 onclick=\"toggle('navigate')\">Navigate</h3>\n";
+	$navblock .= "<div id='navigate'>$navigation</div>\n";
+}
+
+if
+
 if(is_null($heading)) $heading = $title;
 
 echo <<<EOD
 <div id="nav">
-	<h3 onclick="toggle('navigate')">Navigate</h3>
-	<div id="navigate">
-		<a href="index.php">index</a>
-	</div>
-
+	$navblock
 	$helpblock
 </div>
 

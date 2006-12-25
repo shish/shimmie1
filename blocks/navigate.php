@@ -20,12 +20,12 @@ class navigate extends block {
 			$pageNav = "<a href='index.php'>Index</a>";
 		}
 		else if($pageType == "tags") {
-			$pageNav = <<<EOD
+			$pageNav = "
 				<a href='index.php'>Index</a> | 
 				<a href='tags.php?mode=alphabet'>Alphabetical</a> | 
 				<a href='tags.php?mode=popular'>Popularity</a> | 
 				<a href='tags.php?mode=map'>Map</a>
-EOD;
+			";
 		}
 		else if($pageType == "index") {
 			global $page, $total_pages, $h_tag_list, $config;
@@ -82,16 +82,22 @@ EOD;
 				$pageNav = "$next_html | $index_html | $prev_html";
 			}
 		}
+		if($pageType == "index" || $pageType == "view") {
+			$searchHtml = "
+				<p><form action='index.php' method='GET'>
+					<input id='searchBox' name='tags' type='text'
+							value='$search_string' autocomplete='off'>
+					<input type='submit' value='Find' style='display: none;'>
+				</form>
+				<div id='search_completions'></div>
+			";
+		}
 
 		return <<<EOD
 	<h3 id="navigate-toggle" onclick="toggle('navigate')">Navigate</h3>
 	<div id="navigate">
 		$pageNav
-		<p><form action="index.php" method="GET">
-			<input id="searchBox" name="tags" type="text" value="$search_string" autocomplete="off">
-			<input type="submit" value="Find" style="display: none;">
-		</form>
-		<div id="search_completions"></div>
+		$searchHtml
 	</div>
 EOD;
 	}
