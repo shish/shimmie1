@@ -47,7 +47,7 @@ $db->SetFetchMode(ADODB_FETCH_ASSOC);
 $config_defaults = Array(
 	'title' => $version,
 	'db_version' => 'pre-0.7.5', // this should be managed by upgrade.php
-	'base_href' => preg_replace('#[^/]+$#', '', "http://".$_SERVER["HTTP_HOST"].$_SERVER['REQUEST_URI']),
+	'base_href' => '',
 	'anon_id' => 0,
 	'dir_images' => 'images',
 	'dir_thumbs' => 'thumbs',
@@ -70,7 +70,7 @@ $config_defaults = Array(
 	'popular_count' => 15,
 	'login_enabled' => true,
 	'image_link' => 'get.php/$id - $tags.$ext',
-	'image_slink' => 'images/$id.$ext',
+	'image_slink' => '$base/images/$id.$ext',
 );
 
 
@@ -95,6 +95,13 @@ function get_config() {
 			$config[$row->fields['name']] = $value;
 		}
 		$row->MoveNext();
+	}
+
+	if(empty($config['base_href'])) {
+		$config['base_href'] = preg_replace(
+			'#[^/]+$#', '',
+			"http://".$_SERVER["HTTP_HOST"].$_SERVER['REQUEST_URI']
+		);
 	}
 
 	return $config;
@@ -622,9 +629,11 @@ class Image {
 
 	function parse_link_template($tmpl, $img) {
 		$safe_tags = preg_replace("/[^a-zA-Z0-9_\- ]/", "", $img->tags);
+		$base_href = get_config('base_href');
 		$tmpl = str_replace('$id',   $img->id,   $tmpl);
 		$tmpl = str_replace('$hash', $img->hash, $tmpl);
 		$tmpl = str_replace('$tags', $safe_tags, $tmpl);
+		$tmpl = str_replace('$base', $base_href, $tmpl);
 		$tmpl = str_replace('$ext',  $img->ext,  $tmpl);
 		return $tmpl;
 	}
