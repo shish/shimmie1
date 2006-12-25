@@ -68,7 +68,7 @@ $h_tag_list = ""; // both
 if($_GET['tags']) {
 	$tags = explode(" ", str_replace("  ", " ", $_GET["tags"]));
 
-	if(count($tags) > 1) $moreHtmlTags = "<meta name='robots' content='noindex,follow'>";
+	if(count($tags) > 1) $extra_headers = "<meta name='robots' content='noindex,follow'>";
 	
 	$search_sql = "";
 
