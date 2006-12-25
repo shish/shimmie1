@@ -96,6 +96,8 @@ else {
 
 $title = "Tags";
 $blocks = get_blocks_html("tags");
-require_once "templates/tags.php";
+$heading = "Tag List";
+$message = "$listMore<div id='taglist'>$tlist</div>";
+require_once "templates/generic.php";
 ?>
 
