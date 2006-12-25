@@ -1,6 +1,9 @@
 <?php
-if($baseurl) {
-	$base_html = "<base href='$baseurl'>";
+if(empty($base_href)) {
+	$base_href = preg_replace(
+		'#[^/]+$#', '',
+		"http://".$_SERVER["HTTP_HOST"].$_SERVER['REQUEST_URI']
+	);
 }
 
 $scripts = glob("scripts/*.js");
@@ -9,25 +12,25 @@ foreach($scripts as $script) {
 	$script_html .= "\t\t<script src='$script' type='text/javascript'></script>\n";
 }
 
-if(!is_null($subtitle)) {
+if(!empty($subtitle)) {
 	$subtitle_html = "<div id='subtitle'>$subtitle</div>";
 }
 
-if(!is_null($navigation)) {
+if(!empty($navigation)) {
 	$navblock .= "<h3 onclick=\"toggle('navigate')\">Navigate</h3>\n";
 	$navblock .= "<div id='navigate'>$navigation</div>\n";
 }
 
-if(!is_null($help)) {
+if(!empty($help)) {
 	$helpblock .= "<h3 onclick=\"toggle('help')\">Help</h3>\n";
 	$helpblock .= "<div id='help'>$help</div>\n";
 }
 
-if(!is_null($data)) {
+if(!empty($data)) {
 	$databox = "<p><textarea cols='80' rows='10'>$data</textarea>";
 }
 
-if(is_null($heading)) $heading = $title;
+if(empty($heading)) $heading = $title;
 
 global $version;
 
@@ -35,7 +38,7 @@ echo <<<EOD
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 	<head>
-		$base_html
+		<base href='$base_href'>
 		<title>$title</title>
 		<link rel="stylesheet" href="style.css" type="text/css">
 		$script_html
