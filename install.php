@@ -32,13 +32,12 @@ session_start(); // hold temp stuff in session
 switch($_GET['stage']) {
 	default:
 		$title = "Shimmie Installer";
-		$heading = "Fill in this form";
 		$blocks["Help"] = "
 			Shimmie is developed with MySQL, and support
 			for it is included. Other databases may work,
 			but you'll need to add the appropriate ADOdb
 			drivers yourself.";
-		$message = 
+		$body["Fill in this form"] = 
 			makeHtml("<form action='install.php?stage=createdb' method='POST'>").
 			makeHtml("<table style='width: 400px;'>").
 			makeRow("Database Config").
@@ -64,8 +63,7 @@ switch($_GET['stage']) {
 		$db = NewADOConnection($dsn);
 		if(!$db) {
 			$title = "Error";
-			$heading = "Couldn't connect to database";
-			$message = "Couldn't connect to \"$dsn\".<p><a href='install.php'>Back</a>";
+			$body["Error"] = "Couldn't connect to \"$dsn\".<p><a href='install.php'>Back</a>";
 			require_once "templates/generic.php";
 			exit;
 		}

@@ -25,7 +25,7 @@ function up_login() {
 		header("X-Shimmie-Status: OK - Logged In");
 		header("Location: user.php");
 		$title = "Login OK";
-		$message = "<a href='user.php'>Continue</a>";
+		$body["Login OK"] = "<a href='user.php'>Continue</a>";
 		require_once "templates/generic.php";
 	}
 	else if($_POST['create']) {
@@ -35,20 +35,20 @@ function up_login() {
 
 			header("X-Shimmie-Status: OK");
 			$title = "Account Created";
-			$message = "Now you can log in with that name and password";
+			$body["Account Created"] = "Now you can log in with that name and password";
 			require_once "templates/generic.php";
 		}
 		else {
 			header("X-Shimmie-Status: Error - Name Taken");
 			$title = "Name Taken";
-			$message = "Somebody is already using that username";
+			$body["Name Taken"] = "Somebody is already using that username";
 			require_once "templates/generic.php";
 		}
 	}
 	else {
 		header("X-Shimmie-Status: Error - Bad Password");
 		$title = "Login Failed";
-		$message = "<a href='index.php'>Back to index</a>";
+		$body["Login Failed"] = "<a href='index.php'>Back to index</a>";
 		require_once "templates/generic.php";
 	}
 }
@@ -66,15 +66,13 @@ if(is_null($_GET['action'])) {
 	header("X-Shimmie-Status: OK - Settings Shown");
 	$title = html_escape($user->name)."'s settings";
 	$blocks = get_blocks_html("user");
-	$heading = "User Settings";
 	$days_old = $user->stat_days_old();
 	$image_count = $user->stat_count_images();
 	$comment_count = $user->stat_count_comments();
 	$image_rate = (int)($image_count / $days_old);
 	$comment_rate = (int)($comment_count / $days_old);
-	$message = "
-		Things will go here as soon as there's something to set...
-		<h3>User Stats</h3>
+	$body["User Settings"] = "Things will go here as soon as there's something to set...";
+	$body["User Stats"] = "
 		<br>Images uploaded: $image_count ($image_rate / day)
 		<br>Comments made: $comment_count ($comment_rate / day)
 	";
@@ -89,18 +87,18 @@ else if($_GET['action'] == "pass") {
 			$db->Execute("UPDATE users SET pass=? WHERE pass=? AND id=?", Array($new1, $old1, $user->id));
 			
 			$title = "Password Changed";
-			$message = "<a href='user.php'>Back</a>";
+			$body["Password Changed"] = "<a href='user.php'>Back</a>";
 			require_once "templates/generic.php";
 		}
 		else {
 			$title = "Password Error";
-			$message = "New passwords don't match";
+			$body["Error"] = "New passwords don't match";
 			require_once "templates/generic.php";
 		}
 	}
 	else {
 		$title = "Password Error";
-		$message = "Wrong original password";
+		$body["Error"] = "Wrong original password";
 		require_once "templates/generic.php";
 	}
 }

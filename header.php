@@ -123,7 +123,7 @@ function print_ip_ban($ip, $date, $reason) {
 
 	header("X-Shimmie-Status: Error - IP Banned");
 	$title = "IP Banned";
-	$message = "IP $s_ip was banned at $s_date for $s_reason";
+	$body["IP Banned"] = "IP $s_ip was banned at $s_date for $s_reason";
 	require_once "templates/generic.php";
 }
 
@@ -142,7 +142,7 @@ function admin_or_die() {
 	if($user->isAdmin() != true) {
 		header("X-Shimmie-Status: Error - Not Admin");
 		$title = "Not Admin";
-		$message = "You need to have administrator rights to view this page";
+		$body["Not Admin"] = "You need to have administrator rights to view this page";
 		require_once "templates/generic.php";
 		exit;
 	}
@@ -153,7 +153,7 @@ function user_or_die() {
 	if($user->isUser() != true) {
 		header("X-Shimmie-Status: Error - Not Logged In");
 		$title = "Not Logged In";
-		$message = "You need to be logged in";
+		$body["Not Logged In"] = "You need to be logged in";
 		require_once "templates/generic.php";
 		exit;
 	}
@@ -164,11 +164,11 @@ function defined_or_die($var, $name=null) {
 		header("X-Shimmie-Status: Error - Variable Not Set");
 		$title = "Variable Not Set";
 		if(is_null($name)) {
-			$message = "variable not specified";
+			$body["Error"] = "variable not specified";
 		}
 		else {
 			$s_name = html_escape($name);
-			$message = "not set: '$s_name'";
+			$body["Error"] = "not set: '$s_name'";
 		}
 		require_once "templates/generic.php";
 		exit;

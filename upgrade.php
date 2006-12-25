@@ -23,7 +23,7 @@ if($_GET['do_upgrade'] != 'yes') {
 }
 else {
 	$title = "Updating...";
-	$message = "Currently at DB version $db_current, updating to $db_version...";
+	$body["The Plan"] = "Currently at DB version $db_current, updating to $db_version...";
 	$update_log = "Update log:\n";
 
 	/*

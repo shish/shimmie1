@@ -16,12 +16,6 @@ if(!empty($subtitle)) {
 	$subtitle_html = "<div id='subtitle'>$subtitle</div>";
 }
 
-if(!empty($message) || !empty($data)) {
-	$body[$heading] = "
-			$message
-	";
-}
-
 foreach($blocks as $heading => $content) {
 	if(!empty($content)) {
 		$blocks_html .= "<h3 id='$heading-toggle' onclick=\"toggle('$heading')\">$heading</h3>\n";
