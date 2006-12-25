@@ -89,12 +89,10 @@ else if($action == "replacetag") {
  * bulk add from a folder
  */
 else if($action == "bulkadd") {
-	$list = add_dir(defined_or_die($_POST["dir"]));
-	
 	header("X-Shimmie-Status: OK - Images Uploaded");
 	$title = "Bulk Upload";
-	$navigation = "<a href='index.php'>Index</a> | <a href='admin.php'>Admin</a><br>";
-	$data = $list;
+	$blocks["Navigate"] = "<a href='index.php'>Index</a> | <a href='admin.php'>Admin</a><br>";
+	$data = add_dir(defined_or_die($_POST["dir"]));
 	include_once "templates/generic.php";
 }
 

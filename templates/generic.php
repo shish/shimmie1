@@ -16,14 +16,6 @@ if(!empty($subtitle)) {
 	$subtitle_html = "<div id='subtitle'>$subtitle</div>";
 }
 
-if(!empty($navigation)) {
-	$blocks["Navigate"] = $navigation;
-}
-
-if(!empty($help)) {
-	$blocks["Help"] = $help;
-}
-
 if(!empty($message) || !empty($data)) {
 	if(!empty($data)) {
 		$databox = "<p><textarea cols='80' rows='10'>$data</textarea>";

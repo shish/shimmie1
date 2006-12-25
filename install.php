@@ -33,7 +33,7 @@ switch($_GET['stage']) {
 	default:
 		$title = "Shimmie Installer";
 		$heading = "Fill in this form";
-		$help = "
+		$blocks["Help"] = "
 			Shimmie is developed with MySQL, and support
 			for it is included. Other databases may work,
 			but you'll need to add the appropriate ADOdb
