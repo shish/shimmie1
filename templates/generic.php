@@ -15,12 +15,11 @@ if(!is_null($navigation)) {
 	$navblock .= "<div id='navigate'>$navigation</div>\n";
 }
 
-if
-
 if(is_null($heading)) $heading = $title;
 
 echo <<<EOD
 <div id="nav">
+	$blocks
 	$navblock
 	$helpblock
 </div>

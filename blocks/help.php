@@ -11,7 +11,8 @@ class help extends block {
 			return <<<EOD
 			<h3 id="help-toggle" onclick="toggle('help')">Help</h3>
 			<div id="help">
-				Hover over an option for help
+				Explanations for each option are given on
+				<a href='http://trac.shishnet.org/shimmie/wiki/Settings'>the shimmie wiki</a>
 			</div>
 			<script>
 			function setHelp(text) {

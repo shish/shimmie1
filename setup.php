@@ -40,11 +40,10 @@ $configOptions1 .= makeOptHidden("anon_id");
  */
 $configOptions1 .= makeRow("Global");
 $configOptions1 .= makeOptText("Title", "title", strlen($config["title"]) > 0);
-$configOptions1 .= makeOptText("Base URL", "base_href", null,
-                  "explicitly set the base URL; useful for mod_rewrite-fu");
+$configOptions1 .= makeOptText("Base URL", "base_href", null);
 
 $configOptions1 .= makeRow();
-$configOptions1 .= makeRow("Directories", "Make sure the web server can write to these!");
+$configOptions1 .= makeRow("Directories");
 $configOptions1 .= makeOptText("Images", "dir_images", is_writable($config["dir_images"]));
 $configOptions1 .= makeOptText("Thumbnails", "dir_thumbs", is_writable($config["dir_thumbs"]));
 
@@ -52,9 +51,7 @@ $configOptions2 .= makeRow();
 $configOptions2 .= makeRow("Index Page");
 $configOptions2 .= makeOptText("Width", "index_width", $config["index_width"] > 0);
 $configOptions2 .= makeOptText("Height", "index_height", $config["index_height"] > 0);
-$configOptions2 .= makeOptCheck("Inverted Index", "index_invert",
-                  "On: Page 1 is always the newest, higher numbered pages have older images.".
-				  "<p>Off: When page 1 is full, new images go on page 2, then on page 3, etc.");
+$configOptions2 .= makeOptCheck("Inverted Index", "index_invert");
 
 $configOptions2 .= makeRow();
 $configOptions2 .= makeRow("Thumbnails");
@@ -63,12 +60,10 @@ $configOptions2 .= makeOptText("Height",    "thumb_h", $config["thumb_h"] > 0);
 $configOptions2 .= makeOptText("Quality %", "thumb_q", $config["thumb_q"] > 0 && $config["thumb_q"] <= 100);
 
 $configOptions2 .= makeRow();
-$configOptions2 .= makeRow("View Page", "Links can be made nicer by changing these, then adding some mod_rewrite rules in a .htaccess");
-$configOptions2 .= makeOptCheck("Scale by default", "view_scale", "whether or not images should fit the page");
-$configOptions2 .= makeOptText("Full link", "image_link", preg_match('/\$id/', $config['image_link']),
-                   'Available variables:<br/>$id<br/>$hash<br/>$tags<br/>$ext');
-$configOptions2 .= makeOptText("Short link", "image_slink", preg_match('/\$id/', $config['image_slink']),
-                   'Available variables:<br/>$id<br/>$hash<br/>$tags<br/>$ext');
+$configOptions2 .= makeRow("View Page");
+$configOptions2 .= makeOptCheck("Scale by default", "view_scale");
+$configOptions2 .= makeOptText("Full link", "image_link", preg_match('/\$id/', $config['image_link']));
+$configOptions2 .= makeOptText("Short link", "image_slink", preg_match('/\$id/', $config['image_slink']));
 
 $configOptions2 .= makeRow();
 $configOptions2 .= makeRow("Tags Page");
@@ -88,13 +83,25 @@ $configOptions1 .= makeOptText("Recent Comments", "recent_count", $config['recen
 $configOptions1 .= makeOptText("Popular Tags", "popular_count", $config['popular_count'] > 0);
 
 $configOptions1 .= makeRow();
-$configOptions1 .= makeRow("Flood Protection", "No more than [count] comments per [window] minutes will be allowed");
+$configOptions1 .= makeRow("Flood Protection");
 $configOptions1 .= makeOptText("Comment window", "comment_window", $config["comment_window"] > 0);
 $configOptions1 .= makeOptText("Comment count", "comment_limit", $config["comment_limit"] > 0);
 
 $title = "Shimmie Setup";
 $blocks = get_blocks_html("setup");
-require_once "templates/setup.php";
+$heading = "Fill in this form";
+$message = "
+	<form action='setup.php' method='POST'>
+		<table style='width: 800px;' border='1'>
+			<tr>
+				<td><table style='width: 400px;'>$configOptions1</table></td>
+				<td><table style='width: 400px;'>$configOptions2</table></td>
+			</tr>
+			<tr><td colspan='2'><input type='hidden' name='action' value='set'><input type='submit' value='Set Settings'></td></tr>
+		</table>
+	</form>
+";
+require_once "templates/generic.php";
 
 
 /* =================================================================== */
@@ -102,19 +109,13 @@ require_once "templates/setup.php";
 /*
  * Quick functions
  */
-function makeRow($content = "&nbsp;", $help=false) {
-	if($help) {
-		$helptag = " onMouseOver='setHelp(\"$help\")' class='helpable'";
-	}
+function makeRow($content = "&nbsp;") {
 	return "<tr><td colspan='3'><span$helptag><b>$content</b></span></td></tr>\n";
 }
-function makeOptText($friendly, $varname, $ok=null, $help=false) {
+function makeOptText($friendly, $varname, $ok=null) {
 	global $config;
 	$okv = (is_null($ok) ? "" : ($ok ? "ok" : "bad"));
 	$default = $config[$varname];
-	if($help) {
-		$helptag = " onMouseOver='setHelp(\"$help\")' class='helpable'";
-	}
 	return "
 		<tr>
 			<td><span$helptag>$friendly</span></td>
@@ -129,12 +130,9 @@ function makeOptHidden($varname) {
 		<input type='hidden' name='$varname' value='$default'>
 	";	
 }
-function makeOptCheck($friendly, $varname, $help=false) {
+function makeOptCheck($friendly, $varname) {
 	global $config;
 	$default = $config[$varname] ? " checked" : "";
-	if($help) {
-		$helptag = " onMouseOver='setHelp(\"$help\")' class='helpable'";
-	}
 	return "
 		<tr>
 			<td><span$helptag>$friendly</span></td>
@@ -142,11 +140,8 @@ function makeOptCheck($friendly, $varname, $help=false) {
 		</tr>
 	";
 }
-function makeOptCombo($friendly, $varname, $options, $help=false) {
+function makeOptCombo($friendly, $varname, $options) {
 	global $config;
-	if($help) {
-		$helptag = " onMouseOver='setHelp(\"$help\")' class='helpable'";
-	}
 	$html = "
 		<tr>
 			<td><span$helptag>$friendly</span></td>
