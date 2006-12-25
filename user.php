@@ -66,10 +66,19 @@ if(is_null($_GET['action'])) {
 	header("X-Shimmie-Status: OK - Settings Shown");
 	$title = html_escape($user->name)."'s settings";
 	$blocks = get_blocks_html("user");
+	$heading = "User Settings";
 	$days_old = $user->stat_days_old();
 	$image_count = $user->stat_count_images();
 	$comment_count = $user->stat_count_comments();
-	require_once "templates/user.php";
+	$image_rate = (int)($image_count / $days_old);
+	$comment_rate = (int)($comment_count / $days_old);
+	$message = "
+		Things will go here as soon as there's something to set...
+		<h3>User Stats</h3>
+		<br>Images uploaded: $image_count ($image_rate / day)
+		<br>Comments made: $comment_count ($comment_rate / day)
+	";
+	require_once "templates/generic.php";
 }
 else if($_GET['action'] == "pass") {
 	$old1 = md5(strtolower($user->name) . $_POST['old1']);
