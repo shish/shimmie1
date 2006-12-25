@@ -17,12 +17,8 @@ if(!empty($subtitle)) {
 }
 
 if(!empty($message) || !empty($data)) {
-	if(!empty($data)) {
-		$databox = "<p><textarea cols='80' rows='10'>$data</textarea>";
-	}
 	$body[$heading] = "
 			$message
-			$databox
 	";
 }
 

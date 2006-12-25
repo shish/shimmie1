@@ -15,16 +15,16 @@ if($_GET['do_upgrade'] != 'yes') {
 	$title = "Database Update Needed";
 	$body["Explanation"] = "
 	    DB is at version $db_current, should be $db_version
-		<p>Please make sure you have done a database backup, then
+		<p>Please make sure you have done a update_logbase backup, then
 		click <a href='index.php?do_upgrade=yes'>here</a> to 
-		update the database schema.";
+		update the update_logbase schema.";
 	require_once "templates/generic.php";
 	exit;
 }
 else {
 	$title = "Updating...";
 	$message = "Currently at DB version $db_current, updating to $db_version...";
-	$data = "Update log:\n";
+	$update_log = "Update log:\n";
 
 	/*
 	 * Yay for falling through; this switch jumps to the current
@@ -33,18 +33,18 @@ else {
 	 */
 	switch($config['db_version']) {
 		default:
-			$data .= "At version ummmm... wtf? Something broke :|\n";
-			$data .= "Attempting DB upgrades from the start...\n";
+			$update_log .= "At version ummmm... wtf? Something broke :|\n";
+			$update_log .= "Attempting DB upgrades from the start...\n";
 
 		case 'pre-0.7.5': // the default version
 			$db->StartTrans();
-			$data .= "At version pre-0.7.5\n";
+			$update_log .= "At version pre-0.7.5\n";
 			$users_cols = $db->MetaColumnNames("users");
 			if(isset($users_cols['JOINDATE'])) {
-				$data .= "Users already has a joindate column; skipping update\n";
+				$update_log .= "Users already has a joindate column; skipping update\n";
 			}
 			else {
-				$data .= "Adding joindate to users\n";
+				$update_log .= "Adding joindate to users\n";
 				$db->Execute("ALTER TABLE users ADD COLUMN joindate DATETIME NOT NULL");
 				$db->Execute("UPDATE users SET joindate=now()");
 			}
@@ -53,7 +53,7 @@ else {
 		
 		case '0.7.5':
 			$db->StartTrans();
-			$data .= "At version 0.7.5\n";
+			$update_log .= "At version 0.7.5\n";
 			// do 0.7.5 -> 0.7.6 stuff
 			// update_version('0.7.6');
 			$db->CommitTrans();
@@ -67,7 +67,7 @@ else {
 
 			$tags_cols = $db->MetaColumnNames("tags");
 			if(isset($tags_cols['ID'])) {
-				$data .= "You seem to already be using the new tags schema...";
+				$update_log .= "You seem to already be using the new tags schema...";
 			}
 			else {
 				update_status("Moving tags to tags_old");
@@ -120,6 +120,7 @@ else {
 			break;
 	}
 	
+	$body["Update Log"] = gen_textarea($update_log);
 	require_once "templates/generic.php";
 	exit;
 }

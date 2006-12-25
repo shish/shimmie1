@@ -411,6 +411,11 @@ function add_dir($base, $subdir="") {
 	return $list;
 }
 
+function gen_textarea($text) {
+	$h_text = html_escape($text);
+	return "<p><textarea cols='80' rows='10'>$h_text</textarea>";
+}
+
 /*
  * get blocks for a page
  */

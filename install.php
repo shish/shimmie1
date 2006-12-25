@@ -80,21 +80,23 @@ switch($_GET['stage']) {
 	case 'writeconfig':
 		$dsn = $_SESSION['database_dsn'];
 		
-		$data .= "<?php\n";
-		$data .= "\$config['database_dsn'] = '$dsn';\n";
-		$data .= "?>";
+		$file_content .= "<?php\n";
+		$file_content .= "\$config['database_dsn'] = '$dsn';\n";
+		$file_content .= "?>";
 		
-		if(is_writable("./") && write_file("config.php", $data)) {
+		if(is_writable("./") && write_file("config.php", $file_content)) {
 			header("Location: setup.php");
 			echo "Config written to 'config.php'<p><a href='setup.php'>Continue</a>";
 		}
 		else {
 			$title = "Error";
-			$message = "The web server isn't allowed to write to the config file; please copy
-			            the text below, save it as 'config.php', and upload it into the shimmie
-			            folder manually.
+			$body["Error"] = "
+				The web server isn't allowed to write to the config file; please copy
+			    the text below, save it as 'config.php', and upload it into the shimmie
+			    folder manually.
 						
-						<p>One done, <a href='setup.php'>Continue</a>";
+				<p>One done, <a href='setup.php'>Continue</a>";
+			$body[] = gen_textarea($file_content);
 			require_once "templates/generic.php";
 		}
 		break;

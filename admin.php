@@ -92,7 +92,7 @@ else if($action == "bulkadd") {
 	header("X-Shimmie-Status: OK - Images Uploaded");
 	$title = "Bulk Upload";
 	$blocks["Navigate"] = "<a href='index.php'>Index</a> | <a href='admin.php'>Admin</a><br>";
-	$data = add_dir(defined_or_die($_POST["dir"]));
+	$body["Bulk Add Log"] = gen_textarea(add_dir(defined_or_die($_POST["dir"])));
 	include_once "templates/generic.php";
 }
 
