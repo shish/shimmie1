@@ -97,13 +97,6 @@ function get_config() {
 		$row->MoveNext();
 	}
 
-	if(empty($config['base_href'])) {
-		$config['base_href'] = preg_replace(
-			'#[^/]+$#', '',
-			"http://".$_SERVER["HTTP_HOST"].$_SERVER['REQUEST_URI']
-		);
-	}
-
 	return $config;
 }
 
