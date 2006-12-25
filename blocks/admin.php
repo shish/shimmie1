@@ -6,17 +6,16 @@
  */
 
 class admin extends block {
+	function get_title() {
+		return "Admin";
+	}
+
 	function get_html($pageType) {
 		if($pageType == "view") {
 			global $image, $user;
 
 			if($user->isAdmin()) {
-				return <<<EOD
-				<h3 id="admin-toggle" onclick="toggle('admin')">Admin</h3>
-				<div id="admin">
-					<a href="metablock.php?block=admin&action=rmimage&image_id={$image->id}">Delete Image</a>
-				</div>
-EOD;
+				return "<a href='metablock.php?block=admin&action=rmimage&image_id={$image->id}'>Delete Image</a>";
 			}
 		}
 	}

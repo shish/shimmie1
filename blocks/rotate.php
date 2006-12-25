@@ -6,6 +6,10 @@
  */
 
 class rotate extends block {
+	function get_title() {
+		return "Rotate Image";
+	}
+
 	function get_html($pageType) {
 		return "";
 		
@@ -13,8 +17,6 @@ class rotate extends block {
 			global $image;
 
 			return <<<EOD
-	<h3 id="rotate-toggle" onclick="toggle('rotate')">Rotate Image</h3>
-	<div id="rotate">
 		<form action="metablock.php" method="POST">
 			<input name="block" type="hidden" value="rotate">
 			<input name="image_id" type="hidden" value="$image->id">
@@ -23,7 +25,6 @@ class rotate extends block {
 			<br><input type="radio" name="angle" value="180"> 180
 			<br><input type="submit" value="Rotate">
 		</form>
-	</div>
 EOD;
 		}
 	}

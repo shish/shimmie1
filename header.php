@@ -442,14 +442,15 @@ function get_blocks() {
 		$blocks[$n] = $block;
 	}
 
+	ksort($blocks);
+
 	return $blocks;
 }
 
 function block_array_to_html($blocks, $pageType) {
-	$allBlocks = "";
-	ksort($blocks);
+	$allBlocks = Array();
 	foreach($blocks as $block) {
-		$allBlocks .= $block->get_html($pageType);
+		$allBlocks[$block->get_title()] = $block->get_html($pageType);
 	}
 	return $allBlocks;
 }

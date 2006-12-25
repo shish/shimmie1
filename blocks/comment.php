@@ -11,6 +11,10 @@ define(ERR_COMMENT_NO_ANON, "Anonymous commenting disabled");
 define(ERR_COMMENT_NOT_ADMIN, "You need to be an admin to do that");
 
 class comment extends block {
+	function get_title() {
+		return "Comments";
+	}
+
 	function query_to_array($query) {
 		global $db;
 		$result = $db->Execute($query);
@@ -104,9 +108,6 @@ class comment extends block {
 
 	function get_html($pageType) {
 		if($pageType == "index" || $pageType == "view") {
-			$commentBlock = "<h3 id=\"comments-toggle\" onclick=\"toggle('comments')\">Comments</h3>";
-			$commentBlock .= "<div id=\"comments\">";
-
 			if($pageType == "index") {
 				$comments = $this->get_recent_comments(-1);
 				foreach($comments as $comment) {
@@ -120,8 +121,6 @@ class comment extends block {
 				}
 				$commentBlock .= $this->get_postbox_html();
 			}
-		
-			$commentBlock .= "</div>\n";
 
 			return $commentBlock;
 		}

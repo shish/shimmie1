@@ -6,6 +6,10 @@
  */
 
 class refine extends block {
+	function get_title() {
+		return "Refine Search";
+	}
+
 	function get_html($pageType) {
 		global $h_tag_list, $config, $db;
 	
@@ -32,9 +36,6 @@ class refine extends block {
 				ORDER BY count
 				DESC LIMIT ?
 			";
-
-			$html = "<h3 id=\"refine-toggle\" onclick=\"toggle('refine')\">Refine Search</h3>\n";
-			$html .= "<div id='refine'>\n";
 			
 			$n = 0;
 			$result = $db->Execute($query, Array($config['popular_count']));
@@ -56,8 +57,6 @@ class refine extends block {
 			}
 			$result->Close();
 			
-			$html .= "</div>";
-
 			return $html;
 		}
 	}

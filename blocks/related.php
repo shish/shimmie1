@@ -6,6 +6,10 @@
  */
 
 class related extends block {
+	function get_title() {
+		return "Related Tags";
+	}
+
 	function get_html($pageType) {
 		if($pageType == "view") {
 			global $image, $config, $db;
@@ -25,9 +29,6 @@ class related extends block {
 				LIMIT ?
 			";
 
-			$html = "<h3 id=\"related-toggle\" onclick=\"toggle('related')\">Related Tags</h3>\n";
-			$html .= "<div id=\"related\">\n";
-			
 			$n = 0;
 			$result = $db->Execute($query, Array($image->id, $config['popular_count']));
 			while(!$result->EOF) {
@@ -40,8 +41,6 @@ class related extends block {
 			}
 			$result->Close();
 			
-			$html .= "</div>";
-
 			return $html;
 		}
 	}

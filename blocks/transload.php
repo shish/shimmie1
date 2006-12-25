@@ -6,6 +6,10 @@
  */
  
 class transload extends block {
+	function get_title() {
+		return "Transload";
+	}
+
 	function get_html($pageType) {
 		return ""; // this block is very beta
 
@@ -23,15 +27,12 @@ class transload extends block {
 				               " onchange=\"showUp('trans".($i+1)."')\" type='text'>\n";
 			}
 			return <<<EOD
-				<h3 id="transload-toggle" onclick="toggle('transload')">Transload</h3>
-				<div id="transload">
 					<form enctype='multipart/form-data' action='metablock.php?block=transload' method='post'>
 						<!-- $uploadList -->
 						<input name='url' type='text'>
 						<input name='tags' type='text' value='tagme'>
 						<input type='submit' value='Post'>
 					</form>
-				</div>
 EOD;
 		}
 	}

@@ -17,13 +17,11 @@ if(!empty($subtitle)) {
 }
 
 if(!empty($navigation)) {
-	$navblock .= "<h3 onclick=\"toggle('navigate')\">Navigate</h3>\n";
-	$navblock .= "<div id='navigate'>$navigation</div>\n";
+	$blocks["Navigate"] = $navigation;
 }
 
 if(!empty($help)) {
-	$helpblock .= "<h3 onclick=\"toggle('help')\">Help</h3>\n";
-	$helpblock .= "<div id='help'>$help</div>\n";
+	$blocks["Help"] = $help;
 }
 
 if(!empty($message) || !empty($data)) {
@@ -34,6 +32,13 @@ if(!empty($message) || !empty($data)) {
 			$message
 			$databox
 	";
+}
+
+foreach($blocks as $heading => $content) {
+	if(!empty($content)) {
+		$blocks_html .= "<h3 id='$heading-toggle' onclick=\"toggle('$heading')\">$heading</h3>\n";
+		$blocks_html .= "<div id='$heading'>$content</div>\n";
+	}
 }
 
 foreach($body as $heading => $content) {
@@ -64,9 +69,7 @@ echo <<<EOD
 		$subtitle_html
 		
 		<div id="nav">
-			$blocks
-			$navblock
-			$helpblock
+			$blocks_html
 		</div>
 
 		<div id="body">

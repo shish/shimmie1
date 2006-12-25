@@ -4,7 +4,12 @@
  *
  * A block to edit image tags
  */
+
 class edit_tags extends block {
+	function get_title() {
+		return "Edit Tags";
+	}
+
 	function get_html($pageType) {
 		if($pageType == "view") {
 			global $image, $user;
@@ -31,26 +36,20 @@ class edit_tags extends block {
 			return confirmed;
 		}
 	</script>
-	<h3 id="edit_tags-toggle" onclick="toggle('edit_tags')">Edit Tags</h3>
-	<div id="edit_tags">
 		<form onSubmit="return tagEditConfirm();" action="metablock.php?block=edit_tags&amp;action=update" method="POST">
 			<input name="image_id" type="hidden" value="$image->id">
 			<input name="tags" type="text" value="$h_tags">
 			<!-- <input type="submit" value="Set"> -->
 		</form>
-	</div>
 EOD;
 			}
 			else {
 				return <<<EOD
-	<h3 id="edit_tags-toggle" onclick="toggle('edit_tags')">Edit Tags</h3>
-	<div id="edit_tags">
 		<form action="metablock.php?block=edit_tags&amp;action=update" method="POST">
 			<input name="image_id" type="hidden" value="$image->id">
 			<input name="tags" type="text" value="$h_tags">
 			<!-- <input type="submit" value="Set"> -->
 		</form>
-	</div>
 EOD;
 			}
 		}

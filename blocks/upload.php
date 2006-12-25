@@ -6,6 +6,10 @@
  */
 
 class upload extends block {
+	function get_title() {
+		return "Upload";
+	}
+
 	function get_html($pageType) {
 		global $user, $config;
 
@@ -21,8 +25,6 @@ class upload extends block {
 					"id='data$i' name='data$i' $style onchange=\"showUp('data".($i+1)."')\" type='file'>\n";
 			}
 			return <<<EOD
-				<h3 id="upload-toggle" onclick="toggle('upload')">Upload</h3>
-				<div id="upload">
 					<form enctype='multipart/form-data' action='metablock.php?block=upload' method='post'>
 						<input type='hidden' name='max_file_size' value='$maxSize'>
 						$uploadList
@@ -30,7 +32,6 @@ class upload extends block {
 						<input type='submit' value='Post'>
 					</form>
 					<div id="upload_completions" style="clear:both;"></div>
-				</div>
 EOD;
 		}
 	}

@@ -6,6 +6,10 @@
  */
 
 class navigate extends block {
+	function get_title() {
+		return "Navigate";
+	}
+
 	function get_html($pageType) {
 		global $h_tag_list;
 
@@ -93,13 +97,7 @@ class navigate extends block {
 			";
 		}
 
-		return <<<EOD
-	<h3 id="navigate-toggle" onclick="toggle('navigate')">Navigate</h3>
-	<div id="navigate">
-		$pageNav
-		$searchHtml
-	</div>
-EOD;
+		return $pageNav . $searchHtml;
 	}
 
 	function get_priority() {

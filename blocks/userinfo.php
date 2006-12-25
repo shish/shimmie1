@@ -5,8 +5,11 @@
  * Show either login prompt, or links to user info
  */
 
-
 class userinfo extends block {
+	function get_title() {
+		return "User Info";
+	}
+
 	function get_html($pageType) {
 		global $user, $config;
 		
@@ -16,8 +19,6 @@ class userinfo extends block {
 
 		if($user->isAnonymous()) {
 			return <<<EOD
-			<h3 id="user-toggle" onclick="toggle('user')">User Login</h3>
-			<div id="user">
 				<form action="user.php?action=login" method="POST">
 					<table border="1" summary="Login Form">
 					
@@ -27,7 +28,6 @@ class userinfo extends block {
 						<tr><td colspan="2"><input type="submit" name="gobu" value="Log In"></td></tr>
 					</table>
 				</form>
-			</div>
 EOD;
 		}
 		else {
@@ -39,13 +39,10 @@ EOD;
 				$extra = "";
 			}
 			return <<<EOD
-			<h3 onclick="toggle('user')">User Info</h3>
-			<div id="user">
 				Logged in as $user->name
 				<br/><a href='user.php'>User Config</a>
 				$extra
 				<br/><a href='user.php?action=logout'>Log Out</a>
-			</div>
 EOD;
 		}
 	}

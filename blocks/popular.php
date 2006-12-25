@@ -6,6 +6,10 @@
  */
 
 class popular extends block {
+	function get_title() {
+		return "Popular Tags";
+	}
+
 	function get_html($pageType) {
 		global $htmlSafeTags, $config, $db;
 	
@@ -17,9 +21,6 @@ class popular extends block {
 				ORDER BY count DESC
 				LIMIT ?
 			";
-
-			$html .= "<h3 id='popular-toggle' onclick=\"toggle('popular')\">Popular Tags</h3>\n";
-			$html .= "<div id='popular'>\n";
 
 			$n = 0;
 			$result = $db->Execute($query, Array($config['popular_count']));
@@ -35,7 +36,6 @@ class popular extends block {
 			$result->Close();
 
 			$html .= "<p><a href='tags.php'>Full List &gt;&gt;&gt;</a>\n";
-			$html .= "</div>";
 
 			return $html;
 		}
