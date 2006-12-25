@@ -19,11 +19,8 @@ if(!empty($image->slink)) {
 
 $title = html_escape($image->tags);
 $blocks = get_blocks_html("view");
-$heading = "Image";
-$message = "
-	<img onclick='scale(this)' src='{$image->link}' alt='{$image->tags}' $scale>
-	$slink_html
-	<br/>Uploaded by {$image->owner}
-";
+$body["Image"] = "<img onclick='scale(this)' src='{$image->link}' alt='{$image->tags}' $scale>";
+$body[] = $slink_html;
+$body[] = "<br/>Uploaded by {$image->owner}";
 require_once "templates/generic.php";
 ?>

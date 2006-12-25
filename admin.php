@@ -30,8 +30,7 @@ if(is_null($action)) {
 		$row->MoveNext();
 	}
 
-	$heading = "Mass Tag Edit";
-	$message = <<<EOD
+	$body["Mass Tag Edit"] = <<<EOD
 	<form action="admin.php?action=replacetag" method="POST">
 		<table style="width: 300px">
 			<tr><td>Replace tag<td><input name='search' type='text'></tr>
@@ -39,8 +38,9 @@ if(is_null($action)) {
 			<tr><td colspan="2"><input type='submit' value='Replace'></td></tr>
 		</table>
 	</form>
+EOD;
 	
-	<h3>IP Ban / Restore</h3>
+	$body["IP Ban / Restore"] = <<<EOD
 	<form action="admin.php?action=addipban" method="POST">
 		<table style="width: 300px">
 			<tr><td>IP<td><input name='ip' type='text'></tr>
@@ -49,8 +49,9 @@ if(is_null($action)) {
 		</table>
 	</form>
 	$banned_ip_list
+EOD;
 
-	<h3>Add Folder</h3>
+	$body["Add Folder"] = <<<EOD
 	<form action="admin.php?action=bulkadd" method="POST">
 		<table style="width: 300px">
 			<tr><td colspan="2">subfolder names will be used as tags</td></tr>

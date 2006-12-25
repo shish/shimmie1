@@ -13,7 +13,8 @@ $db_current = $config['db_version'];
 
 if($_GET['do_upgrade'] != 'yes') {
 	$title = "Database Update Needed";
-	$message = "DB is at version $db_current, should be $db_version
+	$body["Explanation"] = "
+	    DB is at version $db_current, should be $db_version
 		<p>Please make sure you have done a database backup, then
 		click <a href='index.php?do_upgrade=yes'>here</a> to 
 		update the database schema.";

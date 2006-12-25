@@ -290,9 +290,9 @@ function get_title_html($title, $page) {
 
 $title = get_title_html($h_title, $page);
 $subtitle = $h_subtitle;
-$heading = "List";
 $image_table = query_to_image_table($list_query, $start_pad);
 $blocks = get_blocks_html("index");
-$message = "$image_table <div id='pagelist'>$paginator</div>";
+$body["Image List"] = $image_table;
+$body[] = "<div id='pagelist'>$paginator</div>";
 require_once "templates/generic.php";
 ?>

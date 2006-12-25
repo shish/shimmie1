@@ -26,9 +26,23 @@ if(!empty($help)) {
 	$helpblock .= "<div id='help'>$help</div>\n";
 }
 
-if(!empty($data)) {
-	$databox = "<p><textarea cols='80' rows='10'>$data</textarea>";
+if(!empty($message) || !empty($data)) {
+	if(!empty($data)) {
+		$databox = "<p><textarea cols='80' rows='10'>$data</textarea>";
+	}
+	$body[$heading] = "
+			$message
+			$databox
+	";
 }
+
+foreach($body as $heading => $content) {
+	if(is_string($heading)) $body_html .= "<h3>$heading</h3>";
+	$body_html .= $content;
+}
+
+
+
 
 if(empty($heading)) $heading = $title;
 
@@ -40,7 +54,7 @@ echo <<<EOD
 	<head>
 		<base href='$base_href'>
 		<title>$title</title>
-		<link rel="stylesheet" href="style.css" type="text/css">
+		<link rel="stylesheet" href="$base_href/style.css" type="text/css">
 		$script_html
 		$extra_headers
 	</head>
@@ -56,9 +70,7 @@ echo <<<EOD
 		</div>
 
 		<div id="body">
-			<h3>$heading</h3>
-			$message
-			$databox
+			$body_html
 		</div>
 
 		<div id="footer">

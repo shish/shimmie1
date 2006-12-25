@@ -89,8 +89,7 @@ $configOptions1 .= makeOptText("Comment count", "comment_limit", $config["commen
 
 $title = "Shimmie Setup";
 $blocks = get_blocks_html("setup");
-$heading = "Fill in this form";
-$message = "
+$body["Fill in this form"] = "
 	<form action='setup.php' method='POST'>
 		<table style='width: 800px;' border='1'>
 			<tr>
