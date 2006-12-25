@@ -402,7 +402,8 @@ function add_dir($base, $subdir="") {
 			else {
 				$list .= "failed\n";
 			}
-			unlink($tmpfile);
+			// add_image moves $tmpfile to $images/$id.$ext
+			// unlink($tmpfile);
 		}
 	}
 	closedir($dir);
