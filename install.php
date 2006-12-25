@@ -127,7 +127,7 @@ function initDb($db, $admin_name, $admin_pass) {
 	)");
 	$db->Execute("CREATE TABLE tags (
 		image_id int not null,
-		tag int not null,
+		tag varchar(255) not null,
 		UNIQUE(image_id, tag),
 		INDEX(image_id),
 		INDEX(tag)
