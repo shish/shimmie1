@@ -95,7 +95,7 @@ switch($_GET['stage']) {
 			            folder manually.
 						
 						<p>One done, <a href='setup.php'>Continue</a>";
-			require_once "templates/error.php";
+			require_once "templates/generic.php";
 		}
 		break;
 }
