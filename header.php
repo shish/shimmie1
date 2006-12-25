@@ -626,8 +626,9 @@ class Image {
 	}
 
 	function parse_link_template($tmpl, $img) {
+		global $config;
 		$safe_tags = preg_replace("/[^a-zA-Z0-9_\- ]/", "", $img->tags);
-		$base_href = get_config('base_href');
+		$base_href = $config['base_href'];
 		$tmpl = str_replace('$id',   $img->id,   $tmpl);
 		$tmpl = str_replace('$hash', $img->hash, $tmpl);
 		$tmpl = str_replace('$tags', $safe_tags, $tmpl);
