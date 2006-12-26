@@ -36,12 +36,14 @@ function up_login() {
 			header("X-Shimmie-Status: OK");
 			$title = "Account Created";
 			$body["Account Created"] = "Now you can log in with that name and password";
+			$blocks = get_blocks_html("login_error");
 			require_once "templates/generic.php";
 		}
 		else {
 			header("X-Shimmie-Status: Error - Name Taken");
 			$title = "Name Taken";
 			$body["Name Taken"] = "Somebody is already using that username";
+			$blocks = get_blocks_html("login_error");
 			require_once "templates/generic.php";
 		}
 	}
@@ -49,6 +51,7 @@ function up_login() {
 		header("X-Shimmie-Status: Error - Bad Password");
 		$title = "Login Failed";
 		$body["Login Failed"] = "<a href='index.php'>Back to index</a>";
+		$blocks = get_blocks_html("login_error");
 		require_once "templates/generic.php";
 	}
 }

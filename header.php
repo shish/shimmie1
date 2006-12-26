@@ -143,6 +143,7 @@ function admin_or_die() {
 		header("X-Shimmie-Status: Error - Not Admin");
 		$title = "Not Admin";
 		$body["Not Admin"] = "You need to have administrator rights to view this page";
+		$blocks = get_blocks_html("login_error");
 		require_once "templates/generic.php";
 		exit;
 	}
@@ -154,6 +155,7 @@ function user_or_die() {
 		header("X-Shimmie-Status: Error - Not Logged In");
 		$title = "Not Logged In";
 		$body["Not Logged In"] = "You need to be logged in";
+		$blocks = get_blocks_html("login_error");
 		require_once "templates/generic.php";
 		exit;
 	}
