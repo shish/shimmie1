@@ -61,7 +61,7 @@ EOD;
 	</form>
 EOD;
 
-	require_once "templates/generic.php";
+	require_once get_theme_template();
 }
 
 
@@ -93,7 +93,7 @@ else if($action == "bulkadd") {
 	$title = "Bulk Upload";
 	$blocks["Navigate"] = "<a href='index.php'>Index</a> | <a href='admin.php'>Admin</a><br>";
 	$body["Bulk Add Log"] = gen_textarea(add_dir(defined_or_die($_POST["dir"])));
-	include_once "templates/generic.php";
+	include_once get_theme_template();
 }
 
 

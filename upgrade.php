@@ -18,7 +18,7 @@ if($_GET['do_upgrade'] != 'yes') {
 		<p>Please make sure you have done a update_logbase backup, then
 		click <a href='index.php?do_upgrade=yes'>here</a> to 
 		update the update_logbase schema.";
-	require_once "templates/generic.php";
+	require_once get_theme_template();
 	exit;
 }
 else {
@@ -121,7 +121,7 @@ else {
 	}
 	
 	$body["Update Log"] = gen_textarea($update_log);
-	require_once "templates/generic.php";
+	require_once get_theme_template();
 	exit;
 }
 ?>

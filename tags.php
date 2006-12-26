@@ -98,6 +98,6 @@ $title = "Tags";
 $blocks = get_blocks_html("tags");
 $body["Tag List"] = $listMore;
 $body[] = "<div id='taglist'>$tlist</div>";
-require_once "templates/generic.php";
+require_once get_theme_template();
 ?>
 

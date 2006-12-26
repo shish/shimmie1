@@ -26,7 +26,7 @@ function up_login() {
 		header("Location: user.php");
 		$title = "Login OK";
 		$body["Login OK"] = "<a href='user.php'>Continue</a>";
-		require_once "templates/generic.php";
+		require_once get_theme_template();
 	}
 	else if($_POST['create']) {
 		$result = $db->Execute("SELECT * FROM users WHERE name=?", Array($name));
@@ -37,14 +37,14 @@ function up_login() {
 			$title = "Account Created";
 			$body["Account Created"] = "Now you can log in with that name and password";
 			$blocks = get_blocks_html("login_error");
-			require_once "templates/generic.php";
+			require_once get_theme_template();
 		}
 		else {
 			header("X-Shimmie-Status: Error - Name Taken");
 			$title = "Name Taken";
 			$body["Name Taken"] = "Somebody is already using that username";
 			$blocks = get_blocks_html("login_error");
-			require_once "templates/generic.php";
+			require_once get_theme_template();
 		}
 	}
 	else {
@@ -52,7 +52,7 @@ function up_login() {
 		$title = "Login Failed";
 		$body["Login Failed"] = "<a href='index.php'>Back to index</a>";
 		$blocks = get_blocks_html("login_error");
-		require_once "templates/generic.php";
+		require_once get_theme_template();
 	}
 }
 
@@ -79,7 +79,7 @@ if(is_null($_GET['action'])) {
 		<br>Images uploaded: $image_count ($image_rate / day)
 		<br>Comments made: $comment_count ($comment_rate / day)
 	";
-	require_once "templates/generic.php";
+	require_once get_theme_template();
 }
 else if($_GET['action'] == "pass") {
 	$old1 = md5(strtolower($user->name) . $_POST['old1']);
@@ -91,18 +91,18 @@ else if($_GET['action'] == "pass") {
 			
 			$title = "Password Changed";
 			$body["Password Changed"] = "<a href='user.php'>Back</a>";
-			require_once "templates/generic.php";
+			require_once get_theme_template();
 		}
 		else {
 			$title = "Password Error";
 			$body["Error"] = "New passwords don't match";
-			require_once "templates/generic.php";
+			require_once get_theme_template();
 		}
 	}
 	else {
 		$title = "Password Error";
 		$body["Error"] = "Wrong original password";
-		require_once "templates/generic.php";
+		require_once get_theme_template();
 	}
 }
 else if($_GET['action'] == "logout") {

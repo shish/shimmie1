@@ -197,14 +197,14 @@ class comment extends block {
 					header("X-Shimmie-Status: Error - Anonymous commenting disabled");
 					$title = "Anonymous commenting disabled";
 					$message = "<a href='view.php?image_id=$i_image_id'>Back</a>";
-					require_once "templates/generic.php";
+					require_once get_theme_template();
 					break;
 				case ERR_COMMENT_EMPTY:
 					$i_image_id = int_escape($image_id);
 					header("X-Shimmie-Status: Error - Blank Comment");
 					$title = "No Message";
 					$message = "Comment was empty; <a href='view.php?image_id=$i_image_id'>Back</a>";
-					require_once "templates/generic.php";
+					require_once get_theme_template();
 					break;
 				case ERR_COMMENT_LIMIT_HIT:
 					global $config;
@@ -214,7 +214,7 @@ class comment extends block {
 					header("X-Shimmie-Status: Error - Comment Limit Hit");
 					$title = "Comment Limit Hit";
 					$message = "To prevent spam, users are only allowed $max comments per $window minutes";
-					require_once "templates/generic.php";
+					require_once get_theme_template();
 					break;
 				default:
 					// go back to the viewed page

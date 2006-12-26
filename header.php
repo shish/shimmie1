@@ -48,6 +48,7 @@ $config_defaults = Array(
 	'title' => $version,
 	'db_version' => 'pre-0.7.5', // this should be managed by upgrade.php
 	'base_href' => '',
+	'theme' => 'default',
 	'anon_id' => 0,
 	'dir_images' => 'images',
 	'dir_thumbs' => 'thumbs',
@@ -80,7 +81,7 @@ $config_defaults = Array(
  * simple name:value pairs, as given by the admin control panel (which
  * is why ""=false and "on"=true -- that's how checkbox data is sent)
  */
-function get_config() {
+function load_config() {
 	global $config_defaults, $db;
 
 	$config = $config_defaults;
@@ -100,7 +101,18 @@ function get_config() {
 	return $config;
 }
 
-$config = get_config();
+$config = load_config();
+
+function get_theme_template() {
+	global $config;
+	$theme = $config['theme'];
+	if(is_readable("themes/$theme/template.php")) {
+		return "themes/$theme/template.php";
+	}
+	else {
+		return "themes/default/template.php";
+	}
+}
 
 if($config['db_version'] != $db_version) {
 	require_once "upgrade.php";
@@ -124,7 +136,7 @@ function print_ip_ban($ip, $date, $reason) {
 	header("X-Shimmie-Status: Error - IP Banned");
 	$title = "IP Banned";
 	$body["IP Banned"] = "IP $s_ip was banned at $s_date for $s_reason";
-	require_once "templates/generic.php";
+	require_once get_theme_template();
 }
 
 if($row = get_ban_info('ip', $_SERVER['REMOTE_ADDR'])) {
@@ -144,7 +156,7 @@ function admin_or_die() {
 		$title = "Not Admin";
 		$body["Not Admin"] = "You need to have administrator rights to view this page";
 		$blocks = get_blocks_html("login_error");
-		require_once "templates/generic.php";
+		require_once get_theme_template();
 		exit;
 	}
 	return true;
@@ -156,7 +168,7 @@ function user_or_die() {
 		$title = "Not Logged In";
 		$body["Not Logged In"] = "You need to be logged in";
 		$blocks = get_blocks_html("login_error");
-		require_once "templates/generic.php";
+		require_once get_theme_template();
 		exit;
 	}
 	return true;
@@ -172,7 +184,7 @@ function defined_or_die($var, $name=null) {
 			$s_name = html_escape($name);
 			$body["Error"] = "not set: '$s_name'";
 		}
-		require_once "templates/generic.php";
+		require_once get_theme_template();
 		exit;
 	}
 	return $var;
@@ -622,7 +634,7 @@ class Image {
 			header("X-Shimmie-Status: Error - No Such Image");
 			$title = "No Image $id";
 			$body = "The image has either been deleted, or there aren't that many images in the database";
-			require_once "templates/generic.php";
+			require_once get_theme_template();
 			exit;
 		}
 	}

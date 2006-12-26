@@ -29,6 +29,15 @@ if($_POST["action"] == "set") {
 }
 
 
+$theme_dirs = glob("themes/*/template.php");
+$themes = Array();
+foreach($theme_dirs as $theme_dir) {
+	$theme = str_replace("themes/", "", $theme_dir);
+	$theme = str_replace("/template.php", "", $theme);
+	$themes[$theme] = $theme;
+}
+		
+
 /*
  * Things which need to be saved, but not changed
  */
@@ -41,6 +50,7 @@ $configOptions1 .= makeOptHidden("anon_id");
 $configOptions1 .= makeRow("Global");
 $configOptions1 .= makeOptText("Title", "title", strlen($config["title"]) > 0);
 $configOptions1 .= makeOptText("Base URL", "base_href", null);
+$configOptions1 .= makeOptCombo("Theme", "theme", $themes);
 
 $configOptions1 .= makeRow();
 $configOptions1 .= makeRow("Directories");
@@ -100,7 +110,7 @@ $body["Fill in this form"] = "
 		</table>
 	</form>
 ";
-require_once "templates/generic.php";
+require_once get_theme_template();
 
 
 /* =================================================================== */

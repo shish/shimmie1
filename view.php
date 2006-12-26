@@ -22,5 +22,5 @@ $blocks = get_blocks_html("view");
 $body["Image"] = "<img onclick='scale(this)' src='{$image->link}' alt='{$image->tags}' $scale>";
 $body[] = $slink_html;
 $body[] = "<br/>Uploaded by {$image->owner}";
-require_once "templates/generic.php";
+require_once get_theme_template();
 ?>

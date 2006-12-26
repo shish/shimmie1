@@ -294,5 +294,5 @@ $image_table = query_to_image_table($list_query, $start_pad);
 $blocks = get_blocks_html("index");
 $body["Image List"] = $image_table;
 $body[] = "<div id='pagelist'>$paginator</div>";
-require_once "templates/generic.php";
+require_once get_theme_template();
 ?>

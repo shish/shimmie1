@@ -45,7 +45,7 @@ EOD;
 			header("X-Shimmie-Status: Error - No Images Specified");
 			$title = "No Images Specified";
 			$body = "You need to select a file to be uploaded";
-			include_once "templates/generic.php";
+			include_once get_theme_template();
 			exit;
 		}
 		else {
@@ -89,7 +89,7 @@ EOD;
 			if(!is_null($err)) {
 				$title = "Upload error";
 				$message = $err;
-				require_once "templates/generic.php";
+				require_once get_theme_template();
 			}
 			else {
 				header("Location: ./index.php");

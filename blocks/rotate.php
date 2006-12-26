@@ -42,7 +42,7 @@ EOD;
 				header("X-Shimmie-Status: Error - Bad Angle");
 				$title = "Bad Angle";
 				$body = "Images can only be rotated in units of 90 degrees";
-				require_once "templates/generic.php";
+				require_once get_theme_template();
 				exit;
 		}
 

@@ -45,14 +45,14 @@ EOD;
 		if(is_null($url)) {
 			$title = "No URL";
 			$message = "No URL specified";
-			require_once "templates/generic.php";
+			require_once get_theme_template();
 			return false;
 		}
 
 		if(!ereg("http://", $url)) {
 			$title = "Invalid URL";
 			$message = "URLs must begin with http://";
-			require_once "templates/generic.php";
+			require_once get_theme_template();
 			return false;
 		}
 
