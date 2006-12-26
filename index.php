@@ -111,14 +111,14 @@ if($_GET['tags']) {
 		GROUP BY images.id 
 		HAVING score >= $min_score
 EOD;
+	$total_result = $db->Execute($full_query);
+	$total_images = $total_result->RecordCount();
 }
 else {
 	$full_query = "SELECT * FROM images";
+	$total_images  = $db->GetOne("SELECT count(*) FROM images");
 }
 
-$total_result = $db->Execute($full_query);
-print $db->ErrorMsg();
-$total_images = $total_result->RecordCount();
 
 if($page == 0) {
 	$list_query = $full_query . " ORDER BY images.id DESC LIMIT $images_per_page";
