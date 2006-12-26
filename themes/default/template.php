@@ -41,7 +41,7 @@ echo <<<EOD
 	<head>
 		<base href='$base_href'>
 		<title>$title</title>
-		<link rel="stylesheet" href="$base_href/style.css" type="text/css">
+		<link rel="stylesheet" href="$base_href/themes/default/style.css" type="text/css">
 		$script_html
 		$extra_headers
 	</head>
