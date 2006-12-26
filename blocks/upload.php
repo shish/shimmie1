@@ -24,6 +24,7 @@ class upload extends block {
 				$uploadList .= "<input accept='image/jpeg,image/png,image/gif' size='10' ".
 					"id='data$i' name='data$i' $style onchange=\"showUp('data".($i+1)."')\" type='file'>\n";
 			}
+			$maxkb = $maxSize / 1024;
 			return <<<EOD
 					<form enctype='multipart/form-data' action='metablock.php?block=upload' method='post'>
 						<input type='hidden' name='max_file_size' value='$maxSize'>
@@ -31,7 +32,7 @@ class upload extends block {
 						<input id="tagBox" name='tags' type='text' value="tagme" autocomplete="off">
 						<input type='submit' value='Post'>
 					</form>
-					<div id="upload_completions" style="clear:both;"></div>
+					<div id="upload_completions" style="clear:both;"><small>(Max file size is {$maxkb}KB)</small></div>
 EOD;
 		}
 	}
