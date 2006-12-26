@@ -60,10 +60,8 @@ function read_url($url, $maxsize=1048576) {
 		$size += strlen($tmp);
 		if($size > $maxsize) {
 			fclose($fp);
-			$title = "File too big";
 			$mkb = $maxsize/1024;
-			$message = "Max upload size is $maxsize bytes ($mkb KB)";
-			require_once "templates/generic.php";
+			print("Max upload size is $maxsize bytes ($mkb KB)");
 			exit;
 		}
 	}
