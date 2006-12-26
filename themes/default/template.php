@@ -42,6 +42,7 @@ echo <<<EOD
 		<base href='$base_href'>
 		<title>$title</title>
 		<link rel="stylesheet" href="$base_href/themes/default/style.css" type="text/css">
+		<script src='$base_href/themes/default/sidebar.js' type='text/javascript'></script>
 		$script_html
 		$extra_headers
 	</head>
