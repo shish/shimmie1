@@ -22,7 +22,7 @@ function up_login() {
 
 	if($user->load_from_name_hash($name, $hash)) {
 		setcookie("shm_user", $name, time()+60*60*24*365);
-		setcookie("shm_session", md5($hash.$addr), time()+60*60*24*7);
+		setcookie("shm_session", md5($hash.$addr), time()+60*60*24*get_config('login_memory'));
 
 		header("X-Shimmie-Status: OK - Logged In");
 		header("Location: user.php");

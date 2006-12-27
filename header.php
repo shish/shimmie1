@@ -70,6 +70,7 @@ $config_defaults = Array(
 	'recent_count' => 5,
 	'popular_count' => 15,
 	'login_enabled' => true,
+	'login_memory' => 7,
 	'image_link' => 'get.php/$id - $tags.$ext',
 	'image_slink' => '$base/images/$id.$ext',
 );

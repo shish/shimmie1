@@ -51,6 +51,7 @@ $c1 .= makeRow("Global");
 $c1 .= makeOptText("Title", "title", strlen(get_config('title')) > 0);
 $c1 .= makeOptText("Base URL", "base_href", null);
 $c1 .= makeOptCombo("Theme", "theme", $themes);
+$c1 .= makeOptText("Login Memory (days)", "login_memory", is_numeric(get_config('login_memory')));
 
 $c1 .= makeRow();
 $c1 .= makeRow("Directories");
