@@ -522,6 +522,17 @@ class User {
 		$s_hash = $db->qstr($hash);
 		return $this->load_from_query("SELECT * FROM users WHERE name LIKE $s_name AND pass = $s_hash");
 	}
+	function load_from_name_session($name, $session) {
+		global $db;
+		$s_name = $db->qstr($name);
+		$s_session = $db->qstr($session);
+		$s_addr = $db->qstr($_SERVER['REMOTE_ADDR']);
+		return $this->load_from_query("
+			SELECT *
+			FROM users
+			WHERE name LIKE $s_name
+			AND md5(concat(pass, $s_addr)) = $s_session");
+	}
 	function load_from_name_pass($name, $pass) {
 		return $this->load_from_name_hash($name, md5(strtolower($name).$pass));
 	}
@@ -632,7 +643,7 @@ class Image {
  */
 $user = new User();
 
-if($_COOKIE['shm_user'] && $_COOKIE['shm_hash']) {
-	$user->load_from_name_hash($_COOKIE['shm_user'], $_COOKIE['shm_hash']);
+if($_COOKIE['shm_user'] && $_COOKIE['shm_session']) {
+	$user->load_from_name_session($_COOKIE['shm_user'], $_COOKIE['shm_session']);
 }
 ?>

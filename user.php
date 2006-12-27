@@ -16,11 +16,13 @@ function up_login() {
 	global $base_url, $user, $db;
 
 	$name = $_POST['user'];
-	$hash = md5( strtolower($_POST['user']) . $_POST['pass'] );
+	$pass = $_POST['pass'];
+	$addr = $_SERVER['REMOTE_ADDR'];
+	$hash = md5( strtolower($name) . $pass );
 
 	if($user->load_from_name_hash($name, $hash)) {
-		setcookie("shm_user", $name);
-		setcookie("shm_hash", $hash);
+		setcookie("shm_user", $name, time()+60*60*24*365);
+		setcookie("shm_session", md5($hash.$addr), time()+60*60*24*7);
 
 		header("X-Shimmie-Status: OK - Logged In");
 		header("Location: user.php");
