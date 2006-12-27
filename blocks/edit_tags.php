@@ -60,10 +60,8 @@ EOD;
 	}
 
 	function run($action) {
-		global $config;
-
 		if($action == "update") {
-			$config['upload_anon'] || user_or_die();
+			get_config('upload_anon') || user_or_die();
 
 			// get input
 			$image_id = int_escape(defined_or_die($_POST['image_id']));

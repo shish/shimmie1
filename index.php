@@ -9,7 +9,7 @@ require_once "header.php";
 
 header("X-Shimmie-Status: OK - Index Successful");
 
-$images_per_page = $config['index_width'] * $config['index_height'];
+$images_per_page = get_config('index_width') * get_config('index_height');
 
 
 /*
@@ -124,7 +124,7 @@ if($page == 0) {
 	$list_query = $full_query . " ORDER BY images.id DESC LIMIT $images_per_page";
 }
 else {
-	if($config['index_invert']) {
+	if(get_config('index_invert')) {
 		$start = (($page-1) * $images_per_page);
 	}
 	else {
@@ -168,12 +168,12 @@ function get_table_div($num, $width, $content) {
  * want, but that's a 4.1 feature, and debian stable is still 4.0.
  */
 function query_to_image_table($query, $start_pad) {
-	global $config, $db;
+	global $db;
 
 	$imageTable = "<table>\n";
 	$i = 0;
-	$width = $config['index_width'];
-	$dir_thumbs = $config['dir_thumbs'];
+	$width = get_config('index_width');
+	$dir_thumbs = get_config('dir_thumbs');
 	
 	for($j=0; $j<$start_pad; $j++) {
 		$imageTable .= get_table_div($i++, $width, "&nbsp;");
@@ -222,14 +222,14 @@ function swap(&$a, &$b) {
 	$b = $c;
 }
 function gen_paginator($current_page, $total_pages, $h_tag_list) {
-	global $config;
+	$inverted = get_config('index_invert');
 	
 	if(strlen($h_tag_list) > 0) {
 		$tags = "&tags=$h_tag_list";
 	}
 	
 	if($current_page == 0) {
-		$current_page = $config['index_invert'] ? 1 : $total_pages;
+		$current_page = $inverted ? 1 : $total_pages;
 	}
 	$next = $current_page + 1;
 	$prev = $current_page - 1;
@@ -250,7 +250,7 @@ function gen_paginator($current_page, $total_pages, $h_tag_list) {
 	$start = $current_page-5 > 1 ? $current_page-5 : 1;
 	$end = $start+10 < $total_pages ? $start+10 : $total_pages;
 	
-	if(!$config['index_invert']) {swap($start, $end);}
+	if(!$inverted) {swap($start, $end);}
 	
 	$pages = array();
 	foreach(range($start, $end) as $i) {
@@ -259,7 +259,7 @@ function gen_paginator($current_page, $total_pages, $h_tag_list) {
 	$pages_html = implode(" | ", $pages);
 
 
-	if($config['index_invert']) {
+	if($inverted) {
 		return "$first_html | $prev_html | $random_html | $next_html | $last_html".
 		       "<br>&lt;&lt; $pages_html &gt;&gt;";
 	}
@@ -269,7 +269,7 @@ function gen_paginator($current_page, $total_pages, $h_tag_list) {
 	}
 }
 
-$total_pages = ceil($total_images / ($config['index_width'] * $config['index_height']));
+$total_pages = ceil($total_images / (get_config('index_width') * get_config('index_height')));
 $paginator = gen_paginator($page, $total_pages, $h_tag_list);
 
 
@@ -278,9 +278,8 @@ $paginator = gen_paginator($page, $total_pages, $h_tag_list);
  * If not, show the title string.
  */
 function get_title_html($title, $page) {
-	global $config;
 	if(strlen($title) == 0) {
-		$title = html_escape($config['title']);
+		$title = html_escape(get_config('title'));
 	}
 	if($page != 0) {
 		$title .= " / $page";

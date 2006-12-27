@@ -13,14 +13,14 @@ class transload extends block {
 	function get_html($pageType) {
 		return ""; // this block is very beta
 
-		global $user, $config;
+		global $user;
 		
 		// Don't show the block if anon uploads are disabled
-		if(($pageType == "index") && ($config["upload_anon"] || $user->isUser())) {
-			$maxSize = $config["uploads_size"];
+		if(($pageType == "index") && (get_config("upload_anon") || $user->isUser())) {
+			$maxSize = get_config("uploads_size");
 
 			$uploadList = "";
-			for($i=0; $i<$config['upload_count']; $i++) {
+			for($i=0; $i<get_config('upload_count'); $i++) {
 				if($i == 0) $style = "style='display:visible'";
 				else $style = "style='display:none'";
 				$uploadList .= "<input id='trans$i' name='data$i' $style ".
@@ -60,16 +60,14 @@ EOD;
 	}
 
 	function run($action) {
-		global $config;
-		
-		if($config["upload_anon"] || user_or_die()) {
+		if(get_config("upload_anon") || user_or_die()) {
 			$url = $_POST["url"];
 
 			if(!$this->check_url($url)) {
 				return;
 			}
 
-			$tmpname = write_temp_file(read_url($url, $config['uploads_size']));
+			$tmpname = write_temp_file(read_url($url, get_config('uploads_size')));
 			add_image($tmpname, $url, $_POST['tags']);
 			unlink($tmpname);
 		}

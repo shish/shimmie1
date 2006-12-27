@@ -32,13 +32,13 @@ class navigate extends block {
 			";
 		}
 		else if($pageType == "index") {
-			global $page, $total_pages, $h_tag_list, $config;
+			global $page, $total_pages, $h_tag_list;
 			
 			if(strlen($h_tag_list) > 0) {
 				$tags = "&tags=$h_tag_list";
 			}
 
-			if($page == 0 && !$config['index_invert']) {$current_page = $total_pages;}
+			if($page == 0 && !get_config('index_invert')) {$current_page = $total_pages;}
 			else if($page == 0) {$current_page = 1;}
 			else {$current_page = $page;}
 			
@@ -53,7 +53,7 @@ class navigate extends block {
 			if($current_page <= 1 || $total_pages <= 1) {$prev_html .= "Prev";}
 			else {$prev_html .= "<a href='index.php?page=$prev$tags'>Prev</a>";}
 
-			if($config['index_invert']) {
+			if(get_config('index_invert')) {
 				$pageNav = "$prev_html | $index_html | $next_html";
 			}
 			else {
@@ -61,12 +61,12 @@ class navigate extends block {
 			}
 		}
 		else if($pageType == "view") {
-			global $image, $config, $db;
+			global $image, $db;
 
 			$lowerid  = $db->GetOne("SELECT id FROM images WHERE id < ? ORDER BY id DESC", Array($image->id));
 			$higherid = $db->GetOne("SELECT id FROM images WHERE id > ? ORDER BY id ASC ", Array($image->id));
 
-			if($config['index_invert']) {
+			if(get_config('index_invert')) {
 				$nextid = $lowerid;
 				$previd = $higherid;
 			}
@@ -79,7 +79,7 @@ class navigate extends block {
 			$index_html = "<a href='index.php'>Index</a>";
 			$next_html = ($nextid ? "<a href='view.php?image_id=$nextid'>Next</a>" : "Next");
 				
-			if($config['index_invert']) {
+			if(get_config('index_invert')) {
 				$pageNav = "$prev_html | $index_html | $next_html";
 			}
 			else {

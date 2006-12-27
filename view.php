@@ -9,9 +9,9 @@ require_once "header.php";
 
 $image = new Image($_GET['image_id']);
 
-$dir_images = $config['dir_images'];
-$baseurl = $config['base_href'];
-$scale = $config['view_scale'] ? "style='width: 90%'" : "";
+$dir_images = get_config('dir_images');
+$baseurl = get_config('base_href');
+$scale = get_config('view_scale') ? "style='width: 90%'" : "";
 
 if(!empty($image->slink)) {
 	$slink_html = "<br/>Short link: <input type='text' size='50' value='{$image->slink}'>";

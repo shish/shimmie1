@@ -11,7 +11,7 @@ class refine extends block {
 	}
 
 	function get_html($pageType) {
-		global $h_tag_list, $config, $db;
+		global $h_tag_list, $db;
 	
 		if(($pageType == "index") && (strlen($_GET["tags"]) > 0)) {
 			$s_tag_list = "";
@@ -38,7 +38,7 @@ class refine extends block {
 			";
 			
 			$n = 0;
-			$result = $db->Execute($query, Array($config['popular_count']));
+			$result = $db->Execute($query, Array(get_config('popular_count')));
 			while(!$result->EOF) {
 				$row = $result->fields;
 				$tag = html_escape($row['tag']);

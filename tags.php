@@ -7,10 +7,10 @@
 
 require_once "header.php";
 
-if(is_null($_GET['mode'])) $mode = html_escape($config['tags_default']);
+if(is_null($_GET['mode'])) $mode = html_escape(get_config('tags_default'));
 else $mode = html_escape($_GET['mode']);
 
-if(is_null($_GET['tags_min'])) $tags_min = int_escape($config['tags_min']);
+if(is_null($_GET['tags_min'])) $tags_min = int_escape(get_config('tags_min'));
 else $tags_min = int_escape($_GET['tags_min']);
 
 if($tags_min > 0) {

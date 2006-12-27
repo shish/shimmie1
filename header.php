@@ -81,31 +81,24 @@ $config_defaults = Array(
  * simple name:value pairs, as given by the admin control panel (which
  * is why ""=false and "on"=true -- that's how checkbox data is sent)
  */
-function load_config() {
-	global $config_defaults, $db;
 
-	$config = $config_defaults;
+$config = $db->GetAssoc("SELECT name, value FROM config");
 
-	$row = $db->Execute("SELECT * FROM config");
-	while(!$row->EOF) {
-		$value = $row->fields['value'];
-		if(is_numeric($value)) {
-			$config[$row->fields['name']] = (int)$value;
-		}
-		else {
-			$config[$row->fields['name']] = $value;
-		}
-		$row->MoveNext();
+function get_config($name) {
+	global $config, $config_defaults;
+
+	$value = isset($config[$name]) ? $config[$name] : $config_defaults[$name];
+
+	if(is_numeric($value)) {
+		return (int)$value;
 	}
-
-	return $config;
+	else {
+		return $value;
+	}
 }
 
-$config = load_config();
-
 function get_theme_template() {
-	global $config;
-	$theme = $config['theme'];
+	$theme = get_config('theme');
 	if(is_readable("themes/$theme/template.php")) {
 		return "themes/$theme/template.php";
 	}
@@ -114,7 +107,7 @@ function get_theme_template() {
 	}
 }
 
-if($config['db_version'] != $db_version) {
+if(get_config('db_version') != $db_version) {
 	require_once "upgrade.php";
 }
 
@@ -257,17 +250,15 @@ function delete_image($image_id) {
 	delete_tags($image_id);
 	delete_comments($image_id);
 	
-	$result = $db->Execute("SELECT ext FROM images WHERE id=?", Array($image_id));
-	if($result->RecordCount() == 0) return;
-	
-	$row = $result->fields;
+	$ext = $db->GetOne("SELECT ext FROM images WHERE id=?", Array($image_id));
+	if($ext) {
+		$iname = get_config('dir_images')."/$image_id.$ext";
+		$tname = get_config('dir_thumbs')."/$image_id.jpg";
+		if(file_exists($iname)) unlink($iname);
+		if(file_exists($tname)) unlink($tname);
 
-	$iname = $config['dir_images']."/$image_id.".$row['ext'];
-	$tname = $config['dir_thumbs']."/$image_id.jpg";
-	if(file_exists($iname)) unlink($iname);
-	if(file_exists($tname)) unlink($tname);
-
-	$db->Execute("DELETE FROM images WHERE id=?", Array($image_id));
+		$db->Execute("DELETE FROM images WHERE id=?", Array($image_id));
+	}
 }
 
 function mime_to_ext($mime) {
@@ -293,14 +284,12 @@ function is_dupe($hash) {
  * get a thumbnail from a file
  */
 function get_thumb($tmpname) {
-	global $config;
-
 	$image = imagecreatefromstring(read_file($tmpname));
 		
 	$width = imagesx($image);
 	$height = imagesy($image);
-	$max_width  = $config['thumb_w'];
-	$max_height = $config['thumb_h'];
+	$max_width  = get_config('thumb_w');
+	$max_height = get_config('thumb_h');
 	$xscale = ($max_height / $height);
 	$yscale = ($max_width / $width);
 	$scale = ($xscale < $yscale) ? $xscale : $yscale;
@@ -324,10 +313,10 @@ function get_thumb($tmpname) {
  * filename and tags noted
  */
 function add_image($tmpname, $filename, $tags) {
-	global $config, $user, $db;
+	global $user, $db;
 	
-	$dir_images = $config['dir_images'];
-	$dir_thumbs = $config['dir_thumbs'];
+	$dir_images = get_config('dir_images');
+	$dir_thumbs = get_config('dir_thumbs');
 
 	$imgsize = getimagesize($tmpname);
 	$h_filename = html_escape($filename);
@@ -372,7 +361,7 @@ function add_image($tmpname, $filename, $tags) {
 			return false;
 		}
 		chmod("$dir_images/$id.$ext", 0644);
-		if(!imagejpeg($thumb, "$dir_thumbs/$id.jpg", $config['thumb_q'])) {
+		if(!imagejpeg($thumb, "$dir_thumbs/$id.jpg", get_config('thumb_q'))) {
 			print "<p>The image thumbnail couldn't be generated -- is the web
 			         server allowed to write to '$dir_thumbs'?";
 			$db->Execute("DELETE FROM images WHERE id=?", Array($id));
@@ -500,9 +489,7 @@ class User {
 	var $ip = null;
 
 	function User() {
-		global $config;
-		
-		$this->id = $config['anon_id'];
+		$this->id = get_config('anon_id');
 		$this->ip = $_SERVER['REMOTE_ADDR'];
 	}
 
@@ -554,12 +541,11 @@ class User {
 		return ($this->uconfig['isadmin'] == 'true');
 	}
 	function isUser() {
-		global $config;
-		return ($this->id != $config['anon_id']);
+		return ($this->id != get_config('anon_id'));
 	}
 	function isAnonymous() {
 		global $config;
-		return ($this->id == $config['anon_id']);
+		return ($this->id == get_config('anon_id'));
 	}
 
 	function stat_count_images() {
@@ -599,7 +585,7 @@ class Image {
 	var $tags = null;
 
 	function Image($id) {
-		global $config, $db;
+		global $db;
 		
 		if(is_null($id)) return;
 
@@ -627,8 +613,8 @@ class Image {
 			}
 			$this->tags = implode(" ", $this->tag_array);
 			
-			$this->link = $this->parse_link_template($config['image_link'], $this);
-			$this->slink = $this->parse_link_template($config['image_slink'], $this);
+			$this->link = $this->parse_link_template(get_config('image_link'), $this);
+			$this->slink = $this->parse_link_template(get_config('image_slink'), $this);
 		}
 		else {
 			header("X-Shimmie-Status: Error - No Such Image");
@@ -640,9 +626,8 @@ class Image {
 	}
 
 	function parse_link_template($tmpl, $img) {
-		global $config;
 		$safe_tags = preg_replace("/[^a-zA-Z0-9_\- ]/", "", $img->tags);
-		$base_href = $config['base_href'];
+		$base_href = get_config('base_href');
 		$tmpl = str_replace('$id',   $img->id,   $tmpl);
 		$tmpl = str_replace('$hash', $img->hash, $tmpl);
 		$tmpl = str_replace('$tags', $safe_tags, $tmpl);

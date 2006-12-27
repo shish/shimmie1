@@ -11,7 +11,7 @@ class popular extends block {
 	}
 
 	function get_html($pageType) {
-		global $htmlSafeTags, $config, $db;
+		global $htmlSafeTags, $db;
 	
 		if(($pageType == "index") && (strlen($htmlSafeTags) == 0)) {
 			$query = "
@@ -23,7 +23,7 @@ class popular extends block {
 			";
 
 			$n = 0;
-			$result = $db->Execute($query, Array($config['popular_count']));
+			$result = $db->Execute($query, Array(get_config('popular_count')));
 			while(!$result->EOF) {
 				$row = $result->fields;
 				$tag = html_escape($row['tag']);

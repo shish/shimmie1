@@ -13,7 +13,7 @@ session_cache_limiter('public'); // caching disabled for most pages -- turn it b
  * Get the ID of the image to view
  */
 preg_match("#/[^\d]*(\d+).*\.(jpg|gif|png)$#", $_SERVER['PATH_INFO'], $args);
-$image_dir = $config['dir_images'];
+$image_dir = get_config('dir_images');
 $name = $args[1];
 $ext = $args[2];
 $filename = "$image_dir/$name.$ext";
@@ -35,5 +35,4 @@ else {
     header("Last-Modified: $gmdate_mod");
     print read_file($filename);
 }
-
 ?>

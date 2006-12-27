@@ -50,9 +50,7 @@ class comment extends block {
 	 * use the site default if $count is -1
 	 */
 	function get_recent_comments($count) {
-		global $config;
-
-		$i_count = int_escape($count >= 0 ? $count : $config['recent_count']);
+		$i_count = int_escape($count >= 0 ? $count : get_config('recent_count'));
 		
 		$query = "
 		SELECT 
@@ -131,10 +129,10 @@ class comment extends block {
 	}
 
 	function is_comment_limit_hit() {
-		global $config, $user, $db;
+		global $user, $db;
 
-		$window = int_escape($config['comment_window']);
-		$max = int_escape($config['comment_limit']);
+		$window = int_escape(get_config('comment_window'));
+		$max = int_escape(get_config('comment_limit'));
 		
 		$result = $db->Execute("SELECT * FROM comments WHERE owner_ip = ? ".
 							   "AND posted > date_sub(now(), interval ? minute)",
@@ -145,9 +143,9 @@ class comment extends block {
 	}
 
 	function add_comment($image_id, $comment) {
-		global $user, $config, $db;
+		global $user, $db;
 		
-		if(!$config['comment_anon'] && $user->isAnonymous()) {
+		if(!get_config('comment_anon') && $user->isAnonymous()) {
 			return ERR_COMMENT_NO_ANON;
 		}
 		else if(trim($comment) == "") {
@@ -207,9 +205,8 @@ class comment extends block {
 					require_once get_theme_template();
 					break;
 				case ERR_COMMENT_LIMIT_HIT:
-					global $config;
-					$window = $config['comment_window'];
-					$max = $config['comment_limit'];
+					$window = get_config('comment_window');
+					$max = get_config('comment_limit');
 					$i_image_id = int_escape($image_id);
 					header("X-Shimmie-Status: Error - Comment Limit Hit");
 					$title = "Comment Limit Hit";

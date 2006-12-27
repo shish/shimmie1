@@ -11,10 +11,10 @@ class userinfo extends block {
 	}
 
 	function get_html($pageType) {
-		global $user, $config;
+		global $user;
 		
 		// Don't show the block if logins are disabled
-		if(!$config['login_enabled']) return;
+		if(!get_config('login_enabled')) return;
 
 
 		if($user->isAnonymous()) {

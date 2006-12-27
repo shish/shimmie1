@@ -47,8 +47,8 @@ EOD;
 		}
 
 		$image = new Image($_POST['image_id']);
-		$dir_images = $config['dir_images'];
-		$dir_thumbs = $config['dir_thumbs'];
+		$dir_images = get_config('dir_images');
+		$dir_thumbs = get_config('dir_thumbs');
 	
 		if($image->ext == "jpg") {
 			system("exiftran $aarg $dir_thumbs/{$image->id}.jpg");

@@ -11,14 +11,14 @@ class upload extends block {
 	}
 
 	function get_html($pageType) {
-		global $user, $config;
+		global $user;
 
 		// Don't show the block if anon uploads are disabled
-		if(($pageType == "index") && ($config["upload_anon"] || $user->isUser())) {
-			$maxSize = $config["upload_size"];
+		if(($pageType == "index") && (get_config("upload_anon") || $user->isUser())) {
+			$maxSize = get_config("upload_size");
 
 			$uploadList = "";
-			for($i=0; $i<$config['upload_count']; $i++) {
+			for($i=0; $i<get_config('upload_count'); $i++) {
 				if($i == 0) $style = "style='display:visible'";
 				else $style = "style='display:none'";
 				$uploadList .= "<input accept='image/jpeg,image/png,image/gif' size='10' ".
@@ -55,25 +55,15 @@ EOD;
 	}
 
 	function run($action) {
-		global $config, $user;
+		global $user;
 
-		if($config["upload_anon"] || user_or_die()) {
+		if(get_config("upload_anon") || user_or_die()) {
 			$owner_ip = $_SERVER['REMOTE_ADDR'];
-			$dir_images = $config['dir_images'];
-			$dir_thumbs = $config['dir_thumbs'];
 
 			$err = null;
 
 			$this->check_filecount();
 
-			/*
-			 * Check as many upload stots as there should be
-			 *
-			 * FIXME: If a slot isn't used, ignore it. Currently this is done
-			 * in several nasty ways -- is there a way to do it properly?
-			 */
-			// for($dnum=0; $dnum<min($config['upload_count'], count($_FILES)); $dnum++) {
-			//	$info = $_FILES["data$dnum"];
 			foreach($_FILES as $info) {
 				if(strlen($info['name']) > 0) {
 					$ok = add_image($info['tmp_name'], $info['name'], $_POST['tags']);

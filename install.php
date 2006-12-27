@@ -207,13 +207,7 @@ function makeRow($content = "&nbsp;") {
 	return "<tr><td colspan='2'>$content</td></tr>\n";
 }
 function makeOpt($friendly, $varname) {
-	global $config;
 	$default = $_SESSION[$varname];
 	return "<tr><td>$friendly</td><td><input type='text' name='$varname' value='$default'></td></tr>\n";
-}
-function makeOptCheck($friendly, $varname) {
-	global $config;
-	$default = $config[$varname] ? " checked" : "";
-	return "<tr><td>$friendly</td><td><input type='checkbox' name='$varname'$default></td></tr>\n";
 }
 ?>

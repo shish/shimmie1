@@ -9,7 +9,7 @@ function update_status($text) {
 	print("<br>$text");
 }
 
-$db_current = $config['db_version'];
+$db_current = get_config('db_version');
 
 if($_GET['do_upgrade'] != 'yes') {
 	$title = "Database Update Needed";
@@ -31,7 +31,7 @@ else {
 	 * DB version, and goes through applying updates until it hits
 	 * the latest code version
 	 */
-	switch($config['db_version']) {
+	switch(get_config('db_version')) {
 		default:
 			$update_log .= "At version ummmm... wtf? Something broke :|\n";
 			$update_log .= "Attempting DB upgrades from the start...\n";
@@ -97,7 +97,7 @@ else {
 				update_status("Converting tags_old to image_tags + tags");
 				$result = $db->Execute("SELECT * FROM tags_old");
 				$tag_ids = Array();
-				$anon_id = int_escape($config['anon_id']);
+				$anon_id = int_escape(get_config('anon_id'));
 				$triplets = Array();
 				while(!$result->EOF) {
 					$row = $result->fields;

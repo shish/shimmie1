@@ -12,7 +12,7 @@ class related extends block {
 
 	function get_html($pageType) {
 		if($pageType == "view") {
-			global $image, $config, $db;
+			global $image, $db;
 
 			$query = "
 				SELECT COUNT(t3.image_id) as count, t3.tag 
@@ -30,7 +30,7 @@ class related extends block {
 			";
 
 			$n = 0;
-			$result = $db->Execute($query, Array($image->id, $config['popular_count']));
+			$result = $db->Execute($query, Array($image->id, get_config('popular_count')));
 			while(!$result->EOF) {
 				$row = $result->fields;
 				$tag = html_escape($row['tag']);
