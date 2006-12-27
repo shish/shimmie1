@@ -469,17 +469,6 @@ function get_blocks_html($pageType) {
 
 
 /*
- * Count how many times a tag is used
- * FIXME: count where tag = tag1 or tag2 or tag3
- * store results in count['tag']
- */
-function countImagesForTag($tag) {
-	global $db;
-	$row = $db->Execute("SELECT count(*) AS count FROM tags WHERE tag=?", Array($tag));
-	return $row->fields['count'];
-}
-
-/*
  * A PHP-friendly view of a row in the users table
  */
 class User {
