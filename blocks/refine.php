@@ -24,6 +24,8 @@ class refine extends block {
 				}
 			}
 
+			if($s_tag_list == "") return null;
+
 			$query = "
 				SELECT COUNT(t2.image_id) AS count,t2.tag
 				FROM
