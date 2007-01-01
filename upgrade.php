@@ -66,7 +66,7 @@ else {
 				$update_log .= "You seem to already be using the new tags schema...";
 			}
 			else {
-				$update_log .= "Moving tags to tags_old";
+				$update_log .= "Moving tags to tags_old\n";
 				$db->Execute("RENAME TABLE tags TO tags_old");
 		
 				$update_log .= "Creating image_tags table";
@@ -81,7 +81,7 @@ else {
 					)
 				");
 		
-				$update_log = "Creating tags table";
+				$update_log .= "Creating tags table\n";
 				$db->Execute("
 					CREATE TABLE tags (
 						id int primary key auto_increment,
@@ -90,11 +90,10 @@ else {
 					)
 				");
 		
-				$update_log = "Converting tags_old to image_tags + tags";
+				$update_log .= "Converting tags_old to image_tags + tags\n";
 				$result = $db->Execute("SELECT * FROM tags_old");
 				$tag_ids = Array();
 				$anon_id = int_escape(get_config('anon_id'));
-				$triplets = Array();
 				while(!$result->EOF) {
 					$row = $result->fields;
 					$tag = $row['tag'];
@@ -107,10 +106,10 @@ else {
 						$tag_id = $db->Insert_ID();
 						$tag_ids[$tag] = $tag_id;
 					}
-					$triplets[] = Array($image_id, $tag_id, $anon_id);
+					$db->Execute("INSERT INTO image_tags(image_id, tag_id, owner_id) VALUES (?, ?, ?)",
+						Array($image_id, $tag_id, $anon_id));
 					$result->MoveNext();
 				}
-				$db->Execute("INSERT INTO image_tags(image_id, tag_id, owner_id) VALUES (?, ?, ?)", $triplets);
 				$db->CommitTrans();
 			}
 			break;
