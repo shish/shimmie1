@@ -33,7 +33,7 @@ class userinfo extends block {
 						<small>New Account?</small>
 						<input type="checkbox" onchange="toggleLogin(this,gobu)">
 					</div>
-					<dir id="pass_confirm">
+					<div id="pass_confirm">
 						<small>Confirm Password</small>
 						<input id="pass_confirm_2" type="password" name="pass2">
 					</div>
