@@ -61,6 +61,26 @@ EOD;
 	</form>
 EOD;
 
+	$null_count = $db->GetOne("SELECT count(image_id) FROM tags WHERE tag=''");
+	if($null_count > 0) $body["Misc"] .= <<<EOD
+	<form action="admin.php?action=fixnulls" method="POST">
+		<input type='submit' value='Clear $null_count null tags'>
+	</form>
+EOD;
+
+	$notag_count = $db->GetOne("
+		SELECT count(images.id)
+		FROM images
+		LEFT JOIN tags ON images.id = tags.image_id
+		WHERE isnull(tag)
+		GROUP BY images.id
+	");
+	if($notag_count > 0) $body["Misc"] .= <<<EOD
+	<form action="admin.php?action=addtagmes" method="POST">
+		<input type="submit" value="Add 'tagme' to $notag_count untagged images">
+	</form>
+EOD;
+
 	require_once get_theme_template();
 }
 
@@ -107,8 +127,6 @@ else if($action == "addipban") {
 	$db->Execute("INSERT INTO bans(type, value, reason, date) ".
 		         "VALUES (?, ?, ?, now())", Array('ip', $ip, $reason));
 
-	// go back to the viewed page
-	header("X-Shimmie-Status: OK - IP Banned");
 	header("Location: admin.php");
 	echo "<a href='admin.php'>Back</a>";
 }
@@ -121,8 +139,34 @@ else if($action == "removeipban") {
 
 	$db->Execute("DELETE FROM bans WHERE type=? AND value=?", Array('ip', $ip));
 
-	// go back to the viewed page
-	header("X-Shimmie-Status: OK - IP Allowed");
+	header("Location: admin.php");
+	echo "<a href='admin.php'>Back</a>";
+}
+
+/*
+ * deletes blank tags
+ */
+else if($action == "fixnulls") {
+	$db->Execute("DELETE FROM tags WHERE tag=''");
+
+	header("Location: admin.php");
+	echo "<a href='admin.php'>Back</a>";
+}
+
+/*
+ * adds "tagme" to images withough tags
+ */
+else if($action == "addtagmes") {
+	$ids = $db->GetCol("
+		SELECT images.id
+		FROM images
+		LEFT JOIN tags ON images.id = tags.image_id
+		WHERE isnull(tag)
+	");
+	foreach($ids as $id) {
+		$db->Execute("INSERT INTO tags(image_id, tag) VALUES(?, ?)", Array($id, 'tagme'));
+	}
+
 	header("Location: admin.php");
 	echo "<a href='admin.php'>Back</a>";
 }
