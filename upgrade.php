@@ -5,10 +5,6 @@ function update_version($ver) {
 	$db->Execute("INSERT INTO config (name, value) VALUES (?, ?)", Array('db_version', $ver));
 }
 
-function update_status($text) {
-	print("<br>$text");
-}
-
 $db_current = get_config('db_version');
 
 if($_GET['do_upgrade'] != 'yes') {
@@ -70,10 +66,10 @@ else {
 				$update_log .= "You seem to already be using the new tags schema...";
 			}
 			else {
-				update_status("Moving tags to tags_old");
+				$update_log .= "Moving tags to tags_old";
 				$db->Execute("RENAME TABLE tags TO tags_old");
 		
-				update_status("Creating image_tags table");
+				$update_log .= "Creating image_tags table";
 				$db->Execute("
 					CREATE TABLE image_tags (
 						image_id int not null,
@@ -85,7 +81,7 @@ else {
 					)
 				");
 		
-				update_status("Creating tags table");
+				$update_log = "Creating tags table";
 				$db->Execute("
 					CREATE TABLE tags (
 						id int primary key auto_increment,
@@ -94,7 +90,7 @@ else {
 					)
 				");
 		
-				update_status("Converting tags_old to image_tags + tags");
+				$update_log = "Converting tags_old to image_tags + tags";
 				$result = $db->Execute("SELECT * FROM tags_old");
 				$tag_ids = Array();
 				$anon_id = int_escape(get_config('anon_id'));
