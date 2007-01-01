@@ -47,7 +47,7 @@ class userinfo extends block {
 						<tr><td width="70">Name</td><td width="70"><input type="text" name="user"></td></tr>
 						<tr><td>Password</td><td><input type="password" name="pass"></td></tr>
 						<tr><td>New Account?</td><td><input type="checkbox" name="create" onchange="toggleLogin(this,gobu)"></td></tr>
-						<tr id="pass_confirm"><td>Confirm Password</td><td><input type="password" name="pass2"></td></tr>
+						<!-- <tr id="pass_confirm"><td>Confirm Password</td><td><input type="password" name="pass2"></td></tr> -->
 						<tr><td colspan="2"><input type="submit" name="gobu" value="Log In"></td></tr>
 					</table>
 				</form>
