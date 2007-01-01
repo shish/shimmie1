@@ -19,12 +19,35 @@ class userinfo extends block {
 
 		if($user->isAnonymous()) {
 			return <<<EOD
+				<!--
+				<form action="user.php?action=login" method="POST">
+					<div>
+						<small>Name</small>
+						<input type="text" name="user">
+					</div>
+					<div>
+						<small>Password</small>
+						<input type="password" name="pass">
+					</div>
+					<div>
+						<small>New Account?</small>
+						<input type="checkbox" onchange="toggleLogin(this,gobu)">
+					</div>
+					<dir id="pass_confirm">
+						<small>Confirm Password</small>
+						<input id="pass_confirm_2" type="password" name="pass2">
+					</div>
+					<div>
+						<input type="submit" name="gobu" value="Log In">
+					</div>
+				</form>
+				-->
 				<form action="user.php?action=login" method="POST">
 					<table border="1" summary="Login Form">
-					
-						<tr><td>Name</td><td width="50%"><input type="text" name="user"></td></tr>
+						<tr><td width="70">Name</td><td width="70"><input type="text" name="user"></td></tr>
 						<tr><td>Password</td><td><input type="password" name="pass"></td></tr>
 						<tr><td>New Account?</td><td><input type="checkbox" name="create" onchange="toggleLogin(this,gobu)"></td></tr>
+						<tr id="pass_confirm"><td>Confirm Password</td><td><input type="password" name="pass2"></td></tr>
 						<tr><td colspan="2"><input type="submit" name="gobu" value="Log In"></td></tr>
 					</table>
 				</form>

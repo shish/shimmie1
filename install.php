@@ -83,6 +83,8 @@ switch($_GET['stage']) {
 		$file_content .= "?>";
 		
 		if(is_writable("./") && write_file("config.php", $file_content)) {
+			@mkdir("images"); // try and make default dirs, if possible
+			@mkdir("thumbs");
 			header("Location: setup.php");
 			echo "Config written to 'config.php'<p><a href='setup.php'>Continue</a>";
 		}

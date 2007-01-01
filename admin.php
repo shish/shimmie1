@@ -61,23 +61,9 @@ EOD;
 	</form>
 EOD;
 
-	$null_count = $db->GetOne("SELECT count(image_id) FROM tags WHERE tag=''");
-	if($null_count > 0) $body["Misc"] .= <<<EOD
-	<form action="admin.php?action=fixnulls" method="POST">
-		<input type='submit' value='Clear $null_count null tags'>
-	</form>
-EOD;
-
-	$notag_count = $db->GetOne("
-		SELECT count(images.id)
-		FROM images
-		LEFT JOIN tags ON images.id = tags.image_id
-		WHERE isnull(tag)
-		GROUP BY images.id
-	");
-	if($notag_count > 0) $body["Misc"] .= <<<EOD
-	<form action="admin.php?action=addtagmes" method="POST">
-		<input type="submit" value="Add 'tagme' to $notag_count untagged images">
+	$body["Misc"] .= <<<EOD
+	<form action="admin.php?action=dbcheck" method="POST">
+		<input type='submit' value='Check DB Consistency'>
 	</form>
 EOD;
 
@@ -144,19 +130,19 @@ else if($action == "removeipban") {
 }
 
 /*
- * deletes blank tags
+ * account for various cases that shouldn't happen...
  */
-else if($action == "fixnulls") {
+else if($action == "dbcheck") {
+	$null_count = $db->GetOne("SELECT count(image_id) FROM tags WHERE tag=''");
 	$db->Execute("DELETE FROM tags WHERE tag=''");
+	$data .= "Removed $null_count null tags\n";
 
-	header("Location: admin.php");
-	echo "<a href='admin.php'>Back</a>";
-}
-
-/*
- * adds "tagme" to images withough tags
- */
-else if($action == "addtagmes") {
+	$notag_count = $db->GetOne("
+		SELECT count(images.id)
+		FROM images
+		LEFT JOIN tags ON images.id = tags.image_id
+		WHERE isnull(tag)
+	");
 	$ids = $db->GetCol("
 		SELECT images.id
 		FROM images
@@ -166,8 +152,12 @@ else if($action == "addtagmes") {
 	foreach($ids as $id) {
 		$db->Execute("INSERT INTO tags(image_id, tag) VALUES(?, ?)", Array($id, 'tagme'));
 	}
+	$data .= "Added 'tagme' to $notag_count untagged images\n";
 
-	header("Location: admin.php");
-	echo "<a href='admin.php'>Back</a>";
+	$title = "Results";
+	$blocks["Navigation"] = "<a href='admin.php'>Admin</a>";
+	$body["Results"] = gen_textarea($data);
+
+	require_once get_theme_template();
 }
 ?>

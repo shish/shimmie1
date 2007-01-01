@@ -9,6 +9,12 @@ window.onload = function(e) {
 	initGray("searchBox", "Search");
 	initGray("commentBox", "Comment");
 	initGray("tagBox", "tagme");
+	
+	// if we're going to show with JS, hide with JS first
+	pass_confirm = byId("pass_confirm");
+	if(pass_confirm) {
+		pass_confirm.style.display = "none";
+	}
 }
 
 
@@ -101,9 +107,11 @@ function setgray(box, text) {
 function toggleLogin(checkbox, button) {
 	if(checkbox.checked) {
 		button.value = "Create Account";
+		byId("pass_confirm").style.display = "table-row";
 	}
 	else {
 		button.value = "Log In";
+		byId("pass_confirm").style.display = "none";
 	}
 }
 
