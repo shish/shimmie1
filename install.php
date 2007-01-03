@@ -60,6 +60,11 @@ switch($_GET['stage']) {
 		$admin_name = $_SESSION['admin_name'] = $_POST["admin_name"];
 		$admin_pass = $_SESSION['admin_pass'] = $_POST["admin_pass"];
 		
+		$addr = $_SERVER['REMOTE_ADDR'];
+		$hash = md5( strtolower($admin_name) . $admin_pass );
+		setcookie("shm_user", $admin_name, time()+60*60*24*365);
+		setcookie("shm_session", md5($hash.$addr), time()+60*60*24*7);
+		
 		$db = NewADOConnection($dsn);
 		if(!$db) {
 			$title = "Error";
