@@ -52,7 +52,7 @@ switch($_GET['stage']) {
 			makeRow("<input type='submit' value='Install'>").
 			makeHtml("</table>").
 			makeHtml("</form>");
-		require_once get_theme_template();
+		require_once "themes/default/template.php";
 		break;
 	
 	case 'createdb':
@@ -69,7 +69,7 @@ switch($_GET['stage']) {
 		if(!$db) {
 			$title = "Error";
 			$body["Error"] = "Couldn't connect to \"$dsn\".<p><a href='install.php'>Back</a>";
-			require_once get_theme_template();
+			require_once "themes/default/template.php";
 			exit;
 		}
 		$db->SetFetchMode(ADODB_FETCH_ASSOC);
@@ -102,7 +102,7 @@ switch($_GET['stage']) {
 						
 				<p>One done, <a href='setup.php'>Continue</a>";
 			$body[] = gen_textarea($file_content);
-			require_once get_theme_template();
+			require_once "themes/default/template.php";
 		}
 		break;
 }
