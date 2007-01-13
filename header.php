@@ -19,7 +19,10 @@ session_cache_limiter('nocache');
  * If we're ready to run, run. If not, show installer.
  */
 if(is_readable("config.php")) {require_once "config.php";}
-else {require_once "install.php"; exit;}
+else {
+	header("Location: install.php");
+	exit;
+}
 
 require_once "lib/libsio.php";
 require_once "lib/adodb/adodb.inc.php";
