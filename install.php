@@ -217,4 +217,11 @@ function makeOpt($friendly, $varname) {
 	$default = $_SESSION[$varname];
 	return "<tr><td>$friendly</td><td><input type='text' name='$varname' value='$default'></td></tr>\n";
 }
+function html_escape($var) {
+	return htmlentities($var);
+}
+function gen_textarea($text) {
+	$h_text = html_escape($text);
+	return "<p><textarea cols='80' rows='10'>$h_text</textarea>";
+}
 ?>
