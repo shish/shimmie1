@@ -564,7 +564,7 @@ class User {
 	}
 	function stat_days_old() {
 		global $db;
-		$row = $db->Execute("SELECT (now()-joindate)/86400 AS days_old FROM users WHERE id=?", Array($this->id));
+		$row = $db->Execute("SELECT (now()-joindate)/(1000*60*60*24) AS days_old FROM users WHERE id=?", Array($this->id));
 		return $row->fields['days_old'];
 	}
 	function stat_join_date() {
