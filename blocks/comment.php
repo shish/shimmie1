@@ -34,7 +34,7 @@ class comment extends block {
 		
 		$query = "
 		SELECT 
-			comments.id as id, image_id, 
+			users.id as user_id, comments.id as id, image_id, 
 			name, owner_ip, comment as scomment
 		FROM comments
 		LEFT JOIN users ON comments.owner_id=users.id 
@@ -54,7 +54,7 @@ class comment extends block {
 		
 		$query = "
 		SELECT 
-			comments.id as id, image_id, name, owner_ip, 
+			users.id as user_id, comments.id as id, image_id, name, owner_ip, 
 			if(
 				length(comment) > 100,
 				concat(substring(comment, 1, 100), ' (...)'),
@@ -72,6 +72,7 @@ class comment extends block {
 		global $user;
 
 		$cid = $row['id'];
+		$uid = $row['user_id'];
 		$iid = $row['image_id'];
 		$oip = $row['owner_ip'];
 		$uname = htmlentities($row['name']);
@@ -79,7 +80,8 @@ class comment extends block {
 		$dellink = $user->isAdmin() ? 
 			"<br>(<a href='metablock.php?block=comment&amp;".
 			"action=delete&amp;comment_id=$cid'>Del</a>) ($oip)" : "";
-		return "<p><a href='view.php?image_id=$iid'>$uname</a>: $comment$dellink</p>\n";
+		return "<p><a href='user.php?user_id=$uid'>$uname</a>: $comment ".
+		       "<a href='view.php?image_id=$iid'>&gt;&gt;&gt;</a> $dellink</p>\n";
 	}
 
 	function get_postbox_html() {

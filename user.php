@@ -68,16 +68,26 @@ else {
 }
 
 if(is_null($_GET['action'])) {
-	header("X-Shimmie-Status: OK - Settings Shown");
-	$title = html_escape($user->name)."'s settings";
+	if(is_null($_GET['user_id'])) {
+		$duser = $user;
+		$title = html_escape($duser->name)."'s settings";
+	}
+	else {
+		$duser = new User((int)$_GET['user_id']);
+		$title = html_escape($duser->name)."'s stats";
+	}
 	$blocks = get_blocks_html("user");
-	$days_old = $user->stat_days_old();
-	$image_count = $user->stat_count_images();
-	$comment_count = $user->stat_count_comments();
+	$days_old = $duser->stat_days_old();
+	$image_count = $duser->stat_count_images();
+	$comment_count = $duser->stat_count_comments();
+	$join_date = $duser->stat_join_date();
 	$image_rate = (int)($image_count / $days_old);
 	$comment_rate = (int)($comment_count / $days_old);
-	$body["User Settings"] = "Things will go here as soon as there's something to set...";
+	if(is_null($_GET['user_id'])) {
+		$body["User Settings"] = "Things will go here as soon as there's something to set...";
+	}
 	$body["User Stats"] = "
+		<br>Join date: $join_date
 		<br>Images uploaded: $image_count ($image_rate / day)
 		<br>Comments made: $comment_count ($comment_rate / day)
 	";
