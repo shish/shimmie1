@@ -122,6 +122,8 @@ class comment extends block {
 				$commentBlock .= $this->get_postbox_html();
 			}
 
+			$commentBlock .= "<p><a href='metablock.php?block=comment&action=list'>Full List &gt;&gt;&gt;</a>";
+
 			return $commentBlock;
 		}
 	}
@@ -176,54 +178,93 @@ class comment extends block {
 	}
 
 	function run($action) {
-		if($action == "delete") {
-			admin_or_die();
-			delete_comment(defined_or_die($_GET["comment_id"]));
-			header("X-Shimmie-Status: OK - Comment Deleted");
-			header("Location: index.php");
-			echo "<a href='index.php'>Back</a>";
+		switch($action) {
+			case "list":   $this->show_list_page(); break;
+			case "delete": $this->delete_comment_wrapper(); break;
+			case "add":    $this->add_comment_wrapper(); break;
 		}
+	}
 
-		if($action == "add") {
-			$image_id = defined_or_die($_POST['image_id']);
-			$comment = defined_or_die($_POST['comment']);
-			$i_image_id = int_escape($image_id);
-			
-			$comment_id = $this->add_comment($image_id, $comment);
-						
-			switch($comment_id) {
-				case ERR_COMMENT_NO_ANON:
-					$i_image_id = int_escape($image_id);
-					header("X-Shimmie-Status: Error - Anonymous commenting disabled");
-					$title = "Anonymous commenting disabled";
-					$message = "<a href='view.php?image_id=$i_image_id'>Back</a>";
-					require_once get_theme_template();
-					break;
-				case ERR_COMMENT_EMPTY:
-					$i_image_id = int_escape($image_id);
-					header("X-Shimmie-Status: Error - Blank Comment");
-					$title = "No Message";
-					$message = "Comment was empty; <a href='view.php?image_id=$i_image_id'>Back</a>";
-					require_once get_theme_template();
-					break;
-				case ERR_COMMENT_LIMIT_HIT:
-					$window = get_config('comment_window');
-					$max = get_config('comment_limit');
-					$i_image_id = int_escape($image_id);
-					header("X-Shimmie-Status: Error - Comment Limit Hit");
-					$title = "Comment Limit Hit";
-					$message = "To prevent spam, users are only allowed $max comments per $window minutes";
-					require_once get_theme_template();
-					break;
-				default:
-					// go back to the viewed page
-					header("Location: view.php?image_id=$i_image_id");
-					header("X-Shimmie-Status: OK - Comment Added");
-					header("X-Shimmie-Comment-ID: $comment_id");
-					echo "<a href='view.php?image_id=$i_image_id'>Back</a>";
-					break;
-			}
+	function delete_comment_wrapper() {
+		admin_or_die();
+		delete_comment(defined_or_die($_GET["comment_id"]));
+		header("Location: index.php");
+		echo "<a href='index.php'>Back</a>";
+	}
+
+	function add_comment_wrapper() {
+		$image_id = defined_or_die($_POST['image_id']);
+		$comment = defined_or_die($_POST['comment']);
+		$i_image_id = int_escape($image_id);
+		
+		$comment_id = $this->add_comment($image_id, $comment);
+					
+		switch($comment_id) {
+			case ERR_COMMENT_NO_ANON:
+				$title = "Anonymous commenting disabled";
+				$message = "<a href='view.php?image_id=$i_image_id'>Back</a>";
+				require_once get_theme_template();
+				break;
+			case ERR_COMMENT_EMPTY:
+				$title = "No Message";
+				$message = "Comment was empty; <a href='view.php?image_id=$i_image_id'>Back</a>";
+				require_once get_theme_template();
+				break;
+			case ERR_COMMENT_LIMIT_HIT:
+				$max = get_config('comment_limit');
+				$window = get_config('comment_window');
+				$title = "Comment Limit Hit";
+				$message = "To prevent spam, users are only allowed $max comments per $window minutes";
+				require_once get_theme_template();
+				break;
+			default:
+				// go back to the viewed page
+				header("Location: view.php?image_id=$i_image_id");
+				echo "<a href='view.php?image_id=$i_image_id'>Back</a>";
+				break;
 		}
+	}
+
+	function show_list_page() {
+		global $db;
+
+		$start = int_escape(is_null($_GET['start']) ? 0 : $_GET['start']);
+
+		$get_threads = "
+			SELECT image_id,MAX(posted) AS latest
+			FROM comments
+			GROUP BY image_id
+			ORDER BY latest
+			DESC LIMIT $start,10
+		";
+		$result = $db->Execute($get_threads);
+		
+		# FIXME: paginator
+		$title = "Comments";
+		$thisurl = "metablock.php?block=comment&action=list";
+		$prev = ($start == 0) ? "Prev" : "<a href='$thisurl&start=".($start-10)."'>Prev</a>";
+		$index = "<a href='index.php'>Index</a>";
+		$next = ($result->RecordCount() < 10) ? "Next" : "<a href='$thisurl&start=".($start+10)."'>Next</a>";
+		$blocks["Navigation"] = "$prev | $index | $next";
+		$blocks = array_merge($blocks, get_blocks_html("comments"));
+
+		while(!$result->EOF) {
+			$image_id = $result->fields["image_id"];
+			$image = new Image($image_id);
+			$comments = $this->get_comments($image_id);
+
+			$html = "<div style='text-align: left'>";
+			$html .= "<a href='{$image->vlink}'>";
+			$html .= "<img src='{$image->tlink}' align='left'></a>";
+			foreach($comments as $comment) {
+				$html .= $this->comment_to_html($comment);
+			}
+			$html .= "</div>";
+			$html .= "<div style='clear:both;'>&nbsp;</div>";
+			$body["{$image->id}: {$image->tags}"] = $html;
+			$result->MoveNext();
+		}
+		require_once get_theme_template();
 	}
 
 	function get_xmlrpc_funclist() {

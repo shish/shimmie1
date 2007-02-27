@@ -76,6 +76,7 @@ $config_defaults = Array(
 	'login_memory' => 7,
 	'image_link' => 'get.php/$id - $tags.$ext',
 	'image_slink' => '$base/images/$id.$ext',
+	'image_vlink' => 'view.php?image_id=$id',
 );
 
 
@@ -624,6 +625,8 @@ class Image {
 			
 			$this->link = $this->parse_link_template(get_config('image_link'), $this);
 			$this->slink = $this->parse_link_template(get_config('image_slink'), $this);
+			$this->vlink = $this->parse_link_template(get_config('image_vlink'), $this);
+			$this->tlink = get_config('dir_thumbs').'/'.($this->id).'.jpg';
 		}
 		else {
 			header("X-Shimmie-Status: Error - No Such Image");
