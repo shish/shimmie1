@@ -73,7 +73,8 @@ if(is_null($_GET['action'])) {
 		$title = html_escape($duser->name)."'s settings";
 	}
 	else {
-		$duser = new User((int)$_GET['user_id']);
+		$duser = new User();
+		$duser->load_from_id($_GET['user_id']);
 		$title = html_escape($duser->name)."'s stats";
 	}
 	$blocks = get_blocks_html("user");
