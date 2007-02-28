@@ -75,6 +75,7 @@ $c2 .= makeRow("View Page");
 $c2 .= makeOptCheck("Scale by default", "view_scale");
 $c2 .= makeOptText("Full link", "image_link", preg_match('/\$id/', get_config('image_link')));
 $c2 .= makeOptText("Short link", "image_slink", preg_match('/\$id/', get_config('image_slink')));
+$c2 .= makeOptText("View link", "image_vlink", preg_match('/\$id/', get_config('image_vlink')));
 
 $c2 .= makeRow();
 $c2 .= makeRow("Tags Page");
