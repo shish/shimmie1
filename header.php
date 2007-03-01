@@ -640,11 +640,15 @@ class Image {
 	function parse_link_template($tmpl, $img) {
 		$safe_tags = preg_replace("/[^a-zA-Z0-9_\- ]/", "", $img->tags);
 		$base_href = get_config('base_href');
+		$base_fname = strstr($img->filename, '.') ?
+		        substr($img->filename, 0, strrpos($img->filename,'.')) : 
+		        $img->filename;
 		$tmpl = str_replace('$id',   $img->id,   $tmpl);
 		$tmpl = str_replace('$hash', $img->hash, $tmpl);
 		$tmpl = str_replace('$tags', $safe_tags, $tmpl);
 		$tmpl = str_replace('$base', $base_href, $tmpl);
 		$tmpl = str_replace('$ext',  $img->ext,  $tmpl);
+		$tmpl = str_replace('$filename', $base_fname, $tmpl);
 		return $tmpl;
 	}
 }
