@@ -7,8 +7,6 @@
 
 require_once "header.php";
 
-header("X-Shimmie-Status: OK - Index Successful");
-
 $images_per_page = get_config('index_width') * get_config('index_height');
 
 
@@ -136,14 +134,6 @@ else {
 		$start = 0;
 	}
 	$list_query = $full_query . " ORDER BY images.id DESC LIMIT $start,$images_per_page";
-}
-
-
-if($total_images == 0) {
-	header("X-Shimmie-Status: Error - No Results");
-}
-else {
-	header("X-Shimmie-Status: OK - Search Successful");
 }
 
 

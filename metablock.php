@@ -16,7 +16,6 @@ if($blockname) {
 	$block->run($_GET["action"]);
 }
 else {
-	header("X-Shimmie-Status: Error - No block specified");
 	header("Location: ./");
 }
 ?>

@@ -24,7 +24,6 @@ function up_login() {
 		setcookie("shm_user", $name, time()+60*60*24*365);
 		setcookie("shm_session", md5($hash.$addr), time()+60*60*24*get_config('login_memory'));
 
-		header("X-Shimmie-Status: OK - Logged In");
 		header("Location: user.php");
 		$title = "Login OK";
 		$body["Login OK"] = "<a href='user.php'>Continue</a>";
@@ -35,14 +34,12 @@ function up_login() {
 		if($result->RecordCount() == 0) {
 			$db->Execute("INSERT INTO users(name, pass, joindate) VALUES(?, ?, now())", Array($name, $hash));
 
-			header("X-Shimmie-Status: OK");
 			$title = "Account Created";
 			$body["Account Created"] = "Now you can log in with that name and password";
 			$blocks = get_blocks_html("login_error");
 			require_once get_theme_template();
 		}
 		else {
-			header("X-Shimmie-Status: Error - Name Taken");
 			$title = "Name Taken";
 			$body["Name Taken"] = "Somebody is already using that username";
 			$blocks = get_blocks_html("login_error");
@@ -50,7 +47,6 @@ function up_login() {
 		}
 	}
 	else {
-		header("X-Shimmie-Status: Error - Bad Password");
 		$title = "Login Failed";
 		$body["Login Failed"] = "<a href='index.php'>Back to index</a>";
 		$blocks = get_blocks_html("login_error");
@@ -120,7 +116,6 @@ else if($_GET['action'] == "pass") {
 }
 else if($_GET['action'] == "logout") {
 	setcookie("shm_session", "");
-	header("X-Shimmie-Status: OK - Logged Out");
 	header("Location: index.php");
 	echo "<a href='index.php'>To index</a>";
 }

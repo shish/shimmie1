@@ -39,7 +39,6 @@ EOD;
 			case "270": $aarg = "-2"; break;
 			case "180": $aarg = "-1"; break;
 			default:
-				header("X-Shimmie-Status: Error - Bad Angle");
 				$title = "Bad Angle";
 				$body = "Images can only be rotated in units of 90 degrees";
 				require_once get_theme_template();
@@ -55,7 +54,6 @@ EOD;
 		}
 
 		header("Location: view.php?image_id={$image->id}");
-		header("X-Shimmie-Status: OK - Image Rotated");
 		echo "<a href='view.php?image_id={$image->id}'>Back</a>";
 	}
 }

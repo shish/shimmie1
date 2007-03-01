@@ -31,7 +31,6 @@ class admin extends block {
 			delete_image(defined_or_die($_GET["image_id"]));
 			
 			// view page no longer exists, go to the index
-			header("X-Shimmie-Status: OK - Image Deleted");
 			header("Location: index.php");
 			echo "<a href='index.php'>Back</a>";
 		}

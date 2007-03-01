@@ -16,7 +16,6 @@ $action = $_GET['action'];
  * Default action - show a list of functions
  */
 if(is_null($action)) {
-	header("X-Shimmie-Status: OK - Admin Shown");
 	$title = "Board Admin";
 	$blocks = get_blocks_html("admin");
 	
@@ -85,7 +84,6 @@ else if($action == "replacetag") {
 	$db->Execute("UPDATE tags SET tag=? WHERE tag=?", Array($replace, $search));
 
 	// go back to the viewed page
-	header("X-Shimmie-Status: OK - Tags Replaced");
 	header("Location: admin.php");
 	echo "<a href='admin.php'>Back</a>";
 }
@@ -95,7 +93,6 @@ else if($action == "replacetag") {
  * bulk add from a folder
  */
 else if($action == "bulkadd") {
-	header("X-Shimmie-Status: OK - Images Uploaded");
 	$title = "Bulk Upload";
 	$blocks["Navigate"] = "<a href='index.php'>Index</a> | <a href='admin.php'>Admin</a><br>";
 	$body["Bulk Add Log"] = gen_textarea(add_dir(defined_or_die($_POST["dir"])));

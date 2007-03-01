@@ -43,14 +43,10 @@ EOD;
 
 	function check_filecount() {
 		if(count($_FILES) == 0) {
-			header("X-Shimmie-Status: Error - No Images Specified");
 			$title = "No Images Specified";
 			$body = "You need to select a file to be uploaded";
 			include_once get_theme_template();
 			exit;
-		}
-		else {
-			header("X-Shimmie-Status: OK - Images Uploaded");
 		}
 	}
 

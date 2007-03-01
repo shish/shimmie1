@@ -131,7 +131,6 @@ function print_ip_ban($ip, $date, $reason) {
 	$s_date = html_escape($date);
 	$s_reason = html_escape($reason);
 
-	header("X-Shimmie-Status: Error - IP Banned");
 	$title = "IP Banned";
 	$body["IP Banned"] = "IP $s_ip was banned at $s_date for $s_reason";
 	require_once get_theme_template();
@@ -150,7 +149,6 @@ if($row = get_ban_info('ip', $_SERVER['REMOTE_ADDR'])) {
 function admin_or_die() {
 	global $user;
 	if($user->isAdmin() != true) {
-		header("X-Shimmie-Status: Error - Not Admin");
 		$title = "Not Admin";
 		$body["Not Admin"] = "You need to have administrator rights to view this page";
 		$blocks = get_blocks_html("login_error");
@@ -162,7 +160,6 @@ function admin_or_die() {
 function user_or_die() {
 	global $user;
 	if($user->isUser() != true) {
-		header("X-Shimmie-Status: Error - Not Logged In");
 		$title = "Not Logged In";
 		$body["Not Logged In"] = "You need to be logged in";
 		$blocks = get_blocks_html("login_error");
@@ -173,7 +170,6 @@ function user_or_die() {
 }
 function defined_or_die($var, $name=null) {
 	if(is_null($var)) {
-		header("X-Shimmie-Status: Error - Variable Not Set");
 		$title = "Variable Not Set";
 		if(is_null($name)) {
 			$body["Error"] = "variable not specified";
@@ -339,7 +335,6 @@ function add_image($tmpname, $filename, $tags) {
 		 * Check for an existing image
 		 */
 		if($row = is_dupe($hash)) {
-			header("X-Shimmie-Status: Error - Hash Clash");
 			$iid = $row['id'];
 			$err .= "<p>Upload of '$h_filename' failed:";
 			$err .= "<br>There's already an image with hash '$hash' (<a href='view.php?image_id=$iid'>view</a>)";
@@ -373,7 +368,6 @@ function add_image($tmpname, $filename, $tags) {
 			return false;
 		}
 		
-		header("X-Shimmie-Image-ID: $id");
 		add_tags($id, $tags);
 		return true;
 	}
@@ -629,7 +623,6 @@ class Image {
 			$this->tlink = get_config('dir_thumbs').'/'.($this->id).'.jpg';
 		}
 		else {
-			header("X-Shimmie-Status: Error - No Such Image");
 			$title = "No Image $id";
 			$body = "The image has either been deleted, or there aren't that many images in the database";
 			require_once get_theme_template();
