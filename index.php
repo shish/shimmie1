@@ -217,10 +217,15 @@ function gen_paginator($current_page, $total_pages, $h_tag_list) {
 	if(strlen($h_tag_list) > 0) {
 		$tags = "&tags=$h_tag_list";
 	}
-	
+
+	// 0 = the front page
 	if($current_page == 0) {
 		$current_page = $inverted ? 1 : $total_pages;
 	}
+
+	// even if there are 0 images, we want to show 1 blank page
+	if($total_pages == 0) {$total_pages = 1;}
+
 	$next = $current_page + 1;
 	$prev = $current_page - 1;
 
