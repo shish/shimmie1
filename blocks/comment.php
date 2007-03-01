@@ -267,9 +267,5 @@ class comment extends block {
 		}
 		require_once get_theme_template();
 	}
-
-	function get_xmlrpc_funclist() {
-		return array("get_comments", "get_recent_comments", "add_comment", "delete_comment");
-	}
 }
 ?>
