@@ -7,7 +7,7 @@
  */
 
 
-$version = "Shimmie 0.8.3";
+$version = "Shimmie 0.8.4";
 $db_version = "0.7.5";
 
 // only images are good for caching, and
