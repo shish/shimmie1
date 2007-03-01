@@ -85,11 +85,11 @@ class comment extends block {
 		return "<p>$userlink: $comment $dellink $imagelink</p>";
 	}
 
-	function get_postbox_html() {
-		$image_id = int_escape($_GET['image_id']);
+	function get_postbox_html($image_id) {
+		$i_image_id = int_escape($image_id);
 		return "
 			<form action='metablock.php?block=comment&amp;action=add' method='POST'>
-				<input type='hidden' name='image_id' value='$image_id'>
+				<input type='hidden' name='image_id' value='$i_image_id'>
 				<input id='commentBox' type='text' name='comment' value='Comment'>
 				<input type='submit' value='Say' style='display: none;'>
 			</form>
@@ -120,7 +120,7 @@ class comment extends block {
 				foreach($comments as $comment) {
 					$commentBlock .= $this->comment_to_html($comment);
 				}
-				$commentBlock .= $this->get_postbox_html();
+				$commentBlock .= $this->get_postbox_html($_GET['image_id']);
 			}
 
 			$commentBlock .= "<p><a href='metablock.php?block=comment&action=list'>Full List &gt;&gt;&gt;</a>";
@@ -250,9 +250,8 @@ class comment extends block {
 		$blocks = array_merge($blocks, get_blocks_html("comments"));
 
 		while(!$result->EOF) {
-			$image_id = $result->fields["image_id"];
-			$image = new Image($image_id);
-			$comments = $this->get_comments($image_id);
+			$image = new Image($result->fields["image_id"]);
+			$comments = $this->get_comments($image->id);
 
 			$html = "<div style='text-align: left'>";
 			$html .= "<a href='{$image->vlink}'>";
@@ -260,6 +259,7 @@ class comment extends block {
 			foreach($comments as $comment) {
 				$html .= $this->comment_to_html($comment, False);
 			}
+			//$html .= $this->get_postbox_html($image->id);
 			$html .= "</div>";
 			$html .= "<div style='clear:both;'>&nbsp;</div>";
 			$body["{$image->id}: {$image->tags}"] = $html;
