@@ -39,7 +39,7 @@ class comment extends block {
 		FROM comments
 		LEFT JOIN users ON comments.owner_id=users.id 
 		WHERE image_id=$i_image_id
-		ORDER BY comments.id DESC
+		ORDER BY comments.id ASC
 		";
 
 		return $this->query_to_array($query);
