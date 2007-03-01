@@ -68,20 +68,21 @@ class comment extends block {
 		return $this->query_to_array($query);
 	}
 
-	function comment_to_html($row) {
+	function comment_to_html($row, $link_to_image=True) {
 		global $user;
 
 		$cid = $row['id'];
 		$uid = $row['user_id'];
 		$iid = $row['image_id'];
 		$oip = $row['owner_ip'];
-		$uname = htmlentities($row['name']);
-		$comment = htmlentities($row['scomment']);
+		$uname = html_escape($row['name']);
+		$comment = html_escape($row['scomment']);
+		$userlink = "<a href='user.php?user_id=$uid'>$uname</a>";
 		$dellink = $user->isAdmin() ? 
 			"<br>(<a href='metablock.php?block=comment&amp;".
 			"action=delete&amp;comment_id=$cid'>Del</a>) ($oip)" : "";
-		return "<p><a href='user.php?user_id=$uid'>$uname</a>: $comment ".
-		       "<a href='view.php?image_id=$iid'>&gt;&gt;&gt;</a> $dellink</p>\n";
+		$imagelink = $link_to_image ? "<a href='view.php?image_id=$iid'>&gt;&gt;&gt;</a>\n" : "";
+		return "<p>$userlink: $comment $dellink $imagelink</p>";
 	}
 
 	function get_postbox_html() {
@@ -257,7 +258,7 @@ class comment extends block {
 			$html .= "<a href='{$image->vlink}'>";
 			$html .= "<img src='{$image->tlink}' align='left'></a>";
 			foreach($comments as $comment) {
-				$html .= $this->comment_to_html($comment);
+				$html .= $this->comment_to_html($comment, False);
 			}
 			$html .= "</div>";
 			$html .= "<div style='clear:both;'>&nbsp;</div>";
