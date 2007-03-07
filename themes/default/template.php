@@ -31,7 +31,7 @@ foreach($body as $heading => $content) {
 
 
 
-if(get_config('debug_enabled')) {
+if(function_exists('get_config') && get_config('debug_enabled')) {
 	if(function_exists('memory_get_usage')) {
 		$i_mem = sprintf("%5.2f", ((memory_get_usage()+512)/1024)/1024);
 	}
