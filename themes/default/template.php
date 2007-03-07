@@ -31,15 +31,34 @@ foreach($body as $heading => $content) {
 
 
 
+if(get_config('debug_enabled')) {
+	if(function_exists('memory_get_usage')) {
+		$i_mem = sprintf("%5.2f", ((memory_get_usage()+512)/1024)/1024);
+	}
+	else {
+		$i_mem = "???";
+	}
+	$ru = getrusage();
+	$i_utime = sprintf("%5.2f", ($ru["ru_utime.tv_sec"]*1e6+$ru["ru_utime.tv_usec"])/1000000);
+	$i_stime = sprintf("%5.2f", ($ru["ru_stime.tv_sec"]*1e6+$ru["ru_stime.tv_usec"])/1000000);
+	$i_files = count(get_included_files());
+	global $_execs;
+	$debug = "<br>Took $i_utime + $i_stime seconds and {$i_mem}MB of RAM";
+	$debug .= "; Used $i_files files and $_execs queries";
+}
+else {
+	$debug = "";
+}
+
 if(empty($heading)) $heading = $title;
 
 global $version;
 
+//		<base href='$base_href'>
 echo <<<EOD
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 	<head>
-		<base href='$base_href'>
 		<title>$title</title>
 		<link rel="stylesheet" href="$base_href/themes/default/style.css" type="text/css">
 		<script src='$base_href/themes/default/sidebar.js' type='text/javascript'></script>
@@ -65,6 +84,7 @@ echo <<<EOD
 			<a href="http://trac.shishnet.org/shimmie/">$version</a> &copy; 
 			<a href="http://www.shishnet.org/">Shish</a> 2005 - 2006,
 			based on the <a href="http://danbooru.donmai.us/">Danbooru</a> concept.
+			$debug
 		</div>
 	</body>
 </html>

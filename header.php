@@ -36,8 +36,18 @@ if(is_null($config['database_dsn'])) {
 		$config['mysql_db'];
 
 }
+
+function CountExecs($db, $sql, $inputarray) {
+	global $_execs;
+	if (!is_array($inputarray)) $_execs++;
+	else if (is_array(reset($inputarray))) $_execs += sizeof($inputarray);
+	else $_execs++;
+	$null = null; return $null;
+}
+
 $db = NewADOConnection($config['database_dsn']);
 $db->SetFetchMode(ADODB_FETCH_ASSOC);
+$db->fnExecute = 'CountExecs';
 
 
 /*
@@ -52,6 +62,7 @@ $config_defaults = Array(
 	'db_version' => 'pre-0.7.5', // this should be managed by upgrade.php
 	'base_href' => '',
 	'theme' => 'default',
+	'debug_enabled' => true,
 	'anon_id' => 0,
 	'dir_images' => 'images',
 	'dir_thumbs' => 'thumbs',
