@@ -20,7 +20,7 @@ class refine extends block {
 			foreach(explode(" ", $_GET["tags"]) as $tag) {
 				if($tag[0] != '-') {
 					if($n++) $s_tag_list .= ", ";
-					$s_tag_list .= $db->Quote($tag);
+					$s_tag_list .= glob_to_sql($tag);
 				}
 			}
 

@@ -73,7 +73,7 @@ if($_GET['tags']) {
 	$tnum = 0;
 	foreach($tags as $tag) {
 		if($tag[0] == '-') continue;
-		$s_tag = $db->Quote($tag);
+		$s_tag = glob_to_sql($tag);
 		$h_tag = html_escape($tag);
 		$search_sql .= ($tnum == 0 ? "(" : "OR");
 		$search_sql .= " tag LIKE $s_tag ";
@@ -87,8 +87,8 @@ if($_GET['tags']) {
 	$tnum = 0;
 	foreach($tags as $tag) {
 		if($tag[0] != '-') continue;
-		$tag = preg_replace("/^-/", "", $tag);
-		$s_tag = $db->Quote($tag);
+		$tag = substr($tag, 1);
+		$s_tag = glob_to_sql($tag);
 		$h_tag = html_escape($tag);
 		$search_sql .= ($tnum == 0 ? "-(" : "OR");
 		$search_sql .= " tag LIKE $s_tag ";

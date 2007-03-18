@@ -205,6 +205,13 @@ function int_escape($var) {
 function html_escape($var) {
 	return htmlentities($var);
 }
+function glob_to_sql($tag) {
+	global $db;
+	$tag = str_replace("*", "%", $tag);
+	$tag = str_replace("?", "_", $tag);
+	$tag = $db->Quote($tag);
+	return $tag;
+}
 
 
 /*
