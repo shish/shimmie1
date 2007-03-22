@@ -39,17 +39,20 @@ class refine extends block {
 				DESC LIMIT ?
 			";
 			
+			$hp_tag_list = str_replace("%20", "+", $h_tag_list);
+			$hp_tag_list = str_replace(" ", "+", $hp_tag_list);
+
 			$n = 0;
 			$result = $db->Execute($query, Array(get_config('popular_count')));
 			while(!$result->EOF) {
 				$row = $result->fields;
 				$tag = html_escape($row['tag']);
 				if($n++) $html .= "<br/>";
-				$untagged = trim(preg_replace("/-?$tag/", "", $h_tag_list));
+				$untagged = str_replace("++", "+", trim(preg_replace("/\\b-?{$tag}\\b/", '', $hp_tag_list), " \t\n\r\0\x0B+"));
 				$html .= "<a href='index.php?tags=$tag'>$tag</a> (";
 				$html .= "<a href='index.php?tags=$untagged+$tag' ".
 				                 "title='add tag to the current search'>a</a>/";
-				if($untagged != $h_tag_list) {
+				if($untagged != $hp_tag_list) {
 					$html .= "<a href='index.php?tags=$untagged' ".
 					                 "title='remove tag from the current search'>r</a>/";
 				}
