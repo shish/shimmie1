@@ -24,6 +24,7 @@ class related extends block {
 					t1.image_id=?
 					AND t1.tag=t2.tag
 					AND t2.image_id=t3.image_id
+					AND t1.tag != 'tagme'
 				GROUP by t3.tag
 				ORDER by count DESC
 				LIMIT ?
