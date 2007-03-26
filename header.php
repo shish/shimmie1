@@ -59,6 +59,7 @@ $db->fnExecute = 'CountExecs';
  */
 $config_defaults = Array(
 	'title' => $version,
+	'admin_contact' => '',
 	'db_version' => 'pre-0.7.5', // this should be managed by upgrade.php
 	'base_href' => '',
 	'theme' => 'default',
@@ -107,6 +108,9 @@ function get_config($name) {
 
 	if(is_numeric($value)) {
 		return (int)$value;
+	}
+	else if(is_null($value)) {
+		return false;
 	}
 	else {
 		return $value;

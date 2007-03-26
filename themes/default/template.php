@@ -53,6 +53,8 @@ else {
 if(empty($heading)) $heading = $title;
 
 global $version;
+$admin_contact = get_config('admin_contact');
+$contact = empty($admin_contact) ? "" : "<br><a href='$admin_contact'>Contact</a>";
 
 //		<base href='$base_href'>
 echo <<<EOD
@@ -85,6 +87,7 @@ echo <<<EOD
 			<a href="http://www.shishnet.org/">Shish</a> 2005 - 2006,
 			based on the <a href="http://danbooru.donmai.us/">Danbooru</a> concept.
 			$debug
+			$contact
 		</div>
 	</body>
 </html>
