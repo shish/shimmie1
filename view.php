@@ -7,7 +7,7 @@
 
 require_once "header.php";
 
-$image = new Image($_GET['image_id']);
+$image = new Image(int_escape($_GET['image_id']));
 
 $dir_images = get_config('dir_images');
 $baseurl = get_config('base_href');
