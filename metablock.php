@@ -10,7 +10,7 @@
 require_once "header.php";
 
 $blockname = $_GET['block'];
-if($blockname) {
+if($blockname && preg_match("/^[a-z]+$/", $blockname)) {
 	require_once "./blocks/$blockname.php";
 	$block = new $blockname();
 	$block->run($_GET["action"]);
