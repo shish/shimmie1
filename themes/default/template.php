@@ -38,9 +38,15 @@ if(function_exists('get_config') && get_config('debug_enabled')) {
 	else {
 		$i_mem = "???";
 	}
-	$ru = getrusage();
-	$i_utime = sprintf("%5.2f", ($ru["ru_utime.tv_sec"]*1e6+$ru["ru_utime.tv_usec"])/1000000);
-	$i_stime = sprintf("%5.2f", ($ru["ru_stime.tv_sec"]*1e6+$ru["ru_stime.tv_usec"])/1000000);
+	if(function_exists('getrusage')) {
+		$ru = getrusage();
+		$i_utime = sprintf("%5.2f", ($ru["ru_utime.tv_sec"]*1e6+$ru["ru_utime.tv_usec"])/1000000);
+		$i_stime = sprintf("%5.2f", ($ru["ru_stime.tv_sec"]*1e6+$ru["ru_stime.tv_usec"])/1000000);
+	}
+	else {
+		$i_utime = "???";
+		$i_stime = "???";
+	}
 	$i_files = count(get_included_files());
 	global $_execs;
 	$debug = "<br>Took $i_utime + $i_stime seconds and {$i_mem}MB of RAM";
@@ -53,8 +59,13 @@ else {
 if(empty($heading)) $heading = $title;
 
 global $version;
-$admin_contact = get_config('admin_contact');
-$contact = empty($admin_contact) ? "" : "<br><a href='$admin_contact'>Contact</a>";
+if(function_exists('get_config')) {
+	$admin_contact = get_config('admin_contact');
+	$contact = empty($admin_contact) ? "" : "<br><a href='$admin_contact'>Contact</a>";
+}
+else {
+	$contact = "";
+}
 
 //		<base href='$base_href'>
 echo <<<EOD
